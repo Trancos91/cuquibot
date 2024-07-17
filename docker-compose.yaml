@@ -1,0 +1,9 @@
+version: "3"
+services:
+  cuquibot:
+    container_name: "cuquibot"
+    image: cuquibot:latest
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
