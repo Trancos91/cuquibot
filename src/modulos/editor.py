@@ -1,7 +1,7 @@
 import gspread
-import pandas as pd
+#import pandas as pd
 from enum import Enum
-from tabulate import tabulate
+#from tabulate import tabulate
 
 class EditorSheet:
     """Objeto para editar el sheet de la olla"""
@@ -11,13 +11,32 @@ class EditorSheet:
             self.workbook = self.gc.open_by_key(file.read().strip())
         #self.workbook = self.gc.open_by_key("15d6vM8x00PoIdLrWmKJpemxHimsU8R-wU1eYQ5cg9cs")
         #print("Variable workbook asignada")
-        self.lista_compras = self.workbook.worksheet("Lista de compras")
+        self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
 
+    class CategoríaCompras(Enum):
+        DIARIAS = (0, "diarias", "A")
+        MENSUALES = (1, "mensuales", "B")
+        JUANITO = (2, "de juanito", "C")
+
+    class CategoríaQuehaceres(Enum):
+        DIA = (0, "día", "A")
+        BARRER = (1, "barrer", "B")
+        TRAPEAR = (2, "trapear", "C")
+        LIMPIAR = (3, "limpiar", "D")
+        BASURA = (4, "sacar la basura", "E")
+        CAJA = (5, "limpiar la caja de asiri", "F")
+        BEBEDERO = (6, "limpiar el bebedero de asiri", "G")
+        TACHO = (7, "limpiar el/los tacho/s", "H")
+        LAVAR = (8, "lavar la ropa", "I")
+        COLGAR = (9, "colgar la ropa lavada", "J")
+        DOBLAR = (10, "doblar la ropa seca", "K")
+        COMPRAS = (11, "hacer las compras", "L")
+
     #Métodos setter
 
-    def agregar_compras(self, categoría: Categoría, productos: list[str]):
+    def agregar_compras(self, categoría: CategoríaCompras, productos: list[str]):
         columna = categoría.value[0] + 1
         rows = self.lista_compras.col_values(columna)
         respuesta = "✅ Agregado "
@@ -52,16 +71,16 @@ class EditorSheet:
 
     #Métodos de despeje(también son setters)
 
-    def despejar_compras(self, categoría: Categoría):
-        self.workbook.values_clear(f"'Lista de compras'!{categoría.value[2]}2:")
+    def despejar_compras(self, categoría: CategoríaCompras):
+        self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
 
-    def despejar_compra(self, compra, categoría: Categoría):
+    def despejar_compra(self, compra, categoría: CategoríaCompras):
         compra = compra.capitalize()
         compras = self.lista_compras.col_values(categoría.value[0] + 1)
         if compra in compras:
             compras.pop(0)
             compras.pop(compras.index(compra))
-            self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:")
+            self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
             for item in compras:
                 rows = self.lista_compras.col_values(categoría.value[0] + 1)
                 self.lista_compras.update_cell(len(rows) + 1, 1 , item)
@@ -70,7 +89,7 @@ class EditorSheet:
             return False
     
     def despejar_tareas(self):
-        self.workbook.values_clear("'Tareas de la casa'!A2:")
+        self.workbook.values_clear("'Tareas de la casa'!A2:A")
 
     def despejar_tarea(self, tarea):
         tarea = tarea.capitalize()
@@ -78,38 +97,33 @@ class EditorSheet:
         if tarea in tareas:
             tareas.pop(0)
             tareas.pop(tareas.index(tarea))
-            self.workbook.values_clear("'Tareas de la casa'!A2:")
+            self.workbook.values_clear("'Tareas de la casa'!A2:A")
             for item in tareas:
                 rows = self.lista_tareas.col_values(1)
                 self.lista_tareas.update_cell(len(rows) + 1, 1 , item)
             return True
         else:
             return False
-############### HASTA ACÁ EDITADO ############################################################
     #Métodos getter
 
-    def get_asistentes(self):
-        asistentes = pd.DataFrame(self.asisten.get_all_values())
-        return str(tabulate(asistentes, showindex=False, tablefmt="rounded_grid"))
-
-    def get_prox_comida(self) -> str :
-        prox_jueves = self.organización.find("Próximo Jueves")
-        prox_comida = self.organización.cell(prox_jueves.row, 
-                                              prox_jueves.col + 1)
-        return f"La próxima comida que planeamos es: {prox_comida.value}"
-
-    def get_faltantes(self):
-        faltantes = self.organización.col_values(7)
-        faltantes.pop(0)
-        if faltantes:
-            return f"<b>Falta:</b> \n• {"\n• ".join(faltantes)}"
+    def get_tareas_diarias(self):
+        tareas = self.lista_tareas.col_values(1)
+        tareas.pop(0)
+        if tareas:
+            return f"<b><u>Lista de tareas:</u></b> \n• {"\n• ".join(tareas)}"
         else:
             return
 
-    def get_ideas_comida(self):
-        comidas = self.ideas_comida.col_values(1)
-        comidas.pop(0)
-        return f"<b>La lista de comidas que tenemos es:</b> \n• {"\n• ".join(comidas)}"
+    def get_lista_compras(self, categoría: CategoríaCompras):
+        columna = categoría.value[0] + 1
+        compras = self.lista_compras.col_values(columna)
+        compras.pop(0)
+        if compras:
+            return f"<b><u>Lista de compras {categoría.value[1]}:</u></b> \n• {"\n• ".join(compras)}"
+        else:
+            return
+
+############### HASTA ACÁ EDITADO ############################################################
 
     def get_info(self, categoría):
         categoría = categoría.capitalize()
@@ -124,19 +138,6 @@ class EditorSheet:
                 "Si querés agregar info, podés usar el comando /agregar_info! Por ejemplo:\n"
                 "<pre>/agregar_info arroz \"Una taza de agua por cada taza de arroz\"</pre>")
 
-    def get_menu_rotativo(self):
-        prox_mes = self.organización.find("Menú del próximo mes")
-        menu_rotativo = pd.DataFrame(self.organización.get(f"B{prox_mes.row + 1}:E"))
-        menu_rotativo.columns = menu_rotativo.iloc[0]
-        menu_rotativo = menu_rotativo[1:]
-        #No sé cómo funciona la línea de abajo kjjjj
-        menu_rotativo = menu_rotativo[menu_rotativo['Día'].isna().cumsum() == 0]
-        mensaje = ""
-        for index, row in menu_rotativo.iterrows():
-            mensaje += f"<b>• Día {row["Día"]}</b>\n"
-            mensaje += f"    {row["Menú"]}\n"
-        print(mensaje)
-        return mensaje
 
     def get_pendientes_jueves(self):
         pendientes = self.organización.col_values(6)
@@ -147,30 +148,14 @@ class EditorSheet:
         else:
             return
 
-    def get_pendientes_grales(self):
-        pendientes = self.organización.col_values(2)
-        for x in range(10):
-            pendientes.pop(0)
-        if pendientes:
-            return (f"<b><u>Tareas pendientes generales:</u></b> \n"
-                    f"• {"\n• ".join(pendientes)}")
-        else:
-            return
-
-
-    class Categoría(Enum):
-        DIARIAS = (0, "diarias", "A")
-        MENSUALES = (1, "mensuales", "B")
-        JUANITO = (2, "de juanito", "C")
-
 
 def main():
     editor = EditorSheet()
-    print(editor.get_prox_comida())
+    print(editor.get_tareas_diarias())
     print()
-    print(editor.get_ideas_comida())
-    print(editor.get_menu_rotativo())
-    print(editor.get_asistentes())
+    print(editor.get_lista_compras(editor.CategoríaCompras.DIARIAS))
+    print(editor.get_lista_compras(editor.CategoríaCompras.MENSUALES))
+    print(editor.get_lista_compras(editor.CategoríaCompras.JUANITO))
 
 if __name__ == "__main__":
     main()
