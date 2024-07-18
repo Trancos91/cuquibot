@@ -54,13 +54,16 @@ async def agregarcompras_command(update: Update,
         return
     match categoría:
         case "diarias":
-            categoría = editor.CategoríaCompras.DIARIAS
+            categoría_compras = editor.CategoríaCompras.DIARIAS
         case "mensuales":
-            categoría = editor.CategoríaCompras.MENSUALES
+            categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
-            categoría = editor.CategoríaCompras.JUANITO
+            categoría_compras = editor.CategoríaCompras.JUANITO
+        case _:
+            await update.message.reply_text("No encontré la lista :(")
+            return
 
-    await update.message.reply_text(editor.agregar_compras(categoría, compras))
+    await update.message.reply_text(editor.agregar_compras(categoría_compras, compras))
 
 async def despejartareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
