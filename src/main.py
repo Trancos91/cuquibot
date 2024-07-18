@@ -39,7 +39,7 @@ async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
     texto = update.message.text
-    texto_procesado = texto.replace("/agregarcompras", "").strip()
+    texto_procesado = texto.replace("/agregarcompras", "").strip().lower()
     texto_lista = texto_procesado.split()
     categoría = texto_lista.pop(0)
     texto_procesado = " ".join(texto_lista)
