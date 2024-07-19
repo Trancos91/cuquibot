@@ -16,9 +16,10 @@ class EditorSheet:
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
 
     class CategoríaCompras(Enum):
-        DIARIAS = (0, "diarias", "A")
-        MENSUALES = (1, "mensuales", "B")
-        JUANITO = (2, "de juanito", "C")
+        SUPERMERCADO = (0, "del súper", "A")
+        VERDULERIA = (1, "de la verdu", "B")
+        MENSUALES = (2, "mensuales", "C")
+        JUANITO = (3, "de juanito", "D")
 
     class CategoríaQuehaceres(Enum):
         DIA = (0, "día", "A")
@@ -33,6 +34,7 @@ class EditorSheet:
         COLGAR = (9, "colgar la ropa lavada", "J")
         DOBLAR = (10, "doblar la ropa seca", "K")
         COMPRAS = (11, "hacer las compras", "L")
+        RECICLABLES = (12, "sacar la basura reciclable a la calle", "M")
 
     #Métodos setter
 
@@ -106,13 +108,13 @@ class EditorSheet:
             return False
     #Métodos getter
 
-    def get_tareas_diarias(self):
+    def get_tareas_diarias(self, _):
         tareas = self.lista_tareas.col_values(1)
         tareas.pop(0)
         if tareas:
             return f"<b><u>Lista de tareas:</u></b> \n• {"\n• ".join(tareas)}"
         else:
-            return
+            return ""
 
     def get_lista_compras(self, categoría: CategoríaCompras):
         columna = categoría.value[0] + 1
@@ -121,7 +123,7 @@ class EditorSheet:
         if compras:
             return f"<b><u>Lista de compras {categoría.value[1]}:</u></b> \n• {"\n• ".join(compras)}"
         else:
-            return
+            return ""
 
 ############### HASTA ACÁ EDITADO ############################################################
 
@@ -153,7 +155,8 @@ def main():
     editor = EditorSheet()
     print(editor.get_tareas_diarias())
     print()
-    print(editor.get_lista_compras(editor.CategoríaCompras.DIARIAS))
+    print(editor.get_lista_compras(editor.CategoríaCompras.SUPERMERCADO))
+    print(editor.get_lista_compras(editor.CategoríaCompras.VERDULERÍA))
     print(editor.get_lista_compras(editor.CategoríaCompras.MENSUALES))
     print(editor.get_lista_compras(editor.CategoríaCompras.JUANITO))
 

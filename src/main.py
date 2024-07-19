@@ -3,6 +3,7 @@ from pytz import timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CommandHandler, MessageHandler, 
     filters, ContextTypes, Defaults, CallbackQueryHandler, PollAnswerHandler)
+from unidecode import unidecode
 from modulos.editor import EditorSheet
 from modulos.respuestas import Respuestas
 
@@ -39,9 +40,17 @@ async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
     texto = update.message.text
-    texto_procesado = texto.replace("/agregarcompras", "").strip().lower()
+    texto_procesado = texto.replace("/agregarcompras", "").replace(BOT_USERNAME, "").strip().lower()
+    if not texto_procesado:
+        await update.message.reply_text("⚠️No recibí una lista de compras ni una categoría 🙁⚠️ \nAcordate "
+                                        "de escribir las compras separadas por comas!"
+                                        " Si usaste este comando tocando del menú, "
+                                        "procurá tocar la flechita \u2199 a la derecha"
+                                        " del comando en vez "
+                                        "del comando en sí :)")
+        return
     texto_lista = texto_procesado.split()
-    categoría = texto_lista.pop(0)
+    categoría = unidecode(texto_lista.pop(0))
     texto_procesado = " ".join(texto_lista)
     compras = [compra.strip() for compra in texto_procesado.split(",")]
     if not compras:
@@ -53,8 +62,10 @@ async def agregarcompras_command(update: Update,
                                         "del comando en sí :)")
         return
     match categoría:
-        case "diarias":
-            categoría_compras = editor.CategoríaCompras.DIARIAS
+        case "supermercado":
+            categoría_compras = editor.CategoríaCompras.SUPERMERCADO
+        case "verduleria":
+            categoría_compras = editor.CategoríaCompras.VERDULERIA
         case "mensuales":
             categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
