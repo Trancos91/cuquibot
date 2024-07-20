@@ -17,8 +17,8 @@ class Respuestas:
         None, "No hay tareas pendientes! 🎉"),
         "juanito": (["juanito"], self.editor.get_lista_compras, 
         self.editor.CategoríaCompras.JUANITO, "No hay nada para comprar en esa lista! 🎉"),
-        "diarias": (["diarias"], self.diarias, None, "No hay nada para comprar en las "
-        "listas de supermercado ni verdulería! 🎉"),
+        "diarias": (["diarias"], self.diarias, None, "No hay nada para comprar en las listas"
+                                                " de supermercado ni verdulería! 🎉"),
         "mensuales": (["mensuales", "mensual", "coto", "mes"], self.editor.get_lista_compras,
         self.editor.CategoríaCompras.MENSUALES, "No hay nada para comprar en esa lista! 🎉"),
         "supermercado": (["super", "supermercado", "chino"], self.editor.get_lista_compras,
@@ -47,9 +47,10 @@ class Respuestas:
     def diarias(self, _):
         supermercado = self.listas_palabras["supermercado"]
         verdulería = self.listas_palabras["verdulería"]
-        respuesta = (supermercado[1](supermercado[2]) + "\n" +
-                verdulería[1](verdulería[2]))
-        if respuesta:
+        supermercado_respuesta = supermercado[1](supermercado[2])
+        verdulería_respuesta = verdulería[1](verdulería[2])
+        respuesta = (supermercado_respuesta + "\n" + verdulería_respuesta)
+        if supermercado_respuesta and verdulería_respuesta:
             return respuesta
         else:
             return ""

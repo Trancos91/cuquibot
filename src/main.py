@@ -22,45 +22,48 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def agregartareas_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
-    texto = update.message.text
-    texto_procesado = texto.replace("/agregartareas", "").strip()
-    tareas = texto_procesado.split(", ")
-    if not texto_procesado:
-        await update.message.reply_text("⚠️No recibí una lista de tareas 🙁⚠️ \nAcordate "
-                                        "de escribir las tareas separadas por comas!"
-                                        " Si usaste este comando tocando del menú, "
-                                        "procurá tocar la flechita \u2199 a la derecha"
-                                        " del comando en vez "
-                                        "del comando en sí :)")
-        return
-
-    await update.message.reply_text(editor.agregar_tareas(tareas))
+    args = context.args
+    tareas = procesar_parámetros(args, 1)
+    error = chequear_contenido_parámetros(tareas, 1)
+    if error:
+        await update.message.reply_text(error)
+    else:
+        await update.message.reply_text(editor.agregar_tareas(tareas))
 
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
-    texto = update.message.text
-    texto_procesado = texto.replace("/agregarcompras", "").replace(BOT_USERNAME, "").strip().lower()
-    if not texto_procesado:
-        await update.message.reply_text("⚠️No recibí una lista de compras ni una categoría 🙁⚠️ \nAcordate "
-                                        "de escribir las compras separadas por comas!"
-                                        " Si usaste este comando tocando del menú, "
-                                        "procurá tocar la flechita \u2199 a la derecha"
-                                        " del comando en vez "
-                                        "del comando en sí :)")
+    #texto = update.message.text
+    #texto_procesado = texto.replace("/agregarcompras", "").replace(BOT_USERNAME, "").strip().lower()
+    #if not texto_procesado:
+    #    await update.message.reply_text("⚠️No recibí una lista de compras ni una categoría 🙁⚠️ \nAcordate "
+    #                                    "de escribir las compras separadas por comas!"
+    #                                    " Si usaste este comando tocando del menú, "
+    #                                    "procurá tocar la flechita \u2199 a la derecha"
+    #                                    " del comando en vez "
+    #                                    "del comando en sí :)")
+    #    return
+    #texto_lista = texto_procesado.split()
+    #categoría = unidecode(texto_lista.pop(0))
+    #texto_procesado = " ".join(texto_lista)
+    #compras = [compra.strip() for compra in texto_procesado.split(",")]
+    #if not compras:
+    #    await update.message.reply_text("⚠️No recibí una lista de compras 🙁⚠️ \nAcordate "
+    #                                    "de escribir las compras separadas por comas!"
+    #                                    " Si usaste este comando tocando del menú, "
+    #                                    "procurá tocar la flechita \u2199 a la derecha"
+    #                                    " del comando en vez "
+    #                                    "del comando en sí :)")
+    #    return
+    args = context.args
+    procesados = procesar_parámetros(args, 2)
+    error = chequear_contenido_parámetros(procesados, 2)
+    if error:
+        print("Hay error")
+        await update.message.reply_text(error)
         return
-    texto_lista = texto_procesado.split()
-    categoría = unidecode(texto_lista.pop(0))
-    texto_procesado = " ".join(texto_lista)
-    compras = [compra.strip() for compra in texto_procesado.split(",")]
-    if not compras:
-        await update.message.reply_text("⚠️No recibí una lista de compras 🙁⚠️ \nAcordate "
-                                        "de escribir las compras separadas por comas!"
-                                        " Si usaste este comando tocando del menú, "
-                                        "procurá tocar la flechita \u2199 a la derecha"
-                                        " del comando en vez "
-                                        "del comando en sí :)")
-        return
+    if procesados:
+        categoría, compras = procesados
     match categoría:
         case "supermercado":
             categoría_compras = editor.CategoríaCompras.SUPERMERCADO
@@ -90,13 +93,14 @@ async def despejartareas_command(update: Update,
 
 async def despejarcompras_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
-    if len(context.args) > 1:
-        await update.message.reply_text("Por favor ingresá 'diarias', 'mensuales' o 'juanito'"
-                                        " para indicar qué lista querés despejar.\n"
-                                        "Sólo se puede despejar una por vez.")
-    compra = context.args[0].strip().lower()
+    args = context.args
+    compra = procesar_parámetros(args, 0)
+    error = chequear_contenido_parámetros(compra, 0)
+    if error:
+        await update.message.reply_text(error)
+        return
     match compra:
-        case ("diarias" | "mensuales" | "juanito"):
+        case ("diarias" | "verduleria" | "supermercado"| "mensuales" | "juanito"):
             pass
         case _:
             await update.message.reply_text("Por favor aclará 'diarias', "
@@ -118,51 +122,72 @@ async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
     args = ' '.join(context.args).replace('/despejarunatarea', '').strip()
-    if not args:
-        await update.message.reply_text("⚠️Por favor asegurate de haber incluído una tarea!⚠️\n"
-                                        " Si usaste este comando tocando del menú, "
-                                        "procurá tocar la flechita \u2199 a la derecha"
-                                        " del comando en vez "
-                                        "del comando en sí :)")
+    args = context.args
+    tarea = procesar_parámetros(args, 4)
+    error = chequear_contenido_parámetros(tarea, 1)
+    if error:
+        await update.message.reply_text(error)
         return
-    if editor.despejar_tarea(args):
-        await update.message.reply_text(f"Eliminada la tarea '{args}' de la "
+    if editor.despejar_tarea(tarea):
+        await update.message.reply_text(f"Eliminada la tarea '{tarea}' de la "
             "lista de tareas pendientes para el jueves! 🎉")
     else:
-        await update.message.reply_text(f"Disculpame, no encontré la tarea '{args}"
+        await update.message.reply_text(f"Disculpame, no encontré la tarea '{tarea}"
                                         "en la lista de tareas para el jueves 🙁")
 
 async def despejarunacompra_command(update: Update,
                                     context: ContextTypes.DEFAULT_TYPE):
     editor = EditorSheet()
-    categoría = context.args.pop(0)
-    args = ' '.join(context.args).replace('/despejarunacompra', '').strip()
+    args = context.args
+    procesado = procesar_parámetros(args, 3)
+    error = chequear_contenido_parámetros(procesado, 2)
+    if error:
+        await update.message.reply_text(error)
+        return
+    categoría, ítem = procesado
+    async def procesar_diarias():
+        categoría_diarias = editor.CategoríaCompras.SUPERMERCADO
+        if editor.despejar_compra(ítem, categoría_diarias):
+            await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
+                f"lista de compras {categoría_diarias.value[1]}! 🎉")
+            return
+        else:
+            categoría_diarias = editor.CategoríaCompras.VERDULERIA
+            if editor.despejar_compra(args, categoría_diarias):
+                await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
+                    f"lista de compras {categoría_diarias.value[1]}! 🎉")
+                return
+            else:
+                await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}' "
+                                                f"en la lista de compras {categoría_diarias.value[1]} 🙁")
+                return
+
     match categoría:
         case "diarias":
-            categoría = editor.CategoríaCompras.DIARIAS
+            print("Categoría matcheó con 'diarias'")
+            await procesar_diarias()
+            return
+        case ("super" | "supermercado" | "chino"):
+            categoría_compras = editor.CategoríaCompras.SUPERMERCADO
+        case ("verdu" | "verdulería" | "verduras" | "frutas"):
+            categoría_compras = editor.CategoríaCompras.VERDULERIA
         case "mensuales":
-            categoría = editor.CategoríaCompras.MENSUALES
+            categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
-            categoría = editor.CategoríaCompras.JUANITO
+            categoría_compras = editor.CategoríaCompras.JUANITO
         case _:
-            await update.message.reply_text("Por favor aclará 'diarias', "
-                                            "'mensuales' o 'juanito para definir "
+            categoría_compras = None
+            await update.message.reply_text("Por favor aclará 'diarias', 'supermercado', "
+                                            "'verdulería', mensuales' o 'juanito para definir "
                                             "la lista a despejar :)")
             return
-    if not args:
-        await update.message.reply_text("⚠️Por favor asegurate de haber incluído un ítem a comprar!⚠️\n"
-                                        " Si usaste este comando tocando del menú, "
-                                        "procurá tocar la flechita \u2199 a la derecha"
-                                        " del comando en vez "
-                                        "del comando en sí :)")
-        return
-    if editor.despejar_compra(args, categoría):
-        await update.message.reply_text(f"Eliminado el ítem '{args}' de la "
-            "lista de tareas pendientes para el jueves! 🎉")
+    if editor.despejar_compra(ítem, categoría_compras):
+        await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
+            "lista seleccionada! 🎉")
     else:
-        await update.message.reply_text(f"Disculpame, no encontré el ítem '{args}"
-                                        "en la lista de tareas para el jueves 🙁")
-
+        await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}"
+                                        "en la lista seleccionada 🙁")
+        
 # Respuestas
 def handle_message(texto: str, update: Update):
     respuesta = Respuestas(texto, update).respuestas()
@@ -215,8 +240,9 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
         if "0" in query.data:
             await query.edit_message_text(text="Ok, dejo la lista como está :)")
         elif "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.DIARIAS)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
+            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
+            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
+            await query.edit_message_text(text="Dale, ahí despejé las listas!")
     if "mensuales" in query.data:
         if "0" in query.data:
             await query.edit_message_text(text="Ok, dejo la lista como está :)")
@@ -235,6 +261,87 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
         if "1" in query.data:
             editor.despejar_tareas()
             await query.edit_message_text(text="Despejada la lista de tareas! 🙂")
+    if "supermercado" in query.data:
+        if "0" in query.data:
+            await query.edit_message_text(text="Ok, dejo la lista como está :)")
+        elif "1" in query.data:
+            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
+            await query.edit_message_text(text="Dale, ahí despejé la lista!")
+    if "verduleria" in query.data:
+        if "0" in query.data:
+            await query.edit_message_text(text="Ok, dejo la lista como está :)")
+        elif "1" in query.data:
+            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
+            await query.edit_message_text(text="Dale, ahí despejé la lista!")
+
+def procesar_parámetros(args, modo: int):
+    """Toma la lista args del contexto y la parsea
+    :arg modo: 
+    0: sólo categoría, sin args
+    1: sólo args, sin categoría
+    2: categoría y args
+    3: categoría y un sólo ítem
+    4: un sólo ítem, sin categoría
+    """
+    match modo:
+        case 0:
+            if len(args) > 1 or not args:
+                return None
+            else:
+                return unidecode(args[0])
+        case 1:
+            if not args:
+                return None
+            else:
+                return [x.strip().capitalize() for x in " ".join(args).split(",")]
+        case 2:
+            if len(args) < 2 or not args:
+                return None
+            else:
+                categoría = unidecode(args.pop(0))
+                lista = [x.strip().capitalize() for x in " ".join(args).split(",")]
+                return (categoría, lista)
+        case 3:
+            if len(args) < 2 or not args:
+                return None
+            else:
+                categoría = unidecode(args.pop(0))
+                ítem = " ".join(args).strip().capitalize()
+                return (categoría, ítem)
+        case 4:
+            if not args:
+                return None
+            else:
+                return " ".join(args).strip().capitalize()
+
+def chequear_contenido_parámetros(parámetros, modo):
+    """
+    Chequea si se recibieron los argumentos apropiados y, si no, genera mensaje de error.
+    :arg modo:
+    0: con categoría, sin elemento/s
+    1: con elemento/s, sin categoría
+    2: con cateogría y elemento/s
+    """
+    final_genérico = (" Si usaste este comando tocando del menú, "
+                        "procurá tocar la flechita \u2199 a la derecha"
+                        " del comando en vez "
+                        "del comando en sí :)")
+    match modo:
+        case 0:
+            if not parámetros:
+                return ("⚠️No recibí una categoría para este comando 🙁⚠️ \n" +
+                        final_genérico)
+        case 1:
+            if not parámetros:
+                return ("⚠️No recibí una lista de elementos 🙁⚠️ \nAcordate "
+                        "de escribir los elementos separadas por comas!\n" + 
+                        final_genérico)
+        case 2:
+            if not parámetros:
+                return ("⚠️Me faltó recibir o una categoría o una lista de elementos 🙁⚠️ \nAcordate "
+                        "de escribir una sola palabra como categoría y, después, \n"
+                        "los elementos separadas por comas!\n" +
+                        final_genérico)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
