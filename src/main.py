@@ -302,7 +302,7 @@ def procesar_parámetros(args, modo: int):
             if len(args) > 1 or not args:
                 return None
             else:
-                return unidecode(args[0]).strip()
+                return unidecode(args[0].strip().lower())
         case 1:
             if not args:
                 return None
@@ -312,14 +312,14 @@ def procesar_parámetros(args, modo: int):
             if len(args) < 2 or not args:
                 return None
             else:
-                categoría = unidecode(args.pop(0))
+                categoría = unidecode(args.pop(0).strip().lower())
                 lista = [x.strip().capitalize() for x in " ".join(args).split(",")]
                 return (categoría, lista)
         case 3:
             if len(args) < 2 or not args:
                 return None
             else:
-                categoría = unidecode(args.pop(0).strip())
+                categoría = unidecode(args.pop(0).strip().lower())
                 ítem = " ".join(args).strip().capitalize()
                 return (categoría, ítem)
         case 4:
