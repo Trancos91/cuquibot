@@ -28,7 +28,7 @@ async def agregartareas_command(update: Update,
     if error:
         await update.message.reply_text(error)
     else:
-        await update.message.reply_text(editor.agregar_tareas(tareas))
+        await update.message.reply_text(editor.agregar_ítems(tareas))
 
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -77,7 +77,21 @@ async def agregarcompras_command(update: Update,
             await update.message.reply_text("No encontré la lista :(")
             return
 
-    await update.message.reply_text(editor.agregar_compras(categoría_compras, compras))
+    await update.message.reply_text(editor.agregar_ítems(compras, categoría=categoría_compras))
+
+async def registrarviveres_command(update: Update,
+                                   context: ContextTypes.DEFAULT_TYPE) -> None:
+    editor = EditorSheet()
+    args = context.args
+    ítems = procesar_parámetros(args, 1)
+    error = chequear_contenido_parámetros(ítems, 1)
+    if error:
+        print("Hay error")
+        await update.message.reply_text(error)
+        return
+    else:
+        await update.message.reply_text(editor.agregar_ítems(ítems, 1))
+
 
 async def despejartareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -288,7 +302,7 @@ def procesar_parámetros(args, modo: int):
             if len(args) > 1 or not args:
                 return None
             else:
-                return unidecode(args[0])
+                return unidecode(args[0]).strip()
         case 1:
             if not args:
                 return None
@@ -305,7 +319,7 @@ def procesar_parámetros(args, modo: int):
             if len(args) < 2 or not args:
                 return None
             else:
-                categoría = unidecode(args.pop(0))
+                categoría = unidecode(args.pop(0).strip())
                 ítem = " ".join(args).strip().capitalize()
                 return (categoría, ítem)
         case 4:
@@ -406,6 +420,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('despejartareas', despejartareas_command))
     app.add_handler(CommandHandler('despejarunatarea', despejarunatarea_command))
     app.add_handler(CommandHandler('despejarunacompra', despejarunacompra_command))
+    app.add_handler(CommandHandler('registrarviveres', registrarviveres_command))
 
     #COMANDOS DE DEBUG
 

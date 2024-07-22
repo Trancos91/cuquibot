@@ -1,7 +1,8 @@
+import re
+from datetime import date
+from enum import Enum
 import gspread
 #import pandas as pd
-from enum import Enum
-import re
 #from tabulate import tabulate
 
 class EditorSheet:
@@ -10,11 +11,10 @@ class EditorSheet:
         self.gc = gspread.service_account(filename="secretos/credentials.json")
         with open("secretos/wskey.txt", "r", encoding="ascii") as file:
             self.workbook = self.gc.open_by_key(file.read().strip())
-        #self.workbook = self.gc.open_by_key("15d6vM8x00PoIdLrWmKJpemxHimsU8R-wU1eYQ5cg9cs")
-        #print("Variable workbook asignada")
         self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
+        self.registro_compras = self.workbook.worksheet("Registro de víveres")
 
     class CategoríaCompras(Enum):
         SUPERMERCADO = (0, "del súper", "A")
@@ -39,38 +39,122 @@ class EditorSheet:
 
     #Métodos setter
 
-    def agregar_compras(self, categoría: CategoríaCompras, productos: list[str]):
-        columna = categoría.value[0] + 1
-        rows = self.lista_compras.col_values(columna)
+    def agregar_ítems(self, productos: list[str], categoría: CategoríaCompras | int= 0):
+        """
+        Agrega ítems a una categoría de la lista de compras si recibe una categoría,
+        a la lista de tareas si recibe 0(por defecto) como categoría o al registro de víveres
+        si recibe 1
+        """
+        if type(categoría) == self.CategoríaCompras:
+            columna = categoría.value[0] + 1
+            sheet = self.lista_compras
+            final_respuesta = f"a la lista de compras de {categoría.value[1]}"
+        elif categoría == 0:
+            columna = 1
+            sheet = self.lista_tareas
+            final_respuesta = "a la lista de tareas"
+        elif categoría == 1:
+            print("Categoría 1 seleccionada")
+            columna = 2
+            sheet = self.registro_compras
+            final_respuesta = "al registro de víveres"
+            procesado = self.procesar_registrados(productos)
+            productos, cantidades = procesado
+        else:
+            columna = None
+            sheet = None
+            cantidades = None
+            print(f"Parámetro incorrecto para agregar_items(): categoría={categoría}")
+            return "Algo falló en el programa, Juan debería revisar los logs."
+
+        rows = sheet.col_values(columna)
         respuesta = "✅ Agregado "
         productos_proc = [x.capitalize() for x in productos]
+        fecha_hoy = date.today().strftime("%Y/%m/%d")
         for producto in productos_proc:
+            print(producto)
             if producto in rows:
                 continue
             elif producto == productos_proc[-1]:
-                respuesta += f"y {producto} "
+                if len(productos_proc) == 1:
+                    respuesta += f" {producto} "
+                else:
+                    respuesta += f"y {producto} "
             else:
                 respuesta += f"{producto}, "
-            rows = self.lista_compras.col_values(columna)
-            self.lista_compras.update_cell(len(rows) + 1, columna , producto)
-        respuesta += f"a la lista de compras de {categoría.value[1]}"
+            rows = sheet.col_values(columna)
+            sheet.update_cell(len(rows) + 1, columna , producto)
+            if categoría == 1:
+                sheet.update_cell(len(rows) + 1, 1, fecha_hoy)
+                if cantidades and cantidades[productos_proc.index(producto)]:
+                    sheet.update_cell(len(rows) + 1, 3, cantidades[productos_proc.index(producto)])
+        respuesta += final_respuesta
         return respuesta 
 
-    def agregar_tareas(self, tareas: list[str]):
-        rows = self.lista_tareas.col_values(1)
+    def agregar_compras_registradas(self, compras: list[str]):
+        sheet = self.registro_compras
+        rows = sheet.col_values(1)
         respuesta = "✅ Agregado "
-        tareas_proc = [x.capitalize() for x in tareas]
-        for tarea in tareas_proc:
-            if tarea in rows:
+        compras_proc = [x.capitalize() for x in compras]
+        fecha_hoy = date.today().strftime("%Y/%m/%d")
+        for compra in compras_proc:
+            if compra in rows:
                 continue
-            elif tarea == tareas_proc[-1]:
-                respuesta += f"y {tarea} "
+            elif compra == compras_proc[-1]:
+                if len(compras_proc) == 1:
+                    respuesta += f" {compra} "
+                else:
+                    respuesta += f"y {compra} "
             else:
-                respuesta += f"{tarea}, "
-            rows = self.lista_tareas.col_values(1)
-            self.lista_tareas.update_cell(len(rows) + 1, 1 , tarea)
-        respuesta += "a la lista de tareas."
+                respuesta += f"{compra}, "
+            rows = sheet.col_values(1)
+            sheet.update_cell(len(rows) + 1, 1 , compra)
+            sheet.update_cell
+        respuesta += final_respuesta
         return respuesta 
+
+    def abrir_compra_registrada(self, compra):
+        return self.datestamp_compra_registrada(compra, 0)
+
+    def agotar_compra_registrada(self, compra):
+        return self.datestamp_compra_registrada(compra, 1)
+
+    def datestamp_compra_registrada(self, compra, modo):
+        """
+        Marca como abierta o agotada una compra del registro de víveres.
+        modo(int):
+        0: Abierta
+        1: Agotada
+        """
+        compra = self.procesar_texto(compra)
+        compra_regex = re.compile(compra)
+        match modo:
+            case 0:
+                columna = 4
+            case 1:
+                columna = 5
+            case _:
+                columna = None
+                print("Se seleccionó un número inválido para el modo de la función")
+                return "Algo falló, Juan debería revisar los logs."
+        compras = self.registro_compras.findall(compra_regex, in_column=2, case_sensitive=False)
+        if len(compras) > 1:
+            respuesta = "Encontré varios ítems que contienen lo que enviaste: \n"
+            for ítem in compras:
+                respuesta += f"• {ítem.value}\n"
+            respuesta += "Por favor aclarame qué ítem querés que marque como abierto :)"
+            return respuesta
+        if compras:
+            celda_compra = compras[0]
+        else:
+            return
+        if self.registro_compras.cell(celda_compra.row, columna).value:
+            return (f"❗ Parece que este ítem ya fue marcado como "
+                f"{"abierto" if columna == 4 else "agotado"}!")
+        fecha_hoy = date.today().strftime("%Y/%m/%d")
+        self.registro_compras.update_cell(celda_compra.row, columna, fecha_hoy)
+        return (f"Ahí registré que hoy, {fecha_hoy}, se "
+            f"{"abrió" if columna == 4 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
 
     #Métodos de despeje(también son setters)
 
@@ -127,6 +211,8 @@ class EditorSheet:
         else:
             return ""
 
+    # Métodos de procesamiento de texto
+
     def eliminar_emojis(self, texto):
         emoji_pattern = re.compile("["
                                        u"\U0001F600-\U0001F64F"  # emoticons
@@ -153,30 +239,21 @@ class EditorSheet:
     def procesar_texto(self, texto):
         return self.eliminar_emojis(texto).capitalize().strip()
 
-############### HASTA ACÁ EDITADO ############################################################
-
-    def get_info(self, categoría):
-        categoría = categoría.capitalize()
-        print(f"categoría: {categoría}")
-        col = self.info_útil.find(categoría)
-        info = self.info_útil.col_values(col.col) if col else None
-        if info:
-            info.pop(0)
-            return f"<b>Info útil sobre {categoría}:</b> \n• {"\n• ".join(info)}"
-        else:
-            return ("No encontré info útil guardada sobre esa categoría :(\n"
-                "Si querés agregar info, podés usar el comando /agregar_info! Por ejemplo:\n"
-                "<pre>/agregar_info arroz \"Una taza de agua por cada taza de arroz\"</pre>")
-
-
-    def get_pendientes_jueves(self):
-        pendientes = self.organización.col_values(6)
-        pendientes.pop(0)
-        if pendientes:
-            return (f"<b><u>Tareas pendientes para el jueves próximo:</u></b> \n"
-                    f"• {"\n• ".join(pendientes)}")
-        else:
-            return
+    def procesar_registrados(self, registrados: list[str]):
+        productos = []
+        cantidades = []
+        for ítem in registrados:
+            if "(" in ítem:
+                producto, cantidad = ítem.split("(")
+                productos.append(producto.strip().capitalize())
+                cantidad = cantidad.strip()
+                if cantidad.endswith(")"):
+                    cantidad = cantidad[:-1]
+                cantidades.append(cantidad.strip())
+            else:
+                productos.append(ítem.strip().capitalize())
+                cantidades.append(None)
+        return (productos, cantidades)
 
 
 def main():
