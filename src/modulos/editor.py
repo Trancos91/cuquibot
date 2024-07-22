@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 import gspread
 #import pandas as pd
@@ -66,7 +66,6 @@ class EditorSheet:
             cantidades = None
             print(f"Parámetro incorrecto para agregar_items(): categoría={categoría}")
             return "Algo falló en el programa, Juan debería revisar los logs."
-
         rows = sheet.col_values(columna)
         respuesta = "✅ Agregado "
         productos_proc = [x.capitalize() for x in productos]
@@ -133,6 +132,25 @@ class EditorSheet:
         self.registro_compras.update_cell(celda_compra.row, columna, fecha_hoy)
         return (f"Ahí registré que hoy, {fecha_hoy}, se "
             f"{"abrió" if columna == 4 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
+
+    # FALTA IMPLEMENTAR ARGS PARA FLAGS DE BARRÍ Y DEMÁS
+    def agregar_quehacer(self, nombre, categoría: CategoríaQuehaceres, *args):
+        ultima_row = self.quehaceres.row_values(len(self.quehaceres.col_values(1)))
+        try:
+            fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
+        except ValueError:
+            fecha_row = None
+        if fecha_row != date.today():
+            fecha_hoy = date.today().strftime("%Y/%m/%d")
+            self.quehaceres.update_cell(len(self.quehaceres.col_values(1)) + 1, 1, fecha_hoy)
+            print(f"Agregada la fecha de hoy: {fecha_hoy}")
+        else:
+            fecha_hoy = fecha_row
+        if not self.quehaceres.cell(len(self.quehaceres.col_values(1)), categoría.value[0] + 1).value:
+            self.quehaceres.update_cell(len(self.quehaceres.col_values(1)), categoría.value[0] + 1, nombre)
+            return f"Ahí anoté que {nombre} se encargó de {categoría.value[1]} hoy {fecha_hoy}"
+        else:
+            return
 
     #Métodos de despeje(también son setters)
 
@@ -236,12 +254,13 @@ class EditorSheet:
 
 def main():
     editor = EditorSheet()
-    print(editor.get_tareas_diarias())
+    print(editor.get_tareas_diarias(None))
     print()
     print(editor.get_lista_compras(editor.CategoríaCompras.SUPERMERCADO))
-    print(editor.get_lista_compras(editor.CategoríaCompras.VERDULERÍA))
+    print(editor.get_lista_compras(editor.CategoríaCompras.VERDULERIA))
     print(editor.get_lista_compras(editor.CategoríaCompras.MENSUALES))
     print(editor.get_lista_compras(editor.CategoríaCompras.JUANITO))
+    print(editor.agregar_quehacer(editor.CategoríaQuehaceres.CAJA))
 
 if __name__ == "__main__":
     main()

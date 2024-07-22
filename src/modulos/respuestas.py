@@ -36,8 +36,55 @@ class Respuestas:
                                (["termine", "termino", "terminamos", "acabe", "acabo", "acabamos",
                                 "agote", "agoto", "agotamos"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
-        "regcompras_compra": (["compre", "compro", "compramos"], self.método_vacío, None,
-                              "Algo falló acá, Juan debería revisar el código")
+        #Quehaceres
+        "caja_asiri": (["caja", "piedras"], 
+                       self.editor.agregar_quehacer,
+                       (self.nombre_usuario, self.editor.CategoríaQuehaceres.CAJA),
+                        "Ya figura como que alguien más limpió la caja de asiri!"),
+        "bebedero_asiri": (["bebedero", "fuente", "agua"], 
+                           self.editor.agregar_quehacer,
+                           (self.nombre_usuario, self.editor.CategoríaQuehaceres.BEBEDERO),
+                        "Ya figura como que alguien más limpió el bebedero de asiri!"),
+        "lavar_tachos": (["tacho", "tachos"], 
+                         self.editor.agregar_quehacer,
+                         (self.nombre_usuario, self.editor.CategoríaQuehaceres.TACHO),
+                        "Ya figura como que alguien más lavó el/los tacho/s!"),
+        "barrer": (["barri"], 
+                   self.editor.agregar_quehacer, 
+                   (self.nombre_usuario, self.editor.CategoríaQuehaceres.BARRER),
+                   "Ya figura como que barrió alguien más!"),
+        "trapear": (["trapee", "trape", "trapie"], 
+                    self.editor.agregar_quehacer, 
+                    (self.nombre_usuario, self.editor.CategoríaQuehaceres.TRAPEAR),
+                    "Ya figura como que trapeó alguien más!"),
+        "sacar_reciclables": (["reciclable", "reciclables"], 
+                              self.editor.agregar_quehacer,
+                              (self.nombre_usuario, self.editor.CategoríaQuehaceres.RECICLABLES),
+                               "Ya figura como que alguien más sacó la basura reciclable!"),
+        "sacar_basura": (["basura"], 
+                         self.editor.agregar_quehacer, 
+                         (self.nombre_usuario, self.editor.CategoríaQuehaceres.BASURA),
+                        "Ya figura como que alguien más sacó la basura!"),
+        "lavar_ropa": (["lavar", "lave", "ropa"], 
+                       self.editor.agregar_quehacer,
+                       (self.nombre_usuario, self.editor.CategoríaQuehaceres.LAVAR),
+                        "Ya figura como que alguien más lavó la ropa!"),
+        "colgar_ropa": (["colgar", "colgue", "seque", "secar", "tender"], 
+                        self.editor.agregar_quehacer,
+                        (self.nombre_usuario, self.editor.CategoríaQuehaceres.COLGAR),
+                        "Ya figura como que alguien más colgó la ropa!"),
+        "doblar_ropa": (["doblar", "doble", "guarde", "guardar"],
+                        self.editor.agregar_quehacer,
+                        (self.nombre_usuario, self.editor.CategoríaQuehaceres.DOBLAR),
+                        "Ya figura como que alguien más dobló la ropa!"),
+        "hacer_compras": (["compre", "compras", "comprar"], 
+                          self.editor.agregar_quehacer,
+                          (self.nombre_usuario, self.editor.CategoríaQuehaceres.COMPRAS),
+                        "Ya figura como que alguien más hizo las compras hoy!"),
+        "limpiar": (["limpie"], 
+                    self.editor.agregar_quehacer, 
+                    (self.nombre_usuario, self.editor.CategoríaQuehaceres.LIMPIAR),
+                    "Ya figura como que limpió alguien más!"),
         }
 
     def método_vacío(self, _):
@@ -53,7 +100,12 @@ class Respuestas:
 
     def chequear_presencia(self, categoría):
         if any(word in self.texto_procesado for word in categoría[0]):
-            respuesta = categoría[1](categoría[2])
+            try:
+                iter(categoría[2])
+                tupla_categoría = categoría[2]
+            except TypeError:
+                tupla_categoría = (categoría[2], )
+            respuesta = categoría[1](*tupla_categoría)
             if respuesta:
                 return respuesta
             else:
@@ -63,8 +115,8 @@ class Respuestas:
     def diarias(self, _):
         supermercado = self.listas_palabras["supermercado"]
         verdulería = self.listas_palabras["verdulería"]
-        supermercado_respuesta = supermercado[1](supermercado[2])
-        verdulería_respuesta = verdulería[1](verdulería[2])
+        supermercado_respuesta = supermercado[1](*supermercado[2])
+        verdulería_respuesta = verdulería[1](*verdulería[2])
         respuesta = (supermercado_respuesta + "\n" + verdulería_respuesta)
         if supermercado_respuesta and verdulería_respuesta:
             return respuesta
