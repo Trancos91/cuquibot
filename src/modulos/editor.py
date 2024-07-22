@@ -91,28 +91,6 @@ class EditorSheet:
         respuesta += final_respuesta
         return respuesta 
 
-    def agregar_compras_registradas(self, compras: list[str]):
-        sheet = self.registro_compras
-        rows = sheet.col_values(1)
-        respuesta = "✅ Agregado "
-        compras_proc = [x.capitalize() for x in compras]
-        fecha_hoy = date.today().strftime("%Y/%m/%d")
-        for compra in compras_proc:
-            if compra in rows:
-                continue
-            elif compra == compras_proc[-1]:
-                if len(compras_proc) == 1:
-                    respuesta += f" {compra} "
-                else:
-                    respuesta += f"y {compra} "
-            else:
-                respuesta += f"{compra}, "
-            rows = sheet.col_values(1)
-            sheet.update_cell(len(rows) + 1, 1 , compra)
-            sheet.update_cell
-        respuesta += final_respuesta
-        return respuesta 
-
     def abrir_compra_registrada(self, compra):
         return self.datestamp_compra_registrada(compra, 0)
 
