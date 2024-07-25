@@ -173,6 +173,7 @@ class EditorSheet:
             else:
                 otrx = presente
         print(f"usuarix = {usuarix}, otrx = {otrx}")
+        print(f"Flags recibidos: {flags}")
         print(f"Flags existentes en la celda: {presentes[0] if presentes else ""}"
             f"{presentes[1] if presentes and len(presentes) == 2 else ""}")
         respuesta = ""
@@ -196,7 +197,7 @@ class EditorSheet:
         respuesta += (f"Ahí anoté que {nombre} se encargó de {categoría.value[1]}"
                     f"{mensaje_flags if mensaje_flags else ""} hoy {fecha_hoy}.")
         if mensaje_preexistentes and mensaje_flags:
-            respuesta += "\nPor otro lado, figura como que alguien ya se encargó de {zonas_usadas}"
+            respuesta += f"\nPor otro lado, figura como que alguien ya se encargó de {mensaje_preexistentes}"
         #Chequea si está vacía la celda
                 #elif not celda:
                 #    #self.quehaceres.update_cell(num_ultima_row, col_categoría, nombre)
@@ -350,7 +351,9 @@ class EditorSheet:
         """
         # Extrae tuplas de lista_flags que corresponden a los flags pasados.
         flags_tuplas = [flag for flag in lista_flags if flags and flag[0] in flags]
+        print(f"flags_tuplas: {flags_tuplas}")
         flags_nuevas = flags_tuplas.copy()
+        print(f"flags_nuevas inciales: {flags_nuevas}")
         mensaje_flags = "" 
         mensaje_preexistentes = ""
         string_celda = ""
@@ -359,21 +362,25 @@ class EditorSheet:
         usuarixs = (usuarix, otrx)
         for persona in usuarixs:
             flags_nuevas = self.procesar_flags_por_persona(persona, flags_nuevas)
-        print("Salimos del for loop de usuarix que poda las flags_nuevas")
+        print(f"Salimos del for loop de usuarix que poda las flags_nuevas. flags_nuevas = {flags_nuevas}")
         if otrx:
             string_celda += f"{otrx[0]}({otrx[1] if len(otrx) == 2 else ""}), "
+            print("Hay otrx")
+        else:
+            print("No hay otrx")
         if flags_tuplas:
-            print(f"Definiendo 'flags_nuevas'")
-            if flags_nuevas: flags_restantes = "".join([flag[0] for flag_tupla in flags_nuevas for flag in flag_tupla])
+            print(f"Definiendo 'flags_restantes'")
+            if flags_nuevas: flags_restantes = "".join([flag[0] for flag in flags_nuevas])
+            print(f"flags_restantes: {flags_restantes}")
             flags_compuestas = (f"({usuarix[1] if usuarix and len(usuarix) > 1 else ""}"
-                            f"{"".join([x[0] for x in flags_nuevas]) if flags_nuevas else ""})")
+                            f"{flags_restantes if flags_restantes else ""})")
         string_celda += usuarix[0] + (flags_compuestas if flags_compuestas else "")
         #if flags_nuevas: flags_restantes = "".join([flag[0] for flag in flags_nuevas])
-        flags_preexistentes = "".join(flag for flag in flags if flag not in flags_restantes)
         if flags: 
             print("Corre línea 373")
-            mensaje_flags += self.construir_mensaje_flags(flags_restantes, flags_tuplas)
-            mensaje_preexistentes += self.construir_mensaje_flags(flags_preexistentes, flags_tuplas)
+            flags_preexistentes = "".join(flag for flag in flags if flag not in flags_restantes)
+            if flags_restantes: mensaje_flags += self.construir_mensaje_flags(flags_restantes, flags_tuplas)
+            if flags_preexistentes: mensaje_preexistentes += self.construir_mensaje_flags(flags_preexistentes, flags_tuplas)
         return (mensaje_flags, mensaje_preexistentes, string_celda)
     
     def procesar_flags_por_persona(self, usuarix, flags_tuplas):
@@ -408,17 +415,24 @@ class EditorSheet:
         print(f"Flags recibidas: {flags}")
 
         mensaje = ""
+        mensaje_agregado = ""
 
-        def agregar_final(mensaje):
-            mensaje = " y" + mensaje[:-1]
+        def agregar_final(módulo):
+            print("Llamando agregar_final")
+            módulo = " y" + módulo[:-1]
+            return módulo
 
         if not flags_tuplas:
             print("No hubo flags_tuplas")
             return mensaje
         for flag in flags_tuplas:
             print("Arrancando for loop en flags_tuplas")
-            if flag[0] in flags: mensaje += f" {flag[1]},"
-            if flag == flags_tuplas[-1]: agregar_final(mensaje)
+            if flag[0] in flags: 
+                print("Flag está en flags")
+                mensaje_agregado = f" {flag[1]},"
+            if flag[0] in flags[-1]: mensaje_agregado = agregar_final(mensaje_agregado)
+            mensaje += mensaje_agregado
+            mensaje_agregado = ""
         print(f"Mensaje construído: {mensaje}")
         return mensaje
 

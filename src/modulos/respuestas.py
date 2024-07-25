@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 from modulos.editor import EditorSheet
 from unidecode import unidecode
@@ -10,17 +11,26 @@ class Respuestas:
         self.update = update
         self.editor = EditorSheet()
         self.first_name = update.message.from_user.first_name
-        match self.first_name:
-            case "Siberia":
-                self.nombre_usuario = "In"
-            case "Quav":
-                self.nombre_usuario = "Juan"
-            case _:
-                print("Alguien más está usando el bot")
-                self.nombre_usuario = "Desconocidx o.o"
+        with open("secretos/alias.json", "r", encoding="ascii") as file:
+            alias = json.load(file)
+        try:
+            self.nombre_usuario = alias[self.first_name]
+        except KeyError:
+            print("Alguien más está usando el bot! :O")
+            self.nombre_usuario = "Desconocidx o.o"
+
+                    #match self.first_name:
+                    #    case "Siberia":
+                    #        self.nombre_usuario = "In"
+                    #    case "Quav":
+                    #        self.nombre_usuario = "Juan"
+                    #    case _:
+                    #        print("Alguien más está usando el bot")
+                    #        self.nombre_usuario = "Desconocidx o.o"
         with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
             self.BOT_USERNAME = str(file.read().strip())
 
+        # Lista de palabras que procesaría el bot en un mensaje
         self.listas_palabras = {
             "tareas": ["tareas", "tarea", "pendientes", "pendiente"],
             "diarias": ["diarias"],
@@ -96,10 +106,6 @@ class Respuestas:
         return (self.lista_compras[key], self.editor.get_lista_compras,
                  categoría_obj, "No hay nada para comprar en esa lista! 🎉")
 
-    def método_vacío(self, _):
-    # Placeholder hasta que arme los métodos que necesito
-        pass
-
     def respuestas(self) -> str:
         for key in self.config_tareas:
             respuesta = self.chequear_presencia(self.config_tareas[key])
@@ -150,11 +156,9 @@ class Respuestas:
         return función(" ".join(texto_procesado_lista))
     
     def procesar_texto_quehacer(self, nombre_usuario, categoría, función):
-        print("Corriendo procesar_texto_quehacer")
         try:
             _, flags = self.texto.split("-")
             flags = flags.strip()
         except ValueError:
-            print("No había argumentos)")
             flags = None
         return función(nombre_usuario, categoría, flags)
