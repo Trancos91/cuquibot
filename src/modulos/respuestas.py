@@ -5,95 +5,104 @@ from telegram import Update
 
 class Respuestas:
     def __init__(self, texto: str, update: Update):
+        self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
         self.editor = EditorSheet()
-        self.nombre_usuario = update.message.from_user.first_name
+        self.first_name = update.message.from_user.first_name
+        match self.first_name:
+            case "Siberia":
+                self.nombre_usuario = "In"
+            case "Quav":
+                self.nombre_usuario = "Juan"
+            case _:
+                print("Alguien más está usando el bot")
+                self.nombre_usuario = "Desconocidx o.o"
         with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
             self.BOT_USERNAME = str(file.read().strip())
 
         self.listas_palabras = {
+            "tareas": ["tareas", "tarea", "pendientes", "pendiente"],
+            "diarias": ["diarias"],
+            "regcompras_apertura": ["abri", "abrio", "abrimos"],
+            "regcompras_agotado": ["termine", "termino", "terminamos", "acabe", 
+                                   "acabo", "acabamos", "agote", "agoto", "agotamos"],
+        }
+        # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
+        self.lista_quehaceres = {
+            "caja": (["caja", "piedras"], "limpió la caja de asiri"),
+            "bebedero": (["bebedero", "fuente", "agua"], "limpió el bebedero de asiri"),
+            "tacho": (["tacho", "tachos", "tachito", "tachitos"], "limpió el/los tacho/s"),
+            "barrer": (["barri", "escoba", "escobillon"], "barrió"),
+            "trapear": (["trapee", "trape", "trapie", "trapo"], "pasó el trapo"),
+            "reciclables": (["reciclable", "reciclables"], "sacó los reciclables"),
+            "basura": (["basura"], "sacó la basura"),
+            "colgar": (["colgar", "colgue", "seque", "secar", "tender"], "colgó la ropa"),
+            "doblar": (["doblar", "doble", "guarde", "guardar"], "dobló la ropa"),
+            "lavar": (["lavar", "lave", "ropa"], "puso a lavar la ropa"),
+            "compras": (["compre", "compras", "comprar"], "salió a hacer las compras"),
+            "limpiar": (["limpie"], "limpió"),
+        }
+        # Lista_palabras de compras. No necesita mensajes de fallo, el mismo para
+        # todas funciona
+        self.lista_compras = {
+            "juanito": ["juanito"],
+            "mensuales": ["mensuales", "mensual", "coto", "mes"],
+            "supermercado": ["super", "supermercado", "chino"],
+            "verduleria": ["verdulería", "verdu", "verduras"],
+        }
+        self.config_tareas = {
         # Lista de tareas
-        "tareas": (["tareas", "tarea", "pendientes", "pendiente"], self.editor.get_tareas_diarias,
+        "tareas": (self.listas_palabras["tareas"], self.editor.get_tareas_diarias,
         None, "No hay tareas pendientes! 🎉"),
         # Compras
-        "juanito": (["juanito"], self.editor.get_lista_compras, 
-        self.editor.CategoríaCompras.JUANITO, "No hay nada para comprar en esa lista! 🎉"),
-        "diarias": (["diarias"], self.diarias, None, "No hay nada para comprar en las listas"
-                                                " de supermercado ni verdulería! 🎉"),
-        "mensuales": (["mensuales", "mensual", "coto", "mes"], self.editor.get_lista_compras,
-        self.editor.CategoríaCompras.MENSUALES, "No hay nada para comprar en esa lista! 🎉"),
-        "supermercado": (["super", "supermercado", "chino"], self.editor.get_lista_compras,
-        self.editor.CategoríaCompras.SUPERMERCADO, "No hay nada para comprar en esa lista! 🎉"),
-        "verdulería": (["verdulería", "verdu", "verduras"], self.editor.get_lista_compras,
-        self.editor.CategoríaCompras.VERDULERIA, "No hay nada para comprar en esa lista! 🎉"),
-            # Registro de víveres. Pasan la lista de palabras y el método el editor a llamar
-        "regcompras_apertura": (["abri", "abrio", "abrimos"], self.procesar_texto_registrada, 
-                                (["abri", "abrio", "abrimos"], self.editor.abrir_compra_registrada), 
+        "diarias": (self.listas_palabras["diarias"], self.diarias, None,
+                    "No hay nada para comprar en las listas de supermercado ni verdulería! 🎉"),
+            #"juanito": (self.listas_palabras["juanito"], self.editor.get_lista_compras, 
+            #self.editor.CategoríaCompras.JUANITO, "No hay nada para comprar en esa lista! 🎉"),
+            #"mensuales": (self.listas_palabras, self.editor.get_lista_compras,
+            #self.editor.CategoríaCompras.MENSUALES, "No hay nada para comprar en esa lista! 🎉"),
+            #"supermercado": (self.listas_palabras["supermercado"], self.editor.get_lista_compras,
+            #self.editor.CategoríaCompras.SUPERMERCADO, "No hay nada para comprar en esa lista! 🎉"),
+            #"verduleria": (self.listas_palabras["verduleria"], self.editor.get_lista_compras,
+            #self.editor.CategoríaCompras.VERDULERIA, "No hay nada para comprar en esa lista! 🎉"),
+        # Registro de víveres. Pasan la lista de palabras y el método el editor a llamar
+        "regcompras_apertura": (self.listas_palabras["regcompras_apertura"], self.procesar_texto_registrada, 
+                                (self.listas_palabras["regcompras_apertura"], self.editor.abrir_compra_registrada), 
                                 "No encontré el ítem que mencionás 🙁"),
-        "regcompras_agotado": (["termine", "termino", "terminamos", "acabe", "acabo", "acabamos",
-                                "agote", "agoto", "agotamos"], self.procesar_texto_registrada, 
-                               (["termine", "termino", "terminamos", "acabe", "acabo", "acabamos",
-                                "agote", "agoto", "agotamos"], self.editor.agotar_compra_registrada),
+        "regcompras_agotado": (self.listas_palabras["regcompras_agotado"], self.procesar_texto_registrada, 
+                               (self.listas_palabras["regcompras_agotado"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
-        #Quehaceres
-        "caja_asiri": (["caja", "piedras"], 
-                       self.editor.agregar_quehacer,
-                       (self.nombre_usuario, self.editor.CategoríaQuehaceres.CAJA),
-                        "Ya figura como que alguien más limpió la caja de asiri!"),
-        "bebedero_asiri": (["bebedero", "fuente", "agua"], 
-                           self.editor.agregar_quehacer,
-                           (self.nombre_usuario, self.editor.CategoríaQuehaceres.BEBEDERO),
-                        "Ya figura como que alguien más limpió el bebedero de asiri!"),
-        "lavar_tachos": (["tacho", "tachos"], 
-                         self.editor.agregar_quehacer,
-                         (self.nombre_usuario, self.editor.CategoríaQuehaceres.TACHO),
-                        "Ya figura como que alguien más lavó el/los tacho/s!"),
-        "barrer": (["barri"], 
-                   self.editor.agregar_quehacer, 
-                   (self.nombre_usuario, self.editor.CategoríaQuehaceres.BARRER),
-                   "Ya figura como que barrió alguien más!"),
-        "trapear": (["trapee", "trape", "trapie"], 
-                    self.editor.agregar_quehacer, 
-                    (self.nombre_usuario, self.editor.CategoríaQuehaceres.TRAPEAR),
-                    "Ya figura como que trapeó alguien más!"),
-        "sacar_reciclables": (["reciclable", "reciclables"], 
-                              self.editor.agregar_quehacer,
-                              (self.nombre_usuario, self.editor.CategoríaQuehaceres.RECICLABLES),
-                               "Ya figura como que alguien más sacó la basura reciclable!"),
-        "sacar_basura": (["basura"], 
-                         self.editor.agregar_quehacer, 
-                         (self.nombre_usuario, self.editor.CategoríaQuehaceres.BASURA),
-                        "Ya figura como que alguien más sacó la basura!"),
-        "lavar_ropa": (["lavar", "lave", "ropa"], 
-                       self.editor.agregar_quehacer,
-                       (self.nombre_usuario, self.editor.CategoríaQuehaceres.LAVAR),
-                        "Ya figura como que alguien más lavó la ropa!"),
-        "colgar_ropa": (["colgar", "colgue", "seque", "secar", "tender"], 
-                        self.editor.agregar_quehacer,
-                        (self.nombre_usuario, self.editor.CategoríaQuehaceres.COLGAR),
-                        "Ya figura como que alguien más colgó la ropa!"),
-        "doblar_ropa": (["doblar", "doble", "guarde", "guardar"],
-                        self.editor.agregar_quehacer,
-                        (self.nombre_usuario, self.editor.CategoríaQuehaceres.DOBLAR),
-                        "Ya figura como que alguien más dobló la ropa!"),
-        "hacer_compras": (["compre", "compras", "comprar"], 
-                          self.editor.agregar_quehacer,
-                          (self.nombre_usuario, self.editor.CategoríaQuehaceres.COMPRAS),
-                        "Ya figura como que alguien más hizo las compras hoy!"),
-        "limpiar": (["limpie"], 
-                    self.editor.agregar_quehacer, 
-                    (self.nombre_usuario, self.editor.CategoríaQuehaceres.LIMPIAR),
-                    "Ya figura como que limpió alguien más!"),
         }
+        lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
+                                 (self.tupla_compras, self.lista_compras))
+        #Inicializado listas para el diccionario
+        for tupla in lista_inicialización:
+            dicc_lista = {k: tupla[0](k) for k in tupla[1]}
+            self.config_tareas.update(dicc_lista)
+            print(f"Inicializado con método {tupla[0]}")
+
+    def tupla_quehaceres(self, key: str):
+        upperkey = key.upper().strip()
+        categoría_obj = getattr(self.editor.CategoríaQuehaceres, upperkey)
+        return (self.lista_quehaceres[key][0], self.procesar_texto_quehacer,
+                 (self.nombre_usuario, categoría_obj, self.editor.agregar_quehacer),
+                 "Ya figura como que alguien más " + self.lista_quehaceres[key][1] + "!")
+
+    def tupla_compras(self, key: str):
+        upperkey = key.upper().strip()
+        categoría_obj = getattr(self.editor.CategoríaCompras, upperkey)
+        print(categoría_obj)
+        return (self.lista_compras[key], self.editor.get_lista_compras,
+                 categoría_obj, "No hay nada para comprar en esa lista! 🎉")
 
     def método_vacío(self, _):
     # Placeholder hasta que arme los métodos que necesito
         pass
 
     def respuestas(self) -> str:
-        for key in self.listas_palabras:
-            respuesta = self.chequear_presencia(self.listas_palabras[key])
+        for key in self.config_tareas:
+            respuesta = self.chequear_presencia(self.config_tareas[key])
             if respuesta:
                 break
         return respuesta if respuesta else "No entendí"
@@ -103,8 +112,11 @@ class Respuestas:
             try:
                 iter(categoría[2])
                 tupla_categoría = categoría[2]
+                print(f"La tupla es: {tupla_categoría}")
             except TypeError:
+                print("Salió TypeError")
                 tupla_categoría = (categoría[2], )
+                print(f"La tupla es: {tupla_categoría}")
             respuesta = categoría[1](*tupla_categoría)
             if respuesta:
                 return respuesta
@@ -113,19 +125,18 @@ class Respuestas:
 
 
     def diarias(self, _):
-        supermercado = self.listas_palabras["supermercado"]
-        verdulería = self.listas_palabras["verdulería"]
-        supermercado_respuesta = supermercado[1](*supermercado[2])
-        verdulería_respuesta = verdulería[1](*verdulería[2])
-        respuesta = (supermercado_respuesta + "\n" + verdulería_respuesta)
-        if supermercado_respuesta and verdulería_respuesta:
+        supermercado = self.config_tareas["supermercado"]
+        verduleria = self.config_tareas["verduleria"]
+        supermercado_respuesta = supermercado[1](supermercado[2])
+        verduleria_respuesta = verduleria[1](verduleria[2])
+        respuesta = (supermercado_respuesta + "\n" + verduleria_respuesta)
+        if supermercado_respuesta and verduleria_respuesta:
             return respuesta
         else:
             return ""
 
-    def procesar_texto_registrada(self, info):
+    def procesar_texto_registrada(self, palabras_clave, función):
         print("Procesando texto registrada")
-        palabras_clave, función = info
         pronombres = ["el", "la", "los", "las"]
         texto_procesado_lista = self.texto_procesado.split()
         for palabra in texto_procesado_lista.copy():
@@ -137,3 +148,13 @@ class Respuestas:
             texto_procesado_lista.pop(0)
         print(f"Texto procesado: {texto_procesado_lista}")
         return función(" ".join(texto_procesado_lista))
+    
+    def procesar_texto_quehacer(self, nombre_usuario, categoría, función):
+        print("Corriendo procesar_texto_quehacer")
+        try:
+            _, flags = self.texto.split("-")
+            flags = flags.strip()
+        except ValueError:
+            print("No había argumentos)")
+            flags = None
+        return función(nombre_usuario, categoría, flags)
