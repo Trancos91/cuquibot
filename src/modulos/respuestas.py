@@ -30,7 +30,9 @@ class Respuestas:
             "regcompras_agotado": ["termine", "termino", "terminamos", "acabe", 
                                    "acabo", "acabamos", "agote", "agoto", "agotamos"],
             "lista_flags_ubicaciones": ["flags", "ubicaciones", "lugares", "flag",
-                                        "ubicacion", "lugar"]
+                                        "ubicacion", "lugar"],
+            "regcompras_lista": ["registradas", "registrados", "regsitro"],
+            "regcompras_duración": ["duracion", "dura", "duro", "duraron", "agotarse", "acabarse"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
         self.lista_quehaceres = {
@@ -69,9 +71,14 @@ class Respuestas:
         "regcompras_agotado": (self.listas_palabras["regcompras_agotado"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_agotado"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
+        "regcompras_duración": (self.listas_palabras["regcompras_duración"], self.procesar_texto_registrada, 
+                               (self.listas_palabras["regcompras_duración"], self.editor.get_duración_registrada),
+                                "No encontré el ítem que mencionás 🙁"),
         "lista_flags_ubicaciones": (self.listas_palabras["lista_flags_ubicaciones"],
                                     self.editor.get_flags_ubicaciones, None,
                                     "Algo anda mal, no conseguí la lista de ubicaciones! 🙁"),
+        "regcompras_lista": (self.listas_palabras["regcompras_lista"], self.editor.get_compras_registradas,
+                             None, "Parece que no hay ninguna compra en la lista de registradas!"),
         }
         lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
                                  (self.tupla_compras, self.lista_compras))
@@ -126,6 +133,7 @@ class Respuestas:
             return ""
 
     def procesar_texto_registrada(self, palabras_clave, función):
+        print(f"Corriendo procesar_texto_registrada")
         pronombres = ["el", "la", "los", "las"]
         texto_procesado_lista = self.texto_procesado.split()
         for palabra in texto_procesado_lista.copy():
@@ -135,6 +143,7 @@ class Respuestas:
                 break
         if texto_procesado_lista[0] in pronombres:
             texto_procesado_lista.pop(0)
+        print(f"texto_procesado_lista = {texto_procesado_lista}")
         return función(" ".join(texto_procesado_lista))
     
     def procesar_texto_quehacer(self, nombre_usuario, categoría, función):

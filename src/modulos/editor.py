@@ -124,8 +124,6 @@ class EditorSheet:
         0: Abierta
         1: Agotada
         """
-        compra = self.procesar_texto(compra)
-        compra_regex = re.compile(compra)
         match modo:
             case 0:
                 columna = 4
@@ -135,18 +133,15 @@ class EditorSheet:
                 columna = None
                 print("Se seleccionó un número inválido para el modo de la función")
                 return "Algo falló, Juan debería revisar los logs."
-        compras = self.registro_compras.findall(compra_regex, in_column=2, case_sensitive=False)
-        if len(compras) > 1:
-            respuesta = "Encontré varios ítems que contienen lo que enviaste: \n"
-            for ítem in compras:
-                respuesta += f"• {ítem.value}\n"
-            respuesta += ("Por favor aclarame qué ítem querés que marque como "
-                            f"{"abierto" if columna == 4 else "agotado"}!")
-            return respuesta
-        if compras:
-            celda_compra = compras[0]
-        else:
+        búsqueda = self.buscar_ítem_registrados(compra)
+        if not búsqueda:
             return
+        if isinstance(compra, str):
+            búsqueda += ("\nPor favor aclarame qué ítem querés que marque como "
+                            f"{"abierto" if columna == 4 else "agotado"}!")
+            return búsqueda
+        else:
+            celda_compra = búsqueda
         if self.registro_compras.cell(celda_compra.row, columna).value:
             return (f"❗ Parece que este ítem ya fue marcado como "
                 f"{"abierto" if columna == 4 else "agotado"} :)")
@@ -286,6 +281,39 @@ class EditorSheet:
         #mensaje += f"• {"\n• ".join([": ".join(item for item in par) for par in self.lista_flags_ubicaciones])}"
         mensaje += f"• {"\n• ".join(f"<b>{x[0]}</b>: {x[1]}" for x in self.lista_flags_ubicaciones)}"
         return mensaje.strip()
+
+    def get_compras_registradas(self, _):
+        mensaje = "<b><u>Lista de compras registradas(para ver cuánto nos duran):</u></b>\n"
+        compras_registradas = self.registro_compras.col_values(2)
+        compras_registradas.pop(0)
+        if compras_registradas:
+            mensaje += f"• {"\n• ".join(compras_registradas)}"
+        else:
+            mensaje = "No habían compras registradas!"
+        return mensaje
+
+    def get_duración_registrada(self, compra):
+        búsqueda = self.buscar_ítem_registrados(compra)
+        print(f"Buscado: encontré {búsqueda}")
+        if isinstance(búsqueda, str):
+            búsqueda += "\n Podrías aclararme a cuál de estos ítems te referís?"
+            return búsqueda
+        elif not búsqueda:
+            return
+        row = búsqueda.row
+        cantidad = self.registro_compras.cell(row, 3).value
+        apertura = self.registro_compras.cell(row, 4).value
+        cierre = self.registro_compras.cell(row, 5).value
+        if not apertura:
+            return f"⚠️ Al parecer, el ítem {búsqueda.value} no fue abierto todavía."
+        if not cierre:
+            return f"⚠️ Al parecer, el ítem {búsqueda.value} no fue agotado todavía."
+        apertura_dt = datetime.strptime(apertura, "%Y/%m/%d").date()
+        cierre_dt = datetime.strptime(cierre, "%Y/%m/%d").date()
+        duración = abs((cierre_dt - apertura_dt).days)
+        return (f"El ítem {búsqueda.value} {"(" + cantidad +")" if cantidad else ""}"
+                    f" nos duró {duración} días entre que lo abrimos "
+                        f"el {apertura} y se acabó el {cierre}")
 
     # Métodos de procesamiento de texto
 
@@ -428,6 +456,22 @@ class EditorSheet:
             mensaje += mensaje_agregado
             mensaje_agregado = ""
         return mensaje
+
+    # Misceláneos
+    def buscar_ítem_registrados(self, ítem: str):
+        ítem = self.procesar_texto(ítem)
+        ítem_regex = re.compile(ítem)
+        # Da como resultado un objeto Cell o varios, sea como sea es una lista de Cell
+        búsqueda = self.registro_compras.findall(ítem_regex, in_column=2, case_sensitive=False)
+        if len(búsqueda) > 1:
+            respuesta = "❗ Encontré varios ítems que contienen lo que enviaste: "
+            for elemento in búsqueda:
+                respuesta += f"\n• {elemento.value}"
+            return respuesta
+        elif not búsqueda:
+            return búsqueda
+        else:
+            return búsqueda[0]
 
 def main():
     editor = EditorSheet()
