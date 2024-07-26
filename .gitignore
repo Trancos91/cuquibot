@@ -2,3 +2,5 @@ venv/
 src/__pycache__/
 src/modulos/__pycache__/
 src/secretos/
+actualizar.sh
+src/botsoli_main.py
