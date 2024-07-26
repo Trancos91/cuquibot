@@ -11,6 +11,7 @@ class Respuestas:
         self.update = update
         self.editor = EditorSheet()
         self.first_name = update.message.from_user.first_name
+        self.lista_flags_ubicaciones = self.editor.lista_flags_ubicaciones
         with open("secretos/alias.json", "r", encoding="ascii") as file:
             alias = json.load(file)
         try:
@@ -28,6 +29,8 @@ class Respuestas:
             "regcompras_apertura": ["abri", "abrio", "abrimos"],
             "regcompras_agotado": ["termine", "termino", "terminamos", "acabe", 
                                    "acabo", "acabamos", "agote", "agoto", "agotamos"],
+            "lista_flags_ubicaciones": ["flags", "ubicaciones", "lugares", "flag",
+                                        "ubicacion", "lugar"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
         self.lista_quehaceres = {
@@ -66,6 +69,9 @@ class Respuestas:
         "regcompras_agotado": (self.listas_palabras["regcompras_agotado"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_agotado"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
+        "lista_flags_ubicaciones": (self.listas_palabras["lista_flags_ubicaciones"],
+                                    self.editor.get_flags_ubicaciones, None,
+                                    "Algo anda mal, no conseguí la lista de ubicaciones! 🙁"),
         }
         lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
                                  (self.tupla_compras, self.lista_compras))

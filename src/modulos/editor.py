@@ -15,7 +15,7 @@ class EditorSheet:
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
         self.registro_compras = self.workbook.worksheet("Registro de víveres")
-        self.lista_flags = (
+        self.lista_flags_ubicaciones = (
             ("h", "la habitación"),
             ("B", "el baño grande"),
             ("b", "el baño chico"),
@@ -36,11 +36,13 @@ class EditorSheet:
         JUANITO = (3, "de juanito", "D")
 
     class CategoríaQuehaceres(Enum):
-        """La primera int refiere a la posición del ítem en la lista,
+        """
+        La primera int refiere a la posición del ítem en la lista,
         el string refiere al verbo, el string de letra a su posición en la sheet,
         y la última integer es:
         0 = incompatible con flags
-        1 = compatible con flags de ubicación"""
+        1 = compatible con flags de ubicación
+        """
         DIA = (0, "día", "A", 0)
         BARRER = (1, "barrer", "B", 1)
         TRAPEAR = (2, "trapear", "C", 1)
@@ -150,7 +152,7 @@ class EditorSheet:
                 f"{"abierto" if columna == 4 else "agotado"} :)")
         fecha_hoy = date.today().strftime("%Y/%m/%d")
         self.registro_compras.update_cell(celda_compra.row, columna, fecha_hoy)
-        return (f"Ahí registré que hoy, {fecha_hoy}, se "
+        return (f"✅ Ahí registré que hoy, {fecha_hoy}, se "
             f"{"abrió" if columna == 4 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
 
     def agregar_quehacer(self, nombre, categoría: CategoríaQuehaceres, flags=None, /):
@@ -160,7 +162,7 @@ class EditorSheet:
         las acciones "barrer", "limpiar" y "trapear")
         """
         # Chequea que los flags sean válidos
-        if error := self.chequear_flags(self.lista_flags, flags):
+        if error := self.chequear_flags(self.lista_flags_ubicaciones, flags):
             return error
 
         # Definiendo variables
@@ -186,7 +188,11 @@ class EditorSheet:
         # Si el usuarix está entre lxs presentes(ya está anotadx) y no hay flags,
         # al no haber nada que agregar, devuelve que ya estaba anotadx.
         if usuarix in presentes and not flags:
-            return f"Ya había anotado que {usuarix[0]} se encargó de {categoría.value[1]} hoy!"
+            mensaje = f"⚠️ Ya había anotado que {usuarix[0]} se encargó de {categoría.value[1]} hoy!"
+            if categoría.value[3] == 1:
+                mensaje += ("\n\n💡 Acordate de que podés preguntarme por <i>flags</i> o <i>ubicaciones</i>"
+                                " para revisar qué flags de ubiaciones hay, si querés ser más específicx! ;)")
+            return mensaje
         # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
         try:
             fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
@@ -197,18 +203,21 @@ class EditorSheet:
             fecha_hoy = date.today().strftime("%Y/%m/%d")
             self.quehaceres.update_cell(num_ultima_row + 1, 1, fecha_hoy)
         else:
-            fecha_hoy = fecha_row
+            if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m/%d")
         # Chequea si hay flags, arma la string para el mensaje de respuesta 
         # y la secuencia de flags
         mensaje_flags, mensaje_preexistentes, string_celda = self.procesar_flags(flags, 
-                                                            self.lista_flags, usuarix, otrx)
+                                                            self.lista_flags_ubicaciones, usuarix, otrx)
         # Si hay flags ingresadas, pero no hay un mensaje de nuevas flags generado,
         # devuelve que ya hay alguien anotadx que hizo esa acción con esas flags.
         if flags and not mensaje_flags:
-            return f"Al parecer, alguien ya se anotó hoy haciendo eso en todas esas ubicaciones 😕"
+            return f"❗ Al parecer, alguien ya se anotó hoy haciendo eso en todas esas ubicaciones 😕"
 
-        respuesta += (f"Ahí anoté que {nombre} se encargó de {categoría.value[1]}"
+        respuesta += (f"✅ Ahí anoté que {nombre} se encargó de {categoría.value[1]}"
                     f"{mensaje_flags if mensaje_flags else ""} hoy {fecha_hoy}.")
+        if not flags and categoría.value[3] == 1:
+            respuesta += ("\n\n💡 Acordate de que podés preguntarme por <i>flags</i> o <i>ubicaciones</i>"
+                            " para revisar qué flags de ubiaciones hay, si querés ser más específicx! ;)")
         if mensaje_preexistentes and mensaje_flags:
             respuesta += (f"\nPor otro lado, figura como que alguien ya se"
                                 " encargó de {mensaje_preexistentes}")
@@ -266,9 +275,17 @@ class EditorSheet:
         compras = self.lista_compras.col_values(columna)
         compras.pop(0)
         if compras:
-            return f"<b><u>Lista de compras {categoría.value[1]}:</u></b> \n• {"\n• ".join(compras)}"
+            return (f"<b><u>Lista de compras {categoría.value[1]}:</u></b> \n"
+                            f"• {"\n• ".join(compras)}")
         else:
             return ""
+
+    def get_flags_ubicaciones(self, _):
+        mensaje = "<b><u>Lista de flags de ubicaciones:</u></b>\n"
+        # Me gustó esta list comprehension así que la guardo aunque no me sirva :(
+        #mensaje += f"• {"\n• ".join([": ".join(item for item in par) for par in self.lista_flags_ubicaciones])}"
+        mensaje += f"• {"\n• ".join(f"<b>{x[0]}</b>: {x[1]}" for x in self.lista_flags_ubicaciones)}"
+        return mensaje.strip()
 
     # Métodos de procesamiento de texto
 
@@ -324,8 +341,8 @@ class EditorSheet:
             return
         for ch in flags:
             if ch not in ch_flags:
-                return ("Ingresaste un flag inválido. Escribí /listaubicaciones "
-                    "para ver la lista de ubicaciones y sus respectivos flags.")
+                return ("Ingresaste un flag inválido. Preguntame sobre <i>flags</i> o <i> ubicaciones</i> "
+                    "para ver la lista de ubicaciones y sus respectivos flags ;)")
         print(f"Recibidos los siguientes flags: {flags}")
 
     def procesar_presentes(self, celda):
