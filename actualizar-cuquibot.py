@@ -6,7 +6,7 @@ def conseguir_imagenes():
     return imagenes_lista
 
 def seleccionar_masalta(lista):
-    lista_listas = [x.strip().split(".") for x in lista if x.strip() != "latest"]
+    lista_listas = [x.strip().split(".") for x in lista if x.strip() != "latest" and x.strip() != '']
     lista_ints = [[int(x) for x in version] for version in lista_listas]
     cero = 0
     uno = 0
