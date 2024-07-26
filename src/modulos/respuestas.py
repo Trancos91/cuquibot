@@ -18,15 +18,6 @@ class Respuestas:
         except KeyError:
             print("Alguien más está usando el bot! :O")
             self.nombre_usuario = "Desconocidx o.o"
-
-                    #match self.first_name:
-                    #    case "Siberia":
-                    #        self.nombre_usuario = "In"
-                    #    case "Quav":
-                    #        self.nombre_usuario = "Juan"
-                    #    case _:
-                    #        print("Alguien más está usando el bot")
-                    #        self.nombre_usuario = "Desconocidx o.o"
         with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
             self.BOT_USERNAME = str(file.read().strip())
 
@@ -68,14 +59,6 @@ class Respuestas:
         # Compras
         "diarias": (self.listas_palabras["diarias"], self.diarias, None,
                     "No hay nada para comprar en las listas de supermercado ni verdulería! 🎉"),
-            #"juanito": (self.listas_palabras["juanito"], self.editor.get_lista_compras, 
-            #self.editor.CategoríaCompras.JUANITO, "No hay nada para comprar en esa lista! 🎉"),
-            #"mensuales": (self.listas_palabras, self.editor.get_lista_compras,
-            #self.editor.CategoríaCompras.MENSUALES, "No hay nada para comprar en esa lista! 🎉"),
-            #"supermercado": (self.listas_palabras["supermercado"], self.editor.get_lista_compras,
-            #self.editor.CategoríaCompras.SUPERMERCADO, "No hay nada para comprar en esa lista! 🎉"),
-            #"verduleria": (self.listas_palabras["verduleria"], self.editor.get_lista_compras,
-            #self.editor.CategoríaCompras.VERDULERIA, "No hay nada para comprar en esa lista! 🎉"),
         # Registro de víveres. Pasan la lista de palabras y el método el editor a llamar
         "regcompras_apertura": (self.listas_palabras["regcompras_apertura"], self.procesar_texto_registrada, 
                                 (self.listas_palabras["regcompras_apertura"], self.editor.abrir_compra_registrada), 
@@ -90,7 +73,6 @@ class Respuestas:
         for tupla in lista_inicialización:
             dicc_lista = {k: tupla[0](k) for k in tupla[1]}
             self.config_tareas.update(dicc_lista)
-            print(f"Inicializado con método {tupla[0]}")
 
     def tupla_quehaceres(self, key: str):
         upperkey = key.upper().strip()
@@ -102,7 +84,6 @@ class Respuestas:
     def tupla_compras(self, key: str):
         upperkey = key.upper().strip()
         categoría_obj = getattr(self.editor.CategoríaCompras, upperkey)
-        print(categoría_obj)
         return (self.lista_compras[key], self.editor.get_lista_compras,
                  categoría_obj, "No hay nada para comprar en esa lista! 🎉")
 
@@ -118,11 +99,8 @@ class Respuestas:
             try:
                 iter(categoría[2])
                 tupla_categoría = categoría[2]
-                print(f"La tupla es: {tupla_categoría}")
             except TypeError:
-                print("Salió TypeError")
                 tupla_categoría = (categoría[2], )
-                print(f"La tupla es: {tupla_categoría}")
             respuesta = categoría[1](*tupla_categoría)
             if respuesta:
                 return respuesta
@@ -142,7 +120,6 @@ class Respuestas:
             return ""
 
     def procesar_texto_registrada(self, palabras_clave, función):
-        print("Procesando texto registrada")
         pronombres = ["el", "la", "los", "las"]
         texto_procesado_lista = self.texto_procesado.split()
         for palabra in texto_procesado_lista.copy():
@@ -152,7 +129,6 @@ class Respuestas:
                 break
         if texto_procesado_lista[0] in pronombres:
             texto_procesado_lista.pop(0)
-        print(f"Texto procesado: {texto_procesado_lista}")
         return función(" ".join(texto_procesado_lista))
     
     def procesar_texto_quehacer(self, nombre_usuario, categoría, función):
