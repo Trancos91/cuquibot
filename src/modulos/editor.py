@@ -151,6 +151,8 @@ class EditorSheet:
         self.registro_compras.update_cell(celda_compra.row, columna, fecha_hoy)
         mensaje = (f"✅ Ahí registré que hoy, {fecha_hoy}, se "
             f"{"abrió" if modo == 0 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
+        if modo == 0:
+            return mensaje
         if modo == 1:
             row = self.registro_compras.row_values(celda_compra.row)
             return mensaje + self.agregar_duración(row)
@@ -232,19 +234,21 @@ class EditorSheet:
         fecha_apertura = datetime.strptime(fecha_apertura, "%Y/%m/%d").date()
         fecha_agotado = datetime.strptime(fecha_agotado, "%Y/%m/%d").date()
         duración = f"{abs((fecha_agotado - fecha_apertura).days)} días"
+        mensaje_comienzo = ("\n\nℹ️ Agregué cuánto nos duró en esta ocasión a la sheet"
+        " de duración de víveres!")
+        mensaje_final = (" Si querés, ahora podrías despejar las fechas del registro de este ítem"
+            " con el comando /despejarregistrado y este mismo ítem :)")
         if cantidad:
             ítem += f"({cantidad})"
         búsqueda = self.duración_víveres.find(ítem)
         if not búsqueda:
             self.duración_víveres.append_row((ítem, duración))
-            return (f"\n\nℹ️ Agregué cuánto nos duró en esta ocasión a la sheet"
-            " de durarción de víveres! Como no existía esta categoría todavía, "
-            "la creé.")
+            return (mensaje_comienzo +
+            " Como no existía esta categoría todavía, la creé." + mensaje_final)
         else:
             columna = len(self.duración_víveres.row_values(búsqueda.row)) + 1
             self.duración_víveres.update_cell(búsqueda.row, columna, duración)
-            return (f"\n\nℹ️ Agregué cuánto nos duró en esta ocasión a la sheet"
-            " de durarción de víveres!")
+            return mensaje_comienzo + mensaje_final
 
     #Métodos de despeje(también son setters)
 
@@ -282,6 +286,20 @@ class EditorSheet:
             return True
         else:
             return False
+
+    def despejar_registrado(self, ítem):
+        búsqueda = self.buscar_ítem_registrados(ítem, self.registro_compras)
+        if isinstance(búsqueda, str):
+            return búsqueda
+        elif not búsqueda:
+            return ("❗ No encontré el ítem que me especificaste en la lista"
+            " de ítems registrados! 🙁")
+        elif isinstance(búsqueda, gspread.cell.Cell):
+            row = búsqueda.row
+            self.registro_compras.batch_clear([f"C{row}:D{row}"])
+            return (f"✅ Ya despejé las fechas de apertura y vencimiento "
+                f"del ítem {búsqueda.value} de la lista de ítems registrados")
+
     #Métodos getter
 
     def get_tareas_diarias(self, _):
@@ -487,7 +505,7 @@ class EditorSheet:
     # Misceláneos
     def buscar_ítem_registrados(self, ítem: str, sheet: gspread.worksheet.Worksheet):
         """
-        Busca un ítem en un worksheet específico, y devuelve una lista con los ítems
+        Busca un ítem en un worksheet específico, y devuelve una string enlistando los ítems
         si encuentra varios, o el ítem en sí (un objeto Cell) si encontró uno solo.
         Si no encuentra nada, devuelve la lista vacía.
         """

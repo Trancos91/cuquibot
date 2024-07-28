@@ -33,28 +33,6 @@ async def agregartareas_command(update: Update,
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
-    #texto = update.message.text
-    #texto_procesado = texto.replace("/agregarcompras", "").replace(BOT_USERNAME, "").strip().lower()
-    #if not texto_procesado:
-    #    await update.message.reply_text("⚠️No recibí una lista de compras ni una categoría 🙁⚠️ \nAcordate "
-    #                                    "de escribir las compras separadas por comas!"
-    #                                    " Si usaste este comando tocando del menú, "
-    #                                    "procurá tocar la flechita \u2199 a la derecha"
-    #                                    " del comando en vez "
-    #                                    "del comando en sí :)")
-    #    return
-    #texto_lista = texto_procesado.split()
-    #categoría = unidecode(texto_lista.pop(0))
-    #texto_procesado = " ".join(texto_lista)
-    #compras = [compra.strip() for compra in texto_procesado.split(",")]
-    #if not compras:
-    #    await update.message.reply_text("⚠️No recibí una lista de compras 🙁⚠️ \nAcordate "
-    #                                    "de escribir las compras separadas por comas!"
-    #                                    " Si usaste este comando tocando del menú, "
-    #                                    "procurá tocar la flechita \u2199 a la derecha"
-    #                                    " del comando en vez "
-    #                                    "del comando en sí :)")
-    #    return
     args = context.args
     procesados = procesar_parámetros(args, 2)
     error = chequear_contenido_parámetros(procesados, 2)
@@ -202,6 +180,13 @@ async def despejarunacompra_command(update: Update,
         await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}"
                                         "en la lista seleccionada 🙁")
         
+async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    editor = EditorSheet()
+    args = context.args
+    procesado = procesar_parámetros(args, 4)
+    mensaje = editor.despejar_registrado(procesado)
+    await update.message.reply_text(mensaje)
+
 # Respuestas
 def handle_message(texto: str, update: Update):
     respuesta = Respuestas(texto, update).respuestas()
@@ -421,6 +406,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('despejarunatarea', despejarunatarea_command))
     app.add_handler(CommandHandler('despejarunacompra', despejarunacompra_command))
     app.add_handler(CommandHandler('registrarviveres', registrarviveres_command))
+    app.add_handler(CommandHandler('despejarregistrado', despejarregistrado_command))
 
     #COMANDOS DE DEBUG
 
