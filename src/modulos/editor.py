@@ -15,6 +15,7 @@ class EditorSheet:
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
         self.registro_compras = self.workbook.worksheet("Registro de víveres")
+        self.duración_víveres = self.workbook.worksheet("Duración de víveres")
         self.lista_flags_ubicaciones = (
             ("h", "la habitación"),
             ("B", "el baño grande"),
@@ -76,7 +77,7 @@ class EditorSheet:
             final_respuesta = "a la lista de tareas"
         elif categoría == 1:
             print("Categoría 1 seleccionada")
-            columna = 2
+            columna = 1
             sheet = self.registro_compras
             final_respuesta = "al registro de víveres"
             procesado = self.procesar_registrados(productos)
@@ -104,10 +105,8 @@ class EditorSheet:
                 respuesta += f"{producto}, "
             rows = sheet.col_values(columna)
             sheet.update_cell(len(rows) + 1, columna , producto)
-            if categoría == 1:
-                sheet.update_cell(len(rows) + 1, 1, fecha_hoy)
-                if cantidades and cantidades[productos_proc.index(producto)]:
-                    sheet.update_cell(len(rows) + 1, 3, cantidades[productos_proc.index(producto)])
+            if categoría == 1 and cantidades and cantidades[productos_proc.index(producto)]:
+                    sheet.update_cell(len(rows) + 1, 2, cantidades[productos_proc.index(producto)])
         respuesta += final_respuesta
         return respuesta 
 
@@ -126,29 +125,35 @@ class EditorSheet:
         """
         match modo:
             case 0:
-                columna = 4
+                columna = 3
             case 1:
-                columna = 5
+                columna = 4
             case _:
                 columna = None
                 print("Se seleccionó un número inválido para el modo de la función")
                 return "Algo falló, Juan debería revisar los logs."
-        búsqueda = self.buscar_ítem_registrados(compra)
+        búsqueda = self.buscar_ítem_registrados(compra, self.registro_compras)
         if not búsqueda:
             return
         if isinstance(búsqueda, str):
             búsqueda += ("\nPor favor aclarame qué ítem querés que marque como "
-                            f"{"abierto" if columna == 4 else "agotado"}!")
+                            f"{"abierto" if modo == 0 else "agotado"}!")
             return búsqueda
         else:
             celda_compra = búsqueda
         if self.registro_compras.cell(celda_compra.row, columna).value:
             return (f"❗ Parece que este ítem ya fue marcado como "
-                f"{"abierto" if columna == 4 else "agotado"} :)")
+                f"{"abierto" if modo == 0 else "agotado"} :)")
+        elif modo == 1 and not self.registro_compras.cell(celda_compra.row, columna -1).value:
+            return (f"❗ Parece que este ítem no tiene todavía una fecha de "
+            "apertura! No querés registrar eso primero, mejor?")
         fecha_hoy = date.today().strftime("%Y/%m/%d")
         self.registro_compras.update_cell(celda_compra.row, columna, fecha_hoy)
-        return (f"✅ Ahí registré que hoy, {fecha_hoy}, se "
-            f"{"abrió" if columna == 4 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
+        mensaje = (f"✅ Ahí registré que hoy, {fecha_hoy}, se "
+            f"{"abrió" if modo == 0 else "agotó"} el siguiente ítem: {celda_compra.value} 😊")
+        if modo == 1:
+            row = self.registro_compras.row_values(celda_compra.row)
+            return mensaje + self.agregar_duración(row)
 
     def agregar_quehacer(self, nombre, categoría: CategoríaQuehaceres, flags=None, /):
         """
@@ -218,6 +223,28 @@ class EditorSheet:
                                 " encargó de {mensaje_preexistentes}")
         self.quehaceres.update_cell(num_ultima_row, col_categoría, string_celda)
         return respuesta
+
+    def agregar_duración(self, row):
+        """
+        Recibe una lista de 4 valores de la row del regístro de víveres
+        """
+        ítem, cantidad, fecha_apertura, fecha_agotado = row
+        fecha_apertura = datetime.strptime(fecha_apertura, "%Y/%m/%d").date()
+        fecha_agotado = datetime.strptime(fecha_agotado, "%Y/%m/%d").date()
+        duración = f"{abs((fecha_agotado - fecha_apertura).days)} días"
+        if cantidad:
+            ítem += f"({cantidad})"
+        búsqueda = self.duración_víveres.find(ítem)
+        if not búsqueda:
+            self.duración_víveres.append_row((ítem, duración))
+            return (f"\n\nℹ️ Agregué cuánto nos duró en esta ocasión a la sheet"
+            " de durarción de víveres! Como no existía esta categoría todavía, "
+            "la creé.")
+        else:
+            columna = len(self.duración_víveres.row_values(búsqueda.row)) + 1
+            self.duración_víveres.update_cell(búsqueda.row, columna, duración)
+            return (f"\n\nℹ️ Agregué cuánto nos duró en esta ocasión a la sheet"
+            " de durarción de víveres!")
 
     #Métodos de despeje(también son setters)
 
@@ -293,7 +320,7 @@ class EditorSheet:
         return mensaje
 
     def get_duración_registrada(self, compra):
-        búsqueda = self.buscar_ítem_registrados(compra)
+        búsqueda = self.buscar_ítem_registrados(compra, self.registro_compras)
         print(f"Buscado: encontré {búsqueda}")
         if isinstance(búsqueda, str):
             búsqueda += "\n Podrías aclararme a cuál de estos ítems te referís?"
@@ -301,9 +328,9 @@ class EditorSheet:
         elif not búsqueda:
             return
         row = búsqueda.row
-        cantidad = self.registro_compras.cell(row, 3).value
-        apertura = self.registro_compras.cell(row, 4).value
-        cierre = self.registro_compras.cell(row, 5).value
+        cantidad = self.registro_compras.cell(row, 2).value
+        apertura = self.registro_compras.cell(row, 3).value
+        cierre = self.registro_compras.cell(row, 4).value
         if not apertura:
             return f"⚠️ Al parecer, el ítem {búsqueda.value} no fue abierto todavía."
         if not cierre:
@@ -458,11 +485,16 @@ class EditorSheet:
         return mensaje
 
     # Misceláneos
-    def buscar_ítem_registrados(self, ítem: str):
+    def buscar_ítem_registrados(self, ítem: str, sheet: gspread.worksheet.Worksheet):
+        """
+        Busca un ítem en un worksheet específico, y devuelve una lista con los ítems
+        si encuentra varios, o el ítem en sí (un objeto Cell) si encontró uno solo.
+        Si no encuentra nada, devuelve la lista vacía.
+        """
         ítem = self.procesar_texto(ítem)
         ítem_regex = re.compile(ítem)
         # Da como resultado un objeto Cell o varios, sea como sea es una lista de Cell
-        búsqueda = self.registro_compras.findall(ítem_regex, in_column=2, case_sensitive=False)
+        búsqueda = sheet.findall(ítem_regex, case_sensitive=False)
         if len(búsqueda) > 1:
             respuesta = "❗ Encontré varios ítems que contienen lo que enviaste: "
             for elemento in búsqueda:
