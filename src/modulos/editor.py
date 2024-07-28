@@ -282,6 +282,20 @@ class EditorSheet:
             return True
         else:
             return False
+
+    def despejar_registrado(self, ítem):
+        búsqueda = self.buscar_ítem_registrados(ítem, self.registro_compras)
+        if isinstance(búsqueda, str):
+            return búsqueda
+        elif not búsqueda:
+            return ("❗ No encontré el ítem que me especificaste en la lista"
+            " de ítems registrados! 🙁")
+        elif isinstance(búsqueda, gspread.cell.Cell):
+            row = búsqueda.row
+            self.registro_compras.batch_clear([f"C{row}:D{row}"])
+            return (f"✅ Ya despejé las fechas de apertura y vencimiento "
+                f"del ítem {búsqueda.value} de la lista de ítems registrados")
+
     #Métodos getter
 
     def get_tareas_diarias(self, _):
@@ -487,7 +501,7 @@ class EditorSheet:
     # Misceláneos
     def buscar_ítem_registrados(self, ítem: str, sheet: gspread.worksheet.Worksheet):
         """
-        Busca un ítem en un worksheet específico, y devuelve una lista con los ítems
+        Busca un ítem en un worksheet específico, y devuelve una string enlistando los ítems
         si encuentra varios, o el ítem en sí (un objeto Cell) si encontró uno solo.
         Si no encuentra nada, devuelve la lista vacía.
         """
