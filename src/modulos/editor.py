@@ -136,7 +136,7 @@ class EditorSheet:
         búsqueda = self.buscar_ítem_registrados(compra)
         if not búsqueda:
             return
-        if isinstance(compra, str):
+        if isinstance(búsqueda, str):
             búsqueda += ("\nPor favor aclarame qué ítem querés que marque como "
                             f"{"abierto" if columna == 4 else "agotado"}!")
             return búsqueda
