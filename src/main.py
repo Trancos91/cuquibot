@@ -15,7 +15,39 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ' Escribí "/help" para ver los comandos disponibles :3')
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    mensaje = ('A implementar nya')
+    mensaje = ('Hola, nya! Soy la cuquibot 😺\n'
+    'Te paso la lista de comandos(instrucciones que empiezan con "/") y '
+    'de palabras clave :)\n\n'
+    '📋 <b><u>Lista de comandos:</u></b>\n'
+    '  • <b>/agregartareas:</b> Agregar tareas a la lista de tareas. Separalas con comas!\n'
+    '  • <b>/agregarcompras:</b> Agregar ítems a una lista de compras específica. Escribí'
+    ' la primera palabra refiriendo a la lista, y después ingresá las compras separadas por comas.'
+    ' Por ejemplo: \n'
+    '<pre>/agregarcompras super arroz, bicarbonato de sodio, azúcar morena</pre>\n'
+    '  • <b>/registrarviveres:</b> Agregar un ítem al registro de víveres, a donde anotamos'
+    ' las fechas de apertura y agotamiento de las cosas que compramos. Los ítems pueden '
+    'contener la cantidad de ese ítem que se registra <i>entre paréntesis</i>. Por ejemplo:\n'
+    '<pre>/registrarviveres Arroz(1kg), Lentejas(2kg), Leche de coco, Shampoo(500ml)</pre>\n'
+    '  • <b>/despejartareas:</b> Despeja por completo la lista de tareas.\n'
+    '  • <b>/despejarcompras:</b> Despeja por completo una lista de compras. Por ejemplo:\n'
+    '<pre>/despejarcompras juanito</pre>\n'
+    '  • <b>/despejarunatarea:</b> Despeja una tarea de la lista de tareas.\n'
+    '  • <b>/despejarunacompra:</b> Despeja una compra de la lista de compras. Por ejemplo:\n'
+    '<pre>/despejarunacompra super leche de coco</pre>\n'
+    '  • <b>/despejarregistrado:</b> Despeja <i>las fechas de apertura y agotamiento</i> '
+    'de un elemento del registro de víveres, dejándolo listo para volver a registrar. '
+    '<b>No</b> despeja el elemento en sí de la lista.\n\n'
+    '📋 <b><u>Listas de compras:</u></b>\n'
+    '  • Supermercado(o "super", o "chino")\n'
+    '  • Verdulería(o "verdu")\n'
+    '  • Mensuales(compras del coto mensuales)\n'
+    '  • Juanito\n'
+    '  • Diarias(<i>sólo se puede utilizar para acceder a la lista, no para agregar ítems. '
+    'Combina las listas de Supermercado y Verdulería</i>)\n\n'
+    '💡 Por último, para acceder a la lista de palabras clave a las que respondo, '
+    'que por lo general apuntan a pedidos de información o a anotar cosas más cotidianas '
+    'como los quehaceres, tageame y escribí <i>referencia</i> o <i>refe</i>'
+        '(también sirve <i>palabras</i>).')
 
     await update.message.reply_text(mensaje)
 
@@ -43,11 +75,11 @@ async def agregarcompras_command(update: Update,
     if procesados:
         categoría, compras = procesados
     match categoría:
-        case "supermercado":
+        case "supermercado" | "super" | "chino":
             categoría_compras = editor.CategoríaCompras.SUPERMERCADO
-        case "verduleria":
+        case "verduleria" | "verdu":
             categoría_compras = editor.CategoríaCompras.VERDULERIA
-        case "mensuales":
+        case "mensuales" | "mensual":
             categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
             categoría_compras = editor.CategoríaCompras.JUANITO
@@ -287,7 +319,7 @@ def procesar_parámetros(args, modo: int):
             if len(args) > 1 or not args:
                 return None
             else:
-                return unidecode(args[0].strip().lower())
+                return unidecode(args[0]).strip().lower()
         case 1:
             if not args:
                 return None
@@ -297,14 +329,14 @@ def procesar_parámetros(args, modo: int):
             if len(args) < 2 or not args:
                 return None
             else:
-                categoría = unidecode(args.pop(0).strip().lower())
+                categoría = unidecode(args.pop(0)).strip().lower()
                 lista = [x.strip().capitalize() for x in " ".join(args).split(",")]
                 return (categoría, lista)
         case 3:
             if len(args) < 2 or not args:
                 return None
             else:
-                categoría = unidecode(args.pop(0).strip().lower())
+                categoría = unidecode(args.pop(0)).strip().lower()
                 ítem = " ".join(args).strip().capitalize()
                 return (categoría, ítem)
         case 4:
