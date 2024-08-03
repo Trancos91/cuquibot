@@ -124,7 +124,8 @@ async def despejarcompras_command(update: Update,
         await update.message.reply_text(error)
         return
     match compra:
-        case ("diarias" | "verduleria" | "supermercado"| "mensuales" | "juanito"):
+        case ("diarias" | "verduleria" | "verdu" | "verduras"
+            "supermercado"| "super" | "chino" | "mensuales" | "juanito"):
             pass
         case _:
             await update.message.reply_text("Por favor aclará 'diarias', "
@@ -292,13 +293,13 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
         if "1" in query.data:
             editor.despejar_tareas()
             await query.edit_message_text(text="Despejada la lista de tareas! 🙂")
-    if "supermercado" in query.data:
+    if any(word in query.data for word in ["supermercado", "super", "chino"]):
         if "0" in query.data:
             await query.edit_message_text(text="Ok, dejo la lista como está :)")
         elif "1" in query.data:
             editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
             await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    if "verduleria" in query.data:
+    if any(word in query.data for word in ["verduleria", "verdu", "verduras"]):
         if "0" in query.data:
             await query.edit_message_text(text="Ok, dejo la lista como está :)")
         elif "1" in query.data:
