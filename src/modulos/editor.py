@@ -360,6 +360,32 @@ class EditorSheet:
                     f" nos duró {duración} días entre que lo abrimos "
                         f"el {apertura} y se acabó el {cierre}")
 
+    def get_duraciones_registrada(self, compra):
+        """
+        Devuelve un string enlistando las últimas 5 duraciones de un cierto ítem, y su
+        duración promedio
+        """
+        búsqueda = self.buscar_ítem_registrados(compra, self.duración_víveres)
+        if isinstance(búsqueda, str):
+            return búsqueda
+        elif not búsqueda:
+            return
+        valores = self.duración_víveres.row_values(búsqueda.row)
+        ítem = valores.pop(0)
+        valores = [valor.split()[0] for valor in valores]
+        valores = [int(valor) for valor in valores]
+        print(valores)
+        try:
+            últimos = valores[-5:]
+        except IndexError:
+            últimos = valores
+        respuesta = (f"El ítem {ítem} nos duró "
+        f"{", ".join([str(item) for item in últimos])} días "
+        "las últimas veces que compramos, y contando todas las veces nos duró "
+        f"un promedio de {sum(valores) / len(valores)} días.")
+        return respuesta
+
+
     # Métodos de procesamiento de texto
 
     def eliminar_emojis(self, texto):
@@ -510,9 +536,10 @@ class EditorSheet:
         Si no encuentra nada, devuelve la lista vacía.
         """
         ítem = self.procesar_texto(ítem)
-        ítem_regex = re.compile(ítem)
+        ítem_regex = re.compile(r".*" + f"{ítem}" + r".*", re.IGNORECASE)
+        print(ítem_regex)
         # Da como resultado un objeto Cell o varios, sea como sea es una lista de Cell
-        búsqueda = sheet.findall(ítem_regex, case_sensitive=False)
+        búsqueda = sheet.findall(ítem_regex)
         if len(búsqueda) > 1:
             respuesta = "❗ Encontré varios ítems que contienen lo que enviaste: "
             for elemento in búsqueda:

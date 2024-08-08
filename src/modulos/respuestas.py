@@ -34,6 +34,7 @@ class Respuestas:
                                         "ubicacion", "lugar"],
             "regcompras_lista": ["registradas", "registrados", "regsitro"],
             "regcompras_duración": ["duracion", "dura", "duro", "duraron", "agotarse", "acabarse"],
+            "regcompras_duraciones": ["duraciones"],
             "referencia": ["referencia", "refe", "palabras"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
@@ -113,14 +114,17 @@ class Respuestas:
         "regcompras_agotado": (self.listas_palabras["regcompras_agotado"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_agotado"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
+        "regcompras_duraciones": (self.listas_palabras["regcompras_duraciones"], self.procesar_texto_registrada,
+                                  (self.listas_palabras["regcompras_duraciones"], self.editor.get_duraciones_registrada),
+                                  "parafernalia"),
         "regcompras_duración": (self.listas_palabras["regcompras_duración"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_duración"], self.editor.get_duración_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
+        "regcompras_lista": (self.listas_palabras["regcompras_lista"], self.editor.get_compras_registradas,
+                             None, "Parece que no hay ninguna compra en la lista de registradas!"),
         "lista_flags_ubicaciones": (self.listas_palabras["lista_flags_ubicaciones"],
                                     self.editor.get_flags_ubicaciones, None,
                                     "Algo anda mal, no conseguí la lista de ubicaciones! 🙁"),
-        "regcompras_lista": (self.listas_palabras["regcompras_lista"], self.editor.get_compras_registradas,
-                             None, "Parece que no hay ninguna compra en la lista de registradas!"),
         "referencia": (self.listas_palabras["referencia"], self.mensaje_simple,
                        (self.mensaje_refe, ), "El mensaje de referencia no debería dar error")
         }
@@ -145,6 +149,9 @@ class Respuestas:
                  categoría_obj, "No hay nada para comprar en esa lista! 🎉")
 
     def respuestas(self) -> str:
+        """
+        Itera sobre cada tarea y chequea si llamó alguna función.
+        """
         for key in self.config_tareas:
             respuesta = self.chequear_presencia(self.config_tareas[key])
             if respuesta:
@@ -152,6 +159,12 @@ class Respuestas:
         return respuesta if respuesta else "No entendí"
 
     def chequear_presencia(self, categoría):
+        """
+        Chequea la presencia de las palabras clave en las palabras del mensaje.
+        Si están, agrupa los argumentos en una tupla(en caso de que no estuviesen
+        agrupados ya) y llama la función indicada pasándole los argumentos. Si
+        la función devuelve algo, lo devuelve, y si no, devuelve el mensaje de error.
+        """
         if any(word in self.texto_procesado for word in categoría[0]):
             if isinstance(categoría[2], Sequence):
                 tupla_categoría = categoría[2]
@@ -172,6 +185,9 @@ class Respuestas:
         return mensaje
 
     def diarias(self, _):
+        """
+        Función especial para el chequeo de compras diarias(combina dos listas)
+        """
         supermercado = self.config_tareas["supermercado"]
         verduleria = self.config_tareas["verduleria"]
         supermercado_respuesta = supermercado[1](supermercado[2])
@@ -183,7 +199,10 @@ class Respuestas:
             return ""
 
     def procesar_texto_registrada(self, palabras_clave, función):
-        print(f"Corriendo procesar_texto_registrada")
+        """
+        Procesa el texto de los mensajes del estilo "abrí"o "se agotó", extrayendo
+        las palabras después del "comando" como argumentos.
+        """
         pronombres = ["el", "la", "los", "las"]
         texto_procesado_lista = self.texto_procesado.split()
         for palabra in texto_procesado_lista.copy():
