@@ -395,18 +395,19 @@ class EditorSheet:
         if not productos:
             return "Al parecer, no hay productos registrados!"
         mensaje = ("<b><u>Lista de ítems registrados y el estado en el que se "
-            "encuentran:</u></b>\n")
+            "encuentran:</u></b>\n"
+            "<i>🟢: Abierto</i> | 🔴: <i>Agotado</i> | ⚪: <i>Sin abrir</i>\n")
         for producto in productos:
             mensaje += (f"  • <b>{producto}</b>{"("+cantidades[productos.index(producto)].value+")" if
             cantidades[productos.index(producto)].value else ""}: ")
             abierto = abiertos[productos.index(producto)]
             agotado = agotados[productos.index(producto)]
             if abierto.value and agotado.value:
-                mensaje += "\n    🔴Agotado\n"
+                mensaje += "🔴\n"
             elif abierto.value and not agotado.value:
-                mensaje += "\n    🟢Abierto\n"
+                mensaje += "🟢\n"
             else:
-                mensaje += "\n    🟠Sin abrir aún\n"
+                mensaje += "⚪\n"
         return mensaje
 
     # Métodos de procesamiento de texto
