@@ -385,6 +385,29 @@ class EditorSheet:
         f"un promedio de {sum(valores) / len(valores)} días.")
         return respuesta
 
+    def get_estado_registradas(self, _):
+        productos = self.registro_compras.col_values(1)
+        cantidades = self.registro_compras.range(f"B2:B{len(productos)}")
+        abiertos = self.registro_compras.range(f"C2:C{len(productos)}")
+        agotados = self.registro_compras.range(f"D2:D{len(productos)}")
+        productos.pop(0)
+        print(productos)
+        if not productos:
+            return "Al parecer, no hay productos registrados!"
+        mensaje = ("<b><u>Lista de ítems registrados y el estado en el que se "
+            "encuentran:</u></b>\n")
+        for producto in productos:
+            mensaje += (f"  • <b>{producto}</b>{"("+cantidades[productos.index(producto)].value+")" if
+            cantidades[productos.index(producto)].value else ""}: ")
+            abierto = abiertos[productos.index(producto)]
+            agotado = agotados[productos.index(producto)]
+            if abierto.value and agotado.value:
+                mensaje += "\n    🔴Agotado\n"
+            elif abierto.value and not agotado.value:
+                mensaje += "\n    🟢Abierto\n"
+            else:
+                mensaje += "\n    🟠Sin abrir aún\n"
+        return mensaje
 
     # Métodos de procesamiento de texto
 

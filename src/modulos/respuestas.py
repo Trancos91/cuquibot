@@ -35,6 +35,7 @@ class Respuestas:
             "regcompras_lista": ["registradas", "registrados", "regsitro"],
             "regcompras_duración": ["duracion", "dura", "duro", "duraron", "agotarse", "acabarse"],
             "regcompras_duraciones": ["duraciones"],
+            "regcompras_estados": ["estado", "estatus", "status", "estados"],
             "referencia": ["referencia", "refe", "palabras"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
@@ -117,6 +118,8 @@ class Respuestas:
         "regcompras_duraciones": (self.listas_palabras["regcompras_duraciones"], self.procesar_texto_registrada,
                                   (self.listas_palabras["regcompras_duraciones"], self.editor.get_duraciones_registrada),
                                   "parafernalia"),
+        "regcompras_estados": (self.listas_palabras["regcompras_estados"], self.editor.get_estado_registradas,
+                               None, "Parece que no hay ninguna compra en la lista de registradas!"),
         "regcompras_duración": (self.listas_palabras["regcompras_duración"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_duración"], self.editor.get_duración_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
