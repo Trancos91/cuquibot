@@ -72,6 +72,8 @@ class Respuestas:
             '  • <b><i>Juanito</i></b>\n'
             '  • <b><i>Tareas</i></b>(<i>tarea, pendientes, pendiente</i>)\n'
             '  • <b><i>Registradas</i></b>(<i>registrados, registro</i>)\n'
+            '  • <b><i>Estado</i></b>(<i>estados, estatus, status</i>): Muestra en qué estado'
+            ' se encuentran los ítems registrados(abierto, agotado, sin abrir)\n'
             '  • <b><i>Flags</i></b>(<i>ubicaciones, lugares, flag, ubicación, lugar</i>)\n'
             '<u>Acciones sobre el registro de víveres:</u>\n'
             '  • <b><i>Abrí</i></b>(<i>abrió, abrimos</i>): Marca la fecha de apertura de <b>un</b> elemento\n'
@@ -79,6 +81,8 @@ class Respuestas:
             'Marca la fecha de agotamiento de <b>un</b> elemento\n'
             '  • <b><i>Duración</i></b>(<i>dura, duró, duraron, agotarse, acabarse</i>): Responde cuánto tiempo '
             'tardó en agotarse(en días) <b>un</b> elemento\n'
+            '  • <b><i>Duraciones</i></b>: Muestra las últimas duraciones de todos'
+            'los ítems registrados.\n'
             '<u>Quehaceres para indicar su cumplimiento:</u>\n'
             '  • <b><i>Barrer</i></b>(<i>barrí, escoba, escobillón</i>)\n'
             '  • <b><i>Trapear</i></b>(<i>trapeé, trapé, trapié, trapo</i>)\n'
@@ -115,9 +119,8 @@ class Respuestas:
         "regcompras_agotado": (self.listas_palabras["regcompras_agotado"], self.procesar_texto_registrada, 
                                (self.listas_palabras["regcompras_agotado"], self.editor.agotar_compra_registrada),
                                 "No encontré el ítem que mencionás 🙁"),
-        "regcompras_duraciones": (self.listas_palabras["regcompras_duraciones"], self.procesar_texto_registrada,
-                                  (self.listas_palabras["regcompras_duraciones"], self.editor.get_duraciones_registrada),
-                                  "parafernalia"),
+        "regcompras_duraciones": (self.listas_palabras["regcompras_duraciones"], self.editor.get_duraciones_registrada,
+                                  None, "Parece que no hay ninguna compra en el registro de duraciones!"),
         "regcompras_estados": (self.listas_palabras["regcompras_estados"], self.editor.get_estado_registradas,
                                None, "Parece que no hay ninguna compra en la lista de registradas!"),
         "regcompras_duración": (self.listas_palabras["regcompras_duración"], self.procesar_texto_registrada, 
@@ -213,6 +216,8 @@ class Respuestas:
                 for x in range(texto_procesado_lista.index(palabra) + 1):
                     texto_procesado_lista.pop(0)
                 break
+        if not texto_procesado_lista:
+            return "Este comando necesita un parámetro, pero no recibió nada :("
         if texto_procesado_lista[0] in pronombres:
             texto_procesado_lista.pop(0)
         print(f"texto_procesado_lista = {texto_procesado_lista}")

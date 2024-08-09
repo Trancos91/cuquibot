@@ -2,7 +2,8 @@ import re
 from datetime import date, datetime
 from enum import Enum
 import gspread
-#import pandas as pd
+import pandas as pd
+import numpy as np
 #from tabulate import tabulate
 
 class EditorSheet:
@@ -306,7 +307,7 @@ class EditorSheet:
         tareas = self.lista_tareas.col_values(1)
         tareas.pop(0)
         if tareas:
-            return f"<b><u>Lista de tareas:</u></b> \n• {"\n• ".join(tareas)}"
+            return f"✔️ <b><u>Lista de tareas:</u></b> \n• {"\n• ".join(tareas)}"
         else:
             return ""
 
@@ -315,21 +316,21 @@ class EditorSheet:
         compras = self.lista_compras.col_values(columna)
         compras.pop(0)
         if compras:
-            return (f"<b><u>Lista de compras {categoría.value[1]}:</u></b> \n"
+            return (f"🛒 <b><u>Lista de compras {categoría.value[1]}:</u></b> \n"
                             f"• {"\n• ".join(compras)}")
         else:
             return ""
 
     def get_flags_ubicaciones(self, _):
-        mensaje = "<b><u>Lista de flags de ubicaciones:</u></b>\n"
+        mensaje = "ℹ️ <b><u>Lista de flags de ubicaciones:</u></b>\n"
         # Me gustó esta list comprehension así que la guardo aunque no me sirva :(
         #mensaje += f"• {"\n• ".join([": ".join(item for item in par) for par in self.lista_flags_ubicaciones])}"
         mensaje += f"• {"\n• ".join(f"<b>{x[0]}</b>: {x[1]}" for x in self.lista_flags_ubicaciones)}"
         return mensaje.strip()
 
     def get_compras_registradas(self, _):
-        mensaje = "<b><u>Lista de compras registradas(para ver cuánto nos duran):</u></b>\n"
-        compras_registradas = self.registro_compras.col_values(2)
+        mensaje = "📋 <b><u>Lista de compras registradas(para ver cuánto nos duran):</u></b>\n"
+        compras_registradas = self.registro_compras.col_values(1)
         compras_registradas.pop(0)
         if compras_registradas:
             mensaje += f"• {"\n• ".join(compras_registradas)}"
@@ -338,29 +339,6 @@ class EditorSheet:
         return mensaje
 
     def get_duración_registrada(self, compra):
-        búsqueda = self.buscar_ítem_registrados(compra, self.registro_compras)
-        print(f"Buscado: encontré {búsqueda}")
-        if isinstance(búsqueda, str):
-            búsqueda += "\n Podrías aclararme a cuál de estos ítems te referís?"
-            return búsqueda
-        elif not búsqueda:
-            return
-        row = búsqueda.row
-        cantidad = self.registro_compras.cell(row, 2).value
-        apertura = self.registro_compras.cell(row, 3).value
-        cierre = self.registro_compras.cell(row, 4).value
-        if not apertura:
-            return f"⚠️ Al parecer, el ítem {búsqueda.value} no fue abierto todavía."
-        if not cierre:
-            return f"⚠️ Al parecer, el ítem {búsqueda.value} no fue agotado todavía."
-        apertura_dt = datetime.strptime(apertura, "%Y/%m/%d").date()
-        cierre_dt = datetime.strptime(cierre, "%Y/%m/%d").date()
-        duración = abs((cierre_dt - apertura_dt).days)
-        return (f"El ítem {búsqueda.value} {"(" + cantidad +")" if cantidad else ""}"
-                    f" nos duró {duración} días entre que lo abrimos "
-                        f"el {apertura} y se acabó el {cierre}")
-
-    def get_duraciones_registrada(self, compra):
         """
         Devuelve un string enlistando las últimas 5 duraciones de un cierto ítem, y su
         duración promedio
@@ -379,11 +357,24 @@ class EditorSheet:
             últimos = valores[-5:]
         except IndexError:
             últimos = valores
-        respuesta = (f"El ítem {ítem} nos duró "
+        respuesta = (f"ℹ️ El ítem {ítem} nos duró "
         f"{", ".join([str(item) for item in últimos])} días "
         "las últimas veces que compramos, y contando todas las veces nos duró "
         f"un promedio de {sum(valores) / len(valores)} días.")
         return respuesta
+
+    def get_duraciones_registrada(self, _):
+        """
+        Devuelve las últimas duraciones de todos los ítems registrados
+        """
+        df = pd.DataFrame(self.duración_víveres.get_all_values(), columns=None)
+        ítems = df.iloc[:,0].tolist()
+        traspuesto = df.transpose()
+        duraciones = traspuesto.replace('', np.nan).ffill().iloc[-1].tolist()
+        mensaje = ("📋 <b><u>Últimas duraciones de todos los ítems registrados:</u></b>")
+        for x in range(len(ítems)):
+            mensaje += f"\n• {ítems[x]}: {duraciones[x]}"
+        return mensaje
 
     def get_estado_registradas(self, _):
         productos = self.registro_compras.col_values(1)
@@ -576,13 +567,7 @@ class EditorSheet:
 
 def main():
     editor = EditorSheet()
-    print(editor.get_tareas_diarias(None))
-    print()
-    print(editor.get_lista_compras(editor.CategoríaCompras.SUPERMERCADO))
-    print(editor.get_lista_compras(editor.CategoríaCompras.VERDULERIA))
-    print(editor.get_lista_compras(editor.CategoríaCompras.MENSUALES))
-    print(editor.get_lista_compras(editor.CategoríaCompras.JUANITO))
-    print(editor.agregar_quehacer(editor.CategoríaQuehaceres.CAJA))
+    editor.get_duraciones_registrada(None)
 
 if __name__ == "__main__":
     main()
