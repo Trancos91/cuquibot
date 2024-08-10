@@ -1,4 +1,5 @@
 import datetime
+import json
 from pytz import timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CommandHandler, MessageHandler, 
@@ -251,16 +252,32 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def enviar_mensaje(context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
 
-async def recordatorio_pendientes(context: ContextTypes.DEFAULT_TYPE):
+async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
+    """
+    Revisa si pasó el tiempo apropiado en el recordatorio, y si sí, envía un mensaje
+    recordándolo y registra la fecha. También revisa si pasó el tiempo 'snooze'
+    desde la última vez que lo hizo.
+    """
+    recordatorio_key = context.job.data[0]
+    recordatorio_value = context.job.data[1]
     editor = EditorSheet()
-    mensaje = (
-            "Holi, cómo viene ese viernes? Parece que quedaron algunas tareas pendientes"
-            " en la lista de tareas de la semana pasada. Son cosas que necesitemos hacer aún?"
-            " Si no es así, pueden escribir /despejarlistatareas para eliminar la lista "
-            "y arrancar la semana que viene con la hoja en blanco 🙂")
-    if editor.get_pendientes_jueves:
-        await context.bot.send_message(chat_id=context.job.chat_id, text=mensaje)
+    hoy = datetime.datetime.today().date()
+    último = editor.get_último_quehacer(recordatorio_value["quehacer"])
+    if isinstance(último, str):
+        await context.bot.send_message(chat_id=context.job.chat_id, text=último)
+        return
     else:
+        último = último.date()
+    if (((hoy - último).days > recordatorio_value["días_espera"] and 
+            not recordatorio_value["último_aviso"]) or 
+        ((hoy - último).days > recordatorio_value["días_espera"] and 
+        (hoy - recordatorio_value["último_aviso"]).days > recordatorio_value["snooze"])):
+        await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio["mensaje"])
+        recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
+        # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el json
+        RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
+        with open("secretos/recordatorios.json", "w") as file:
+            json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
         return
 
 async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -384,15 +401,32 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def inicializar_jobs(app):
     """Inicializa todos los Jobs"""
 
-    app.job_queue.run_daily(recordatorio_pendientes,
-                            datetime.time(12, 0, 0),
-                            (4, ), name="recordatorio_pendientes",
-                            chat_id=GROUP_ID)
+    #app.job_queue.run_daily(recordatorios_quehaceres,
+    #                        datetime.time(12, 0, 0),
+    #                        (4, ), name="recordatorio_pendientes",
+    #                        chat_id=GROUP_ID)
 
     inicializar_jobs_mensajes(app)
+    inicializar_jobs_recordatorios(app)
 
     joblist = [x.name for x in app.job_queue.jobs()]
     print(f"Inicializado Jobqueues: {joblist}")
+    # CÓDIGO PARA CHEQUEAR QUEHACERES, BORRAR DESPUÉS DE SABER QUE FUNCIONAN
+    #editor = EditorSheet()
+    #recordatorio_key = "caja_asiri"
+    #recordatorio_value = RECORDATORIOS["recordatorios_quehaceres"]["caja_asiri"]
+    #último = editor.get_último_quehacer(recordatorio_value["quehacer"]).date()
+    #hoy = datetime.datetime.today().date()
+    #diferencia = (hoy - último).days
+    #días_espera = recordatorio_value["días_espera"]
+    #print(f"Pasaron {diferencia} días desde la última vez que se limpió la caja de asiri.")
+    #if diferencia > días_espera and not recordatorio_value["último_aviso"]:
+    #    print(f"Parece que son más días que los {días_espera} días establecios :/")
+    #    recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
+    #    RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
+    #    with open("secretos/recordatorios.json", "w") as file:
+    #        json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
+    #        print("Actualizado el json")
 
 def inicializar_jobs_mensajes(app):
     for key, value in Mensajes.mensajes.items():
@@ -400,6 +434,12 @@ def inicializar_jobs_mensajes(app):
         time, day, msg = value
         app.job_queue.run_daily(enviar_mensaje, time, day, name=name,
                                 chat_id=GROUP_ID, data=msg)
+
+def inicializar_jobs_recordatorios(app):
+    for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
+        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
+                                name=recordatorio[0], chat_id=GROUP_ID,
+                                data=recordatorio)
 
 class Mensajes :
     """Colección de mensajes a ser asignados a jobs al inicializar
@@ -419,6 +459,8 @@ if __name__ == '__main__':
         BOT_USERNAME = str(file.read().strip())
     with open("secretos/group_id.txt", "r", encoding="ascii") as file:
         GROUP_ID = int(file.read().strip())
+    with open("secretos/recordatorios.json", "r") as file:
+        RECORDATORIOS = json.load(file)
 
     #Definiendo configuración por defecto del bot
     defaults = Defaults(parse_mode="HTML", tzinfo=timezone("America/Argentina/Buenos_Aires"))

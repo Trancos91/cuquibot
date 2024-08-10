@@ -401,6 +401,22 @@ class EditorSheet:
                 mensaje += "⚪\n"
         return mensaje
 
+    def get_último_quehacer(self, quehacer):
+        """
+        Obtiene la última fecha en la que se hizo un quehacer y la devuelve
+        como un objeto datetime. Si falla, devuelve un string de error
+        para enviarle al usuarix
+        """
+        columna = self.quehaceres.find(quehacer, case_sensitive=False)
+        rows = self.quehaceres.col_values(columna.col)
+        celda = self.quehaceres.cell(len(rows), 1)
+        try:
+            fecha = datetime.strptime(celda.value, "%Y/%m/%d")
+        except ValueError:
+            return f"Parece que no hay ninguna instancia del quehacer '{quehacer}' :/"
+        return fecha
+
+
     # Métodos de procesamiento de texto
 
     def eliminar_emojis(self, texto):
