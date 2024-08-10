@@ -272,7 +272,7 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
             not recordatorio_value["último_aviso"]) or 
         ((hoy - último).days > recordatorio_value["días_espera"] and 
         (hoy - recordatorio_value["último_aviso"]).days > recordatorio_value["snooze"])):
-        await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio["mensaje"])
+        await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio_value["mensaje"])
         recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
         # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el json
         RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
@@ -437,7 +437,7 @@ def inicializar_jobs_mensajes(app):
 
 def inicializar_jobs_recordatorios(app):
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
-        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
+        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 30),
                                 name=recordatorio[0], chat_id=GROUP_ID,
                                 data=recordatorio)
 
