@@ -263,8 +263,17 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     editor = EditorSheet()
     hoy = datetime.datetime.today().date()
     último = editor.get_último_quehacer(recordatorio_value["quehacer"])
+
+    def actualizar_último_aviso():
+        recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
+        # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el json
+        RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
+        with open("secretos/recordatorios.json", "w") as file:
+            json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
+
     if isinstance(último, str):
         await context.bot.send_message(chat_id=context.job.chat_id, text=último)
+        actualizar_último_aviso()
         return
     else:
         último = último.date()
@@ -273,11 +282,7 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
         ((hoy - último).days > recordatorio_value["días_espera"] and 
         (hoy - recordatorio_value["último_aviso"]).days > recordatorio_value["snooze"])):
         await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio_value["mensaje"])
-        recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
-        # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el json
-        RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
-        with open("secretos/recordatorios.json", "w") as file:
-            json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
+        actualizar_último_aviso()
         return
 
 async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -429,11 +434,12 @@ def inicializar_jobs(app):
     #        print("Actualizado el json")
 
 def inicializar_jobs_mensajes(app):
-    for key, value in Mensajes.mensajes.items():
-        name = key
-        time, day, msg = value
-        app.job_queue.run_daily(enviar_mensaje, time, day, name=name,
-                                chat_id=GROUP_ID, data=msg)
+    if Mensajes.mensajes:
+        for key, value in Mensajes.mensajes.items():
+            name = key
+            time, day, msg = value
+            app.job_queue.run_daily(enviar_mensaje, time, day, name=name,
+                                    chat_id=GROUP_ID, data=msg)
 
 def inicializar_jobs_recordatorios(app):
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
@@ -446,8 +452,8 @@ class Mensajes :
     el bot. Inicializados mediante 'inicializar_jobs_mensajes()'"""
     editor = EditorSheet()
     mensajes = {
-        "nombre_referencia": (datetime.time(18, 0, 0), (4, ),
-            "Texto de referencia"),
+        #"nombre_referencia": (datetime.time(18, 0, 0), (4, ),
+        #    "Texto de referencia"),
     }
 
 if __name__ == '__main__':
