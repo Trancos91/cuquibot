@@ -1,8 +1,8 @@
 FROM python:3.12.2-alpine
-WORKDIR /app/modulos
-COPY ./src/modulos/* .
-WORKDIR /app/secretos
-COPY ./src/secretos/* .
+# WORKDIR /app/modulos
+# COPY ./src/modulos/* .
+# WORKDIR /app/secretos
+# COPY ./src/secretos/* .
 WORKDIR /app
 COPY ./src/* .
 COPY ./requirements.txt .

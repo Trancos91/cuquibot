@@ -3,6 +3,8 @@ services:
   cuquibot:
     container_name: "cuquibot"
     image: cuquibot:latest
+    volume:
+      - ~/docker/imagenes/bots/cuquibot/src/secretos:/app/secretos
     dns:
       - 1.1.1.1
       - 8.8.8.8
