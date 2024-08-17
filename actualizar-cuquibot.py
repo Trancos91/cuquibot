@@ -1,6 +1,6 @@
 import subprocess
 def conseguir_imagenes():
-    imagenes_texto= subprocess.check_output(['sudo docker images --format "{{ .Tag }}" cuquibot'], text=True, shell=True)
+    imagenes_texto= subprocess.check_output(['docker images --format "{{ .Tag }}" cuquibot'], text=True, shell=True)
     imagenes_lista = [x.replace('"', '').strip() for x in imagenes_texto.split("\n")]
     print(f"Obtenidas las siguientes imágens: {imagenes_lista}")
     return imagenes_lista
@@ -32,13 +32,13 @@ def aumentar_version(version_vieja: list[int]):
     return version_nueva
 
 def procesar_imagenes(v: list[int]):
-    subprocess.run(f'sudo docker build --tag cuquibot:{v[0]}.{v[1]}.{v[2]} .', text=True, shell=True)
-    subprocess.run(f'sudo docker rmi cuquibot:latest', text=True, shell=True)
-    subprocess.run(f'sudo docker tag cuquibot:{v[0]}.{v[1]}.{v[2]} cuquibot:latest', text=True, shell=True)
+    subprocess.run(f'docker build --tag cuquibot:{v[0]}.{v[1]}.{v[2]} .', text=True, shell=True)
+    subprocess.run(f'docker rmi cuquibot:latest', text=True, shell=True)
+    subprocess.run(f'docker tag cuquibot:{v[0]}.{v[1]}.{v[2]} cuquibot:latest', text=True, shell=True)
     print("Creada y tageada la nueva imagen.")
 
 def main():
-    subprocess.run('sudo docker-compose down', text=True, shell=True)
+    subprocess.run('docker-compose down', text=True, shell=True)
     print("Bajado el contenedor")
 
     imagenes = conseguir_imagenes()
@@ -47,9 +47,9 @@ def main():
     procesar_imagenes(nueva_version)
 
     print("Subiéndola a un contenedor...")
-    subprocess.run('sudo docker-compose up -d', text=True, shell=True)
+    subprocess.run('docker-compose up -d', text=True, shell=True)
     print("Subido el contenedor! <3")
-    status = subprocess.run('sudo docker ps -f name=cuquibot', text=True, shell=True)
+    status = subprocess.run('docker ps -f name=cuquibot', text=True, shell=True)
     print(status.stdout)
     print("Actualización de versión finalizada :)")
 

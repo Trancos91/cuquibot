@@ -3,7 +3,8 @@ FROM python:3.12.2-alpine
 # COPY ./src/modulos/* .
 # WORKDIR /app/secretos
 # COPY ./src/secretos/* .
-COPY ./src/* /app
+WORKDIR /app
+COPY ./src/ ./
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN pip3 install python-telegram-bot[job-queue]
