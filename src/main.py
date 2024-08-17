@@ -154,12 +154,12 @@ async def despejarunatarea_command(update:Update,
     if error:
         await update.message.reply_text(error)
         return
-    if editor.despejar_tarea(tarea):
-        await update.message.reply_text(f"Eliminada la tarea '{tarea}' de la "
-            "lista de tareas pendientes para el jueves! 🎉")
+    mensaje = editor.despejar_tarea(tarea)
+    if mensaje:
+        await update.message.reply_text(mensaje)
     else:
-        await update.message.reply_text(f"Disculpame, no encontré la tarea '{tarea}"
-                                        "en la lista de tareas para el jueves 🙁")
+        await update.message.reply_text(f"Disculpame, no encontré la tarea '{tarea}' "
+                                        "en la lista de tareas 🙁")
 
 async def despejarunacompra_command(update: Update,
                                     context: ContextTypes.DEFAULT_TYPE):
@@ -173,15 +173,15 @@ async def despejarunacompra_command(update: Update,
     categoría, ítem = procesado
     async def procesar_diarias():
         categoría_diarias = editor.CategoríaCompras.SUPERMERCADO
-        if editor.despejar_compra(ítem, categoría_diarias):
-            await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
-                f"lista de compras {categoría_diarias.value[1]}! 🎉")
+        mensaje = editor.despejar_compra(ítem, categoría_diarias)
+        if mensaje:
+            await update.message.reply_text(mensaje)
             return
         else:
             categoría_diarias = editor.CategoríaCompras.VERDULERIA
-            if editor.despejar_compra(args, categoría_diarias):
-                await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
-                    f"lista de compras {categoría_diarias.value[1]}! 🎉")
+            mensaje = editor.despejar_compra(ítem, categoría_diarias)
+            if mensaje:
+                await update.message.reply_text(mensaje)
                 return
             else:
                 await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}' "
@@ -207,9 +207,9 @@ async def despejarunacompra_command(update: Update,
                                             "'verdulería', mensuales' o 'juanito para definir "
                                             "la lista a despejar :)")
             return
-    if editor.despejar_compra(ítem, categoría_compras):
-        await update.message.reply_text(f"Eliminado el ítem '{ítem}' de la "
-            "lista seleccionada! 🎉")
+    mensaje = editor.despejar_compra(ítem, categoría_compras)
+    if mensaje:
+        await update.message.reply_text(mensaje)
     else:
         await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}"
                                         "en la lista seleccionada 🙁")

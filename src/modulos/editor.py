@@ -133,7 +133,7 @@ class EditorSheet:
                 columna = None
                 print("Se seleccionó un número inválido para el modo de la función")
                 return "Algo falló, Juan debería revisar los logs."
-        búsqueda = self.buscar_ítem_registrados(compra, self.registro_compras)
+        búsqueda = self.buscar_ítem(compra, self.registro_compras)
         if not búsqueda:
             return
         if isinstance(búsqueda, str):
@@ -257,39 +257,46 @@ class EditorSheet:
         self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
 
     def despejar_compra(self, compra, categoría: CategoríaCompras):
-        compra = self.procesar_texto(compra)
-        compras = [self.procesar_texto(x) for x in self.lista_compras.col_values(categoría.value[0] + 1)]
-        print(compras)
-        if compra in compras:
+        compras = [x for x in self.lista_compras.col_values(categoría.value[0] + 1)]
+        compra = self.buscar_ítem(compra, self.lista_compras, columna=categoría.value[0] + 1)
+        if isinstance(compra, str):
+            return compra
+        if not compra:
+            return False
+        else:
+            compra = compra.value
             compras.pop(0)
             compras.pop(compras.index(compra))
             self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
             for item in compras:
                 rows = self.lista_compras.col_values(categoría.value[0] + 1)
-                self.lista_compras.update_cell(len(rows) + 1, 1 , item)
-            return True
-        else:
-            return False
+                self.lista_compras.update_cell(len(rows) + 1, categoría.value[0] + 1 , item)
+            return (f"Eliminado el ítem '{compra}' de la "
+                f"lista de compras {categoría.value[1]}! 🎉")
     
     def despejar_tareas(self):
         self.workbook.values_clear("'Tareas de la casa'!A2:A")
 
     def despejar_tarea(self, tarea):
-        tarea = self.procesar_texto(tarea)
-        tareas = [self.procesar_texto(x) for x in self.lista_tareas.col_values(1)]
-        if tarea in tareas:
+        tareas = [x for x in self.lista_tareas.col_values(1)]
+        tarea = self.buscar_ítem(tarea, self.lista_tareas)
+        if isinstance(tarea, str):
+            return tarea
+        if not tarea:
+            return False
+        else:
+            tarea = tarea.value
             tareas.pop(0)
             tareas.pop(tareas.index(tarea))
             self.workbook.values_clear("'Tareas de la casa'!A2:A")
             for item in tareas:
                 rows = self.lista_tareas.col_values(1)
                 self.lista_tareas.update_cell(len(rows) + 1, 1 , item)
-            return True
-        else:
-            return False
+            return (f"Eliminada la tarea '{tarea}' de la "
+            "lista de tareas pendientes para el jueves! 🎉")
 
     def despejar_registrado(self, ítem):
-        búsqueda = self.buscar_ítem_registrados(ítem, self.registro_compras)
+        búsqueda = self.buscar_ítem(ítem, self.registro_compras)
         if isinstance(búsqueda, str):
             return búsqueda
         elif not búsqueda:
@@ -343,7 +350,7 @@ class EditorSheet:
         Devuelve un string enlistando las últimas 5 duraciones de un cierto ítem, y su
         duración promedio
         """
-        búsqueda = self.buscar_ítem_registrados(compra, self.duración_víveres)
+        búsqueda = self.buscar_ítem(compra, self.duración_víveres)
         if isinstance(búsqueda, str):
             return búsqueda
         elif not búsqueda:
@@ -352,7 +359,6 @@ class EditorSheet:
         ítem = valores.pop(0)
         valores = [valor.split()[0] for valor in valores]
         valores = [int(valor) for valor in valores]
-        print(valores)
         try:
             últimos = valores[-5:]
         except IndexError:
@@ -560,7 +566,7 @@ class EditorSheet:
         return mensaje
 
     # Misceláneos
-    def buscar_ítem_registrados(self, ítem: str, sheet: gspread.worksheet.Worksheet):
+    def buscar_ítem(self, ítem: str, sheet: gspread.worksheet.Worksheet, columna=None):
         """
         Busca un ítem en un worksheet específico, y devuelve una string enlistando los ítems
         si encuentra varios, o el ítem en sí (un objeto Cell) si encontró uno solo.
@@ -568,9 +574,11 @@ class EditorSheet:
         """
         ítem = self.procesar_texto(ítem)
         ítem_regex = re.compile(r".*" + f"{ítem}" + r".*", re.IGNORECASE)
-        print(ítem_regex)
         # Da como resultado un objeto Cell o varios, sea como sea es una lista de Cell
-        búsqueda = sheet.findall(ítem_regex)
+        if columna:
+            búsqueda = sheet.findall(ítem_regex, in_column=columna)
+        else:
+            búsqueda = sheet.findall(ítem_regex)
         if len(búsqueda) > 1:
             respuesta = "❗ Encontré varios ítems que contienen lo que enviaste: "
             for elemento in búsqueda:
