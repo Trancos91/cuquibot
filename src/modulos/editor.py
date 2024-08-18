@@ -26,9 +26,11 @@ class EditorSheet:
             ("t", "la zona de la tele"),
             ("l", "el living"),
             ("c", "la cocina"),
-            ("a", "el ambiente(tele+living+cocina)"),
-            ("d", "todo menos la cocina y el estudio"),
-            ("x", "todo"),
+            ("a", "el ambiente(tele+living+cocina)", 
+             (5, 6, 7)), # Contiene tupla con índices de los flags asociados
+            ("d", "todo menos la cocina y el estudio", 
+             (0, 1, 2, 3, 5 ,6)),
+            ("x", "todo", (0, 1, 2, 3, 4, 5, 6, 7)),
         )
 
     class CategoríaCompras(Enum):
@@ -503,6 +505,13 @@ class EditorSheet:
         """
         # Extrae tuplas de lista_flags que corresponden a los flags pasados.
         flags_tuplas = [flag for flag in lista_flags if flags and flag[0] in flags]
+        for flag in flags_tuplas:
+            print(flag)
+            if len(flag) > 2:
+                flags_tuplas.pop(flags_tuplas.index(flag))
+                for subflag in flag[2]:
+                    if lista_flags[subflag] not in flags_tuplas: flags_tuplas.append(lista_flags[subflag])
+                print(flags_tuplas)
         flags_nuevas = flags_tuplas.copy()
         mensaje_flags = "" 
         mensaje_preexistentes = ""
