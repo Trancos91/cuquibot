@@ -449,7 +449,7 @@ def inicializar_jobs_mensajes(app):
 
 def inicializar_jobs_recordatorios(app):
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
-        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(15, 27, 0),
+        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
                                 name=recordatorio[0], chat_id=GROUP_ID,
                                 data=recordatorio)
 
