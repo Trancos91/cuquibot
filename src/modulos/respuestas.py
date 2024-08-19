@@ -43,6 +43,7 @@ class Respuestas:
             "caja": (["caja", "piedras"], "limpió la caja de asiri"),
             "bebedero": (["bebedero", "fuente", "agua"], "limpió el bebedero de asiri"),
             "tacho": (["tacho", "tachos", "tachito", "tachitos"], "limpió el/los tacho/s"),
+            "platito": (["plato", "platito"], "lavó el plato de la comida de asiri"),
             "barrer": (["barri", "escoba", "escobillon"], "barrió"),
             "trapear": (["trapee", "trape", "trapie", "trapo"], "pasó el trapo"),
             "reciclables": (["reciclable", "reciclables"], "sacó los reciclables"),

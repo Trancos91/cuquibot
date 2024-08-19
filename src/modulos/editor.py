@@ -60,6 +60,7 @@ class EditorSheet:
         DOBLAR = (10, "doblar la ropa seca", "K", 0)
         COMPRAS = (11, "hacer las compras", "L", 0)
         RECICLABLES = (12, "sacar la basura reciclable a la calle", "M", 0)
+        PLATITO = (13, "lavarle el plato a asiri", "N", 0)
 
 
     #Métodos setter
