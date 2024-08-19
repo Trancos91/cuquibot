@@ -263,6 +263,10 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     editor = EditorSheet()
     hoy = datetime.datetime.today().date()
     último = editor.get_último_quehacer(recordatorio_value["quehacer"])
+    último_aviso = recordatorio_value["último_aviso"]
+    último_aviso = datetime.datetime.strptime(último_aviso, "%Y/%m/%d").date() if último_aviso else None
+    días_espera = int(recordatorio_value["días_espera"])
+    snooze = int(recordatorio_value["snooze"])
 
     def actualizar_último_aviso():
         recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
@@ -272,15 +276,17 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
             json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
 
     if isinstance(último, str):
-        await context.bot.send_message(chat_id=context.job.chat_id, text=último)
-        actualizar_último_aviso()
+        if (not último_aviso or 
+            (hoy - último_aviso).days > snooze):
+            await context.bot.send_message(chat_id=context.job.chat_id, text=último)
+            actualizar_último_aviso()
         return
     else:
         último = último.date()
-    if (((hoy - último).days > recordatorio_value["días_espera"] and 
-            not recordatorio_value["último_aviso"]) or 
-        ((hoy - último).days > recordatorio_value["días_espera"] and 
-        (hoy - recordatorio_value["último_aviso"]).days > recordatorio_value["snooze"])):
+    if (((hoy - último).days > días_espera and 
+            not último_aviso) or 
+        ((hoy - último).days > días_espera and 
+        (hoy - último_aviso).days > snooze)):
         await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio_value["mensaje"])
         actualizar_último_aviso()
         return
@@ -443,7 +449,7 @@ def inicializar_jobs_mensajes(app):
 
 def inicializar_jobs_recordatorios(app):
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
-        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 30),
+        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(15, 27, 0),
                                 name=recordatorio[0], chat_id=GROUP_ID,
                                 data=recordatorio)
 
