@@ -102,7 +102,7 @@ class Respuestas:
             '  • <b><i>Bebedero</i></b>(<i>fuente, agua</i>): Indica que <i>limpiaste</i> el bebedero de asiri\n'
             '  • <b><i>Caja</i></b>(<i>piedras</i>): Indica que limpiaste la caja de asiri(hayas sacado la'
             ' caca y el aserrín o le hayas cambiado las piedras, directamente)\n'
-            '  • <b><i>Plato</i>/b>:(<i>platito</i>): Indica que limpiaste el plato de comida de asiri\n\n'
+            '  • <b><i>Plato</i></b>:(<i>platito</i>): Indica que limpiaste el plato de comida de asiri\n\n'
             '⚠️ <b>Nota importante</b>: Aunque algunas de las palabras usen conjugaciones en segunda o tercera persona, '
             'el bot da por sentado que fue quien mandó el mensaje quien hizo las cosas en donde es relevante'
             '(por ejemplo, cuando se trata de cumplir quehaceres)'
