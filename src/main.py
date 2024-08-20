@@ -451,7 +451,7 @@ def inicializar_jobs_recordatorios(app):
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
         app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
                                 name=recordatorio[0], chat_id=GROUP_ID,
-                                data=recordatorio)
+                                data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 class Mensajes :
     """Colección de mensajes a ser asignados a jobs al inicializar
