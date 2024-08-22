@@ -38,6 +38,7 @@ class EditorSheet:
         VERDULERIA = (1, "de la verdu", "B")
         MENSUALES = (2, "mensuales", "C")
         JUANITO = (3, "de juanito", "D")
+        FARMACIA = (4, "de la farmacia", "E")
 
     class CategoríaQuehaceres(Enum):
         """

@@ -61,6 +61,7 @@ class Respuestas:
             "mensuales": ["mensuales", "mensual", "coto", "mes"],
             "supermercado": ["super", "supermercado", "chino"],
             "verduleria": ["verdulería", "verdu", "verduras"],
+            "farmacia": ["farmacia", "farmacity", "farma"]
         }
         # Mensaje de referencia de palabras:
         self.mensaje_refe = (
@@ -71,6 +72,7 @@ class Respuestas:
             '  • <b><i>Diarias</i></b>\n'
             '  • <b><i>Mensuales</i></b>(<i>mensual, coto, mes</i>)\n'
             '  • <b><i>Juanito</i></b>\n'
+            '  • <b><i>Farmacia</i></b>(<i>farmacity, farma</i>)\n'
             '  • <b><i>Tareas</i></b>(<i>tarea, pendientes, pendiente</i>)\n'
             '  • <b><i>Registradas</i></b>(<i>registrados, registro</i>)\n'
             '  • <b><i>Estado</i></b>(<i>estados, estatus, status</i>): Muestra en qué estado'

@@ -43,6 +43,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     '  • Verdulería(o "verdu")\n'
     '  • Mensuales(compras del coto mensuales)\n'
     '  • Juanito\n'
+    '  • Farmacia\n'
     '  • Diarias(<i>sólo se puede utilizar para acceder a la lista, no para agregar ítems. '
     'Combina las listas de Supermercado y Verdulería</i>)\n\n'
     '💡 Por último, para acceder a la lista de palabras clave a las que respondo, '
@@ -84,6 +85,8 @@ async def agregarcompras_command(update: Update,
             categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
             categoría_compras = editor.CategoríaCompras.JUANITO
+        case "farmacia" | "farmacity" | "farma":
+            categoría_compras = editor.CategoríaCompras.FARMACIA
         case _:
             await update.message.reply_text("No encontré la lista :(")
             return
@@ -126,12 +129,13 @@ async def despejarcompras_command(update: Update,
         return
     match compra:
         case ("diarias" | "verduleria" | "verdu" | "verduras"
-            "supermercado"| "super" | "chino" | "mensuales" | "juanito"):
+            "supermercado"| "super" | "chino" | "mensuales" | "juanito"
+            "farmacia" | "farmacity" | "farma"):
             pass
         case _:
             await update.message.reply_text("Por favor aclará 'diarias', "
-                                            "'mensuales' o 'juanito para definir "
-                                            "la lista a despejar :)")
+                                            "'mensuales', 'super', 'juanito' o 'farmacia' "
+                                            "para definir la lista a despejar :)")
             return
 
     """Confirma si borrar asistentes de la hoja"""
@@ -201,10 +205,12 @@ async def despejarunacompra_command(update: Update,
             categoría_compras = editor.CategoríaCompras.MENSUALES
         case "juanito":
             categoría_compras = editor.CategoríaCompras.JUANITO
+        case ("farmacia" | "farmacity" | "farma"):
+            categoría_compras = editor.CategoríaCompras.FARMACIA
         case _:
             categoría_compras = None
             await update.message.reply_text("Por favor aclará 'diarias', 'supermercado', "
-                                            "'verdulería', mensuales' o 'juanito para definir "
+                                            "'verdulería', 'mensuales' o 'juanito para definir "
                                             "la lista a despejar :)")
             return
     mensaje = editor.despejar_compra(ítem, categoría_compras)
@@ -314,6 +320,12 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
             await query.edit_message_text(text="Ok, dejo la lista como está :)")
         if "1" in query.data:
             editor.despejar_compras(editor.CategoríaCompras.JUANITO)
+            await query.edit_message_text(text="Dale, ahí despejé la lista!")
+    elif "compras" in query.data:
+        if "0" in query.data:
+            await query.edit_message_text(text="Ok, dejo la lista como está :)")
+        if "1" in query.data:
+            editor.despejar_compras(editor.CategoríaCompras.FARMACIA)
             await query.edit_message_text(text="Dale, ahí despejé la lista!")
     elif "tareas" in query.data:
         if "0" in query.data:
