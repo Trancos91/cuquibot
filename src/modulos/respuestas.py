@@ -6,20 +6,23 @@ from unidecode import unidecode
 from telegram import Update
 
 class Respuestas:
-    def __init__(self, texto: str, update: Update):
+    def __init__(self, texto: str, update: Update | None = None):
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
         self.editor = EditorSheet()
-        self.first_name = update.message.from_user.first_name
+        if update: 
+            self.first_name = update.message.from_user.first_name
+            with open("secretos/alias.json", "r", encoding="ascii") as file:
+                alias = json.load(file)
+            try:
+                self.nombre_usuario = alias[self.first_name]
+            except KeyError:
+                print("Alguien más está usando el bot! :O")
+                self.nombre_usuario = "Desconocidx o.o"
+        else:
+            self.nombre_usuario = "Nadie"
         self.lista_flags_ubicaciones = self.editor.lista_flags_ubicaciones
-        with open("secretos/alias.json", "r", encoding="ascii") as file:
-            alias = json.load(file)
-        try:
-            self.nombre_usuario = alias[self.first_name]
-        except KeyError:
-            print("Alguien más está usando el bot! :O")
-            self.nombre_usuario = "Desconocidx o.o"
         with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
             self.BOT_USERNAME = str(file.read().strip())
 
