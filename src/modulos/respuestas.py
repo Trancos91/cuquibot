@@ -55,7 +55,8 @@ class Respuestas:
             "doblar": (["doblar", "doble", "guarde", "guardar"], "dobló la ropa"),
             "lavar": (["lavar", "lave", "ropa"], "puso a lavar la ropa"),
             "compras": (["compre", "compras", "comprar"], "salió a hacer las compras"),
-            "limpiar": (["limpie"], "limpió"),
+            "limpiar": (["limpie", "limpió"], "limpió"),
+            "regar": (["regue", "rego", "regar", "plantas"], "regó las plantas"),
         }
         # Lista_palabras de compras. No necesita mensajes de fallo, el mismo para
         # todas funciona
