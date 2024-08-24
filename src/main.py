@@ -266,6 +266,8 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     último_aviso = datetime.datetime.strptime(último_aviso, "%Y/%m/%d").date() if último_aviso else None
     días_espera = int(recordatorio_value["días_espera"])
     snooze = int(recordatorio_value["snooze"])
+    mensaje = (f"Parece que pasaron más de {días_espera} días desde la última vez"
+        f" que {recordatorio_value["mensaje"]}. Quizás convendría hacerlo hoy :)")
 
     def actualizar_último_aviso():
         recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
@@ -282,11 +284,9 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
         return
     else:
         último = último.date()
-    if (((hoy - último).days > días_espera and 
-            not último_aviso) or 
-        ((hoy - último).days > días_espera and 
-        (hoy - último_aviso).days > snooze)):
-        await context.bot.send_message(chat_id=context.job.chat_id, text=recordatorio_value["mensaje"])
+    if ((hoy - último).days > días_espera and 
+            ((hoy - último_aviso).days > snooze if último_aviso else not último_aviso)):
+        await context.bot.send_message(chat_id=context.job.chat_id, text=mensaje)
         actualizar_último_aviso()
         return
 
@@ -419,32 +419,11 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def inicializar_jobs(app):
     """Inicializa todos los Jobs"""
 
-    #app.job_queue.run_daily(recordatorios_quehaceres,
-    #                        datetime.time(12, 0, 0),
-    #                        (4, ), name="recordatorio_pendientes",
-    #                        chat_id=GROUP_ID)
-
     inicializar_jobs_mensajes(app)
     inicializar_jobs_recordatorios(app)
 
     joblist = [x.name for x in app.job_queue.jobs()]
     print(f"Inicializado Jobqueues: {joblist}")
-    # CÓDIGO PARA CHEQUEAR QUEHACERES, BORRAR DESPUÉS DE SABER QUE FUNCIONAN
-    #editor = EditorSheet()
-    #recordatorio_key = "caja_asiri"
-    #recordatorio_value = RECORDATORIOS["recordatorios_quehaceres"]["caja_asiri"]
-    #último = editor.get_último_quehacer(recordatorio_value["quehacer"]).date()
-    #hoy = datetime.datetime.today().date()
-    #diferencia = (hoy - último).days
-    #días_espera = recordatorio_value["días_espera"]
-    #print(f"Pasaron {diferencia} días desde la última vez que se limpió la caja de asiri.")
-    #if diferencia > días_espera and not recordatorio_value["último_aviso"]:
-    #    print(f"Parece que son más días que los {días_espera} días establecios :/")
-    #    recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
-    #    RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
-    #    with open("secretos/recordatorios.json", "w") as file:
-    #        json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
-    #        print("Actualizado el json")
 
 def inicializar_jobs_mensajes(app):
     if Mensajes.mensajes:
