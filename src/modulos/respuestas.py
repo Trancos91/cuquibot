@@ -61,8 +61,13 @@ class Respuestas:
         # Lista_palabras de compras. No necesita mensajes de fallo, el mismo para
         # todas funciona
         self.lista_compras = {
-            "modelo_juanito": ["modelo juanito"],
-            "modelo_mensuales": ["modelo mensuales", "modelo mensual", "modelo coto", "modelo mes"],
+            "modelo_juanito": ["modelo juanito", "modelo-juanito", "modelo_juanito", 
+                               "modelojuanito", "mjuanito"],
+            "modelo_mensuales": ["modelo mensuales", "modelo mensual", "modelo coto", "modelo mes",
+                                 "modelo-mensuales", "modelo-mensual", "modelo-coto", "modelo-mes",
+                                 "modelo_mensuales", "modelo_mensual", "modelo_coto", "modelo_mes",
+                                 "modelomensuales", "modelomensual", "modelocoto", "modelomes",
+                                 "mmensuales", "mmensual", "mcoto", "mmes"],
             "juanito": ["juanito"],
             "mensuales": ["mensuales", "mensual", "coto", "mes"],
             "supermercado": ["super", "supermercado", "chino"],
@@ -78,8 +83,8 @@ class Respuestas:
             '  • <b><i>Diarias</i></b>\n'
             '  • <b><i>Mensuales</i></b>(<i>mensual, coto, mes</i>)\n'
             '  • <b><i>Juanito</i></b>\n'
-            '  • <b><i>Modelo Juanito</i></b>\n'
-            '  • <b><i>Modelo Mensuales</i></b>(<i>modelo mensual, modelo coto, modelo mes</i>)\n'
+            '  • <b><i>Modelo Juanito</i></b>(puede ir sin separación o con guión o guión bajo, o si no <i>mjuanito</i>)\n'
+            '  • <b><i>Modelo Mensuales</i></b>(<i>modelo mensual, modelo coto, modelo mes</i>. Puede ir sin separación o con guión o guión bajo, o si no <i>mmensuales</i>, <i>mcoto</i>, etc.)\n'
             '  • <b><i>Farmacia</i></b>(<i>farmacity, farma</i>)\n'
             '  • <b><i>Tareas</i></b>(<i>tarea, pendientes, pendiente</i>)\n'
             '  • <b><i>Registradas</i></b>(<i>registrados, registro</i>)\n'

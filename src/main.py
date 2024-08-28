@@ -73,20 +73,12 @@ async def agregarcompras_command(update: Update,
         return
     else:
         categoría, compras = procesados
-    match categoría:
-        case "supermercado" | "super" | "chino":
-            categoría_compras = editor.CategoríaCompras.SUPERMERCADO
-        case "verduleria" | "verdu":
-            categoría_compras = editor.CategoríaCompras.VERDULERIA
-        case "mensuales" | "mensual":
-            categoría_compras = editor.CategoríaCompras.MENSUALES
-        case "juanito":
-            categoría_compras = editor.CategoríaCompras.JUANITO
-        case "farmacia" | "farmacity" | "farma":
-            categoría_compras = editor.CategoríaCompras.FARMACIA
-        case _:
-            await update.message.reply_text("No encontré la lista :(")
-            return
+
+    if categoría_obj := chequear_categoría_compras(categoría):
+        categoría_compras = categoría_obj
+    else:
+        await update.message.reply_text("No encontré la lista :(")
+        return
 
     await update.message.reply_text(editor.agregar_ítems(compras, categoría=categoría_compras))
 
@@ -188,16 +180,8 @@ async def despejarunacompra_command(update: Update,
     if categoría == "diarias":
         await procesar_diarias()
         return
-    elif any(categoría == palabra for palabra in lista_respuestas["supermercado"]):
-        categoría_compras = editor.CategoríaCompras.SUPERMERCADO
-    elif any(categoría == palabra for palabra in lista_respuestas["verduleria"]):
-        categoría_compras = editor.CategoríaCompras.VERDULERIA
-    elif any(categoría == palabra for palabra in lista_respuestas["mensuales"]):
-        categoría_compras = editor.CategoríaCompras.MENSUALES
-    elif any(categoría == palabra for palabra in lista_respuestas["juanito"]):
-        categoría_compras = editor.CategoríaCompras.JUANITO
-    elif any(categoría == palabra for palabra in lista_respuestas["farmacia"]):
-        categoría_compras = editor.CategoríaCompras.FARMACIA
+    elif categoría_obj := chequear_categoría_compras(categoría):
+        categoría_compras = categoría_obj
     else:
         categoría_compras = None
         await update.message.reply_text("Por favor aclará 'diarias', 'supermercado', "
@@ -291,55 +275,62 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
         return
 
 async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lista_palabras = Respuestas("", None).lista_compras
     query = update.callback_query
-    editor = EditorSheet()
+    args = [x.strip() for x in query.data.split()]
+    categoría = args[0]
+    respuesta = args[1]
+
+    if "0" == respuesta:
+        mensaje = "Ok, dejo la lista como está :)"
+    elif "1" == respuesta:
+        if "diarias" == categoría:
+            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
+            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
+            mensaje = "Dale, ahí despejé las listas!"
+        elif categoría_obj := chequear_categoría_compras(categoría):
+            EditorSheet().despejar_compras(categoría_obj)
+            mensaje = "Dale, ahí despejé la lista!"
+        elif "tareas" == categoría:
+            EditorSheet().despejar_tareas()
+            mensaje = "Despejada la lista de tareas! 🙂"
+        else:
+            mensaje = "Algo falló, no recibí una categoría apropiada. Pedile a Juan que se fije"
+    else:
+        mensaje = "Algo falló, no recibí una categoría apropiada. Pedile a Juan que se fije"
+
     await query.answer()
+    await query.edit_message_text(text = mensaje)
 
-    if "diarias" in query.data:
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        elif "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
-            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
-            await query.edit_message_text(text="Dale, ahí despejé las listas!")
-    if any(word in query.data for word in lista_palabras["mensuales"]):
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        elif "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.MENSUALES)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    elif any(word in query.data for word in lista_palabras["juanito"]):
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        if "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.JUANITO)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    elif any(word in query.data for word in lista_palabras["farmacia"]):
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        if "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.FARMACIA)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    if any(word in query.data for word in lista_palabras["supermercado"]):
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        elif "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    if any(word in query.data for word in lista_palabras["verduleria"]):
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        elif "1" in query.data:
-            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
-            await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    elif "tareas" in query.data:
-        if "0" in query.data:
-            await query.edit_message_text(text="Ok, dejo la lista como está :)")
-        if "1" in query.data:
-            editor.despejar_tareas()
-            await query.edit_message_text(text="Despejada la lista de tareas! 🙂")
+    #if "diarias" == categoría:
+    #    if "0" == respuesta:
+    #        await query.answer()
+    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
+    #    elif "1" == respuesta:
+    #        editor = EditorSheet()
+    #        editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
+    #        editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
+    #        await query.answer()
+    #        await query.edit_message_text(text="Dale, ahí despejé las listas!")
+    #elif categoría_obj := chequear_categoría_compras(categoría):
+    #    if "0" == respuesta:
+    #        await query.answer()
+    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
+    #    elif "1" == respuesta:
+    #        EditorSheet().despejar_compras(categoría_obj)
+    #        await query.answer()
+    #        await query.edit_message_text(text="Dale, ahí despejé la lista!")
+    #elif "tareas" == categoría:
+    #    if "0" == respuesta:
+    #        await query.answer()
+    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
+    #    if "1" == respuesta:
+    #        EditorSheet().despejar_tareas()
+    #        await query.answer()
+    #        await query.edit_message_text(text="Despejada la lista de tareas! 🙂")
 
+##########################################################################
+# Métodos auxiliares
+##########################################################################
 def procesar_parámetros(args, modo: int):
     """
     Toma la lista args del contexto y la parsea
@@ -410,6 +401,14 @@ def chequear_contenido_parámetros(parámetros, modo):
                         "los elementos separadas por comas!\n" +
                         final_genérico)
 
+def chequear_categoría_compras(categoría: str):
+    lista_palabras = Respuestas("", None).lista_compras
+    categoría = categoría.strip()
+    for key in lista_palabras:
+        if categoría in lista_palabras[key]:
+            categoría = key.upper()
+            categoría_obj = getattr(EditorSheet.CategoríaCompras, categoría)
+            return categoría_obj
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"Update {update} causó error {context.error}")
