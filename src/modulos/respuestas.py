@@ -61,11 +61,13 @@ class Respuestas:
         # Lista_palabras de compras. No necesita mensajes de fallo, el mismo para
         # todas funciona
         self.lista_compras = {
+            "modelo_juanito": ["modelo juanito"],
+            "modelo_mensuales": ["modelo mensuales", "modelo mensual", "modelo coto", "modelo mes"],
             "juanito": ["juanito"],
             "mensuales": ["mensuales", "mensual", "coto", "mes"],
             "supermercado": ["super", "supermercado", "chino"],
             "verduleria": ["verdulería", "verdu", "verduras"],
-            "farmacia": ["farmacia", "farmacity", "farma"]
+            "farmacia": ["farmacia", "farmacity", "farma"],
         }
         # Mensaje de referencia de palabras:
         self.mensaje_refe = (
@@ -76,6 +78,8 @@ class Respuestas:
             '  • <b><i>Diarias</i></b>\n'
             '  • <b><i>Mensuales</i></b>(<i>mensual, coto, mes</i>)\n'
             '  • <b><i>Juanito</i></b>\n'
+            '  • <b><i>Modelo Juanito</i></b>\n'
+            '  • <b><i>Modelo Mensuales</i></b>(<i>modelo mensual, modelo coto, modelo mes</i>)\n'
             '  • <b><i>Farmacia</i></b>(<i>farmacity, farma</i>)\n'
             '  • <b><i>Tareas</i></b>(<i>tarea, pendientes, pendiente</i>)\n'
             '  • <b><i>Registradas</i></b>(<i>registrados, registro</i>)\n'
