@@ -6,6 +6,9 @@ from unidecode import unidecode
 from telegram import Update
 
 class Respuestas:
+    """Objeto que se encarga de procesar todo el texto que no es un comando
+    y de llamar los métodos apropiados. Utiliza diccionarios para almacenar
+    las palabras claves y los métodos asociados."""
     def __init__(self, texto: str, update: Update | None = None):
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())

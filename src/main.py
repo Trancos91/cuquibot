@@ -134,16 +134,12 @@ async def despejarcompras_command(update: Update,
 
 async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
-    editor = EditorSheet()
-    args = ' '.join(context.args).replace('/despejarunatarea', '').strip()
     args = context.args
     tarea = procesar_parámetros(args, 4)
-    error = chequear_contenido_parámetros(tarea, 1)
-    if error:
+    if error := chequear_contenido_parámetros(tarea, 1):
         await update.message.reply_text(error)
         return
-    mensaje = editor.despejar_tarea(tarea)
-    if mensaje:
+    if mensaje := EditorSheet().despejar_tarea(tarea):
         await update.message.reply_text(mensaje)
     else:
         await update.message.reply_text(f"Disculpame, no encontré la tarea '{tarea}' "
@@ -176,7 +172,6 @@ async def despejarunacompra_command(update: Update,
                                                 f"en la lista de compras {categoría_diarias.value[1]} 🙁")
                 return
 
-    lista_respuestas = Respuestas("nada", update).lista_compras
     if categoría == "diarias":
         await procesar_diarias()
         return
@@ -197,10 +192,9 @@ async def despejarunacompra_command(update: Update,
                                         "en la lista seleccionada 🙁")
         
 async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    editor = EditorSheet()
     args = context.args
     procesado = procesar_parámetros(args, 4)
-    mensaje = editor.despejar_registrado(procesado)
+    mensaje = EditorSheet().despejar_registrado(procesado)
     await update.message.reply_text(mensaje)
 
 # Respuestas
@@ -301,32 +295,6 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
     await query.answer()
     await query.edit_message_text(text = mensaje)
 
-    #if "diarias" == categoría:
-    #    if "0" == respuesta:
-    #        await query.answer()
-    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
-    #    elif "1" == respuesta:
-    #        editor = EditorSheet()
-    #        editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
-    #        editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
-    #        await query.answer()
-    #        await query.edit_message_text(text="Dale, ahí despejé las listas!")
-    #elif categoría_obj := chequear_categoría_compras(categoría):
-    #    if "0" == respuesta:
-    #        await query.answer()
-    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
-    #    elif "1" == respuesta:
-    #        EditorSheet().despejar_compras(categoría_obj)
-    #        await query.answer()
-    #        await query.edit_message_text(text="Dale, ahí despejé la lista!")
-    #elif "tareas" == categoría:
-    #    if "0" == respuesta:
-    #        await query.answer()
-    #        await query.edit_message_text(text="Ok, dejo la lista como está :)")
-    #    if "1" == respuesta:
-    #        EditorSheet().despejar_tareas()
-    #        await query.answer()
-    #        await query.edit_message_text(text="Despejada la lista de tareas! 🙂")
 
 ##########################################################################
 # Métodos auxiliares

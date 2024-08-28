@@ -7,7 +7,7 @@ import numpy as np
 #from tabulate import tabulate
 
 class EditorSheet:
-    """Objeto para editar el sheet de la olla"""
+    """Objeto para editar el sheet"""
     def __init__(self) -> None:
         self.gc = gspread.service_account(filename="secretos/credentials.json")
         with open("secretos/wskey.txt", "r", encoding="ascii") as file:
