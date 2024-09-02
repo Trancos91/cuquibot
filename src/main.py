@@ -9,7 +9,9 @@ from modulos.editor import EditorSheet
 from modulos.respuestas import Respuestas
 
 
-# Commands
+##########################################################################
+# Comandos
+##########################################################################
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text('Holi, soy el Cuquibot, miau!'
@@ -197,16 +199,20 @@ async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAU
     mensaje = EditorSheet().despejar_registrado(procesado)
     await update.message.reply_text(mensaje)
 
+##########################################################################
 # Respuestas
+##########################################################################
 def handle_message(texto: str, update: Update):
     respuesta = Respuestas(texto, update).respuestas()
-
-    if respuesta:
-        return respuesta
-    else:
-        print("No hubo respuesta generada")
+    return respuesta
 
 async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Procesa los mensajes que no atraparon las funciones de comandos. En caso
+    de ser un mensaje enviado en un grupo, revisa si el bot fue tageado para responder,
+    y elimina el tag del bot del mensaje para enviar a procesarlo. Registra los mensajes
+    sólo si el bot fue tageado o le hablaron por privado.
+    """
     message_type: str = update.message.chat.type
     texto: str = update.message.text
 
@@ -224,8 +230,9 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Bot: {respuesta}')
     await update.message.reply_text(respuesta)
 
+##########################################################################
 # Métodos pasivos
-
+##########################################################################
 async def enviar_mensaje(context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
 
@@ -269,6 +276,10 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
         return
 
 async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Función que recibe un string de argumentos enviado por los Inline Keyboards (en este bot,
+    particularmente, los de confirmación de despejar listas) y llama a la función adecuada.
+    """
     query = update.callback_query
     args = [x.strip() for x in query.data.split()]
     categoría = args[0]
@@ -277,10 +288,15 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
     if "0" == respuesta:
         mensaje = "Ok, dejo la lista como está :)"
     elif "1" == respuesta:
+        # Si es diarias, que combina dos categorías y por lo tanto no funciona con los algoritmos
+        # comunes:
         if "diarias" == categoría:
+            editor = EditorSheet()
             editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
             editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
             mensaje = "Dale, ahí despejé las listas!"
+        # Si es cualquier categoría de la lista de categorías, obtiene su objeto de categoría
+        # de CategoríaCompras
         elif categoría_obj := chequear_categoría_compras(categoría):
             EditorSheet().despejar_compras(categoría_obj)
             mensaje = "Dale, ahí despejé la lista!"
@@ -370,6 +386,8 @@ def chequear_contenido_parámetros(parámetros, modo):
                         final_genérico)
 
 def chequear_categoría_compras(categoría: str):
+    """Itera sobre  las listas de palabras de cada categoría clave(presentes en listas_compras
+    del módulo de Respuestas) y extrae la CategoríaCompras correspondiente"""
     lista_palabras = Respuestas("", None).lista_compras
     categoría = categoría.strip()
     for key in lista_palabras:
@@ -379,10 +397,11 @@ def chequear_categoría_compras(categoría: str):
             return categoría_obj
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(f"Update {update} causó error {context.error}")
+    print(f"Update {update} causó el siguiente error: \n{context.error}")
 
+##########################################################################
 #Métodos de inicialización
-
+##########################################################################
 def inicializar_jobs(app):
     """Inicializa todos los Jobs"""
 
@@ -401,6 +420,11 @@ def inicializar_jobs_mensajes(app):
                                     chat_id=GROUP_ID, data=msg)
 
 def inicializar_jobs_recordatorios(app):
+    """
+    Itera sobre los recordatorios registrados en el json recordatorios.json bajo
+    la categoría "recordatorios_quehaceres" y los registra en jobs con los parámetros
+    apropiados.
+    """
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
         app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
                                 name=recordatorio[0], chat_id=GROUP_ID,

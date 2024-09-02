@@ -44,7 +44,7 @@ class Respuestas:
             "regcompras_estados": ["estado", "estatus", "status", "estados"],
             "referencia": ["referencia", "refe", "palabras"]
         }
-        # Lista_palabras de quehaceres, pero contiene también mensajes de fallo
+        # Lista_palabras de quehaceres, pero contiene también mensajes de la tarea realizada
         self.lista_quehaceres = {
             "caja": (["caja", "piedras"], "limpió la caja de asiri"),
             "bebedero": (["bebedero", "fuente", "agua"], "limpió el bebedero de asiri"),
@@ -61,7 +61,7 @@ class Respuestas:
             "limpiar": (["limpie", "limpió"], "limpió"),
             "regar": (["regue", "rego", "regar", "plantas"], "regó las plantas"),
         }
-        # Lista_palabras de compras. No necesita mensajes de fallo, el mismo para
+        # Lista_palabras de compras. No necesita mensajes específicos, el mismo para
         # todas funciona
         self.lista_compras = {
             "modelo_juanito": ["modelo juanito", "modelo-juanito", "modelo_juanito", 
@@ -125,6 +125,10 @@ class Respuestas:
             'el bot da por sentado que fue quien mandó el mensaje quien hizo las cosas en donde es relevante'
             '(por ejemplo, cuando se trata de cumplir quehaceres)'
         )
+        # Diccionario que asocia funciones, argumentos, y las listas de palabras que
+        # llamarían a dichas funciones
+        # FORMATO: (lista de palabras clave, función a llamar, argumento a pasar,
+        #           mensaje de error si recibe None como return)
         self.config_tareas = {
         # Lista de tareas
         "tareas": (self.listas_palabras["tareas"], self.editor.get_tareas_diarias,
@@ -154,6 +158,7 @@ class Respuestas:
         "referencia": (self.listas_palabras["referencia"], self.mensaje_simple,
                        (self.mensaje_refe, ), "El mensaje de referencia no debería dar error")
         }
+        # Lista de inicialización con función de parseo y lista de palabras para parsear
         lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
                                  (self.tupla_compras, self.lista_compras))
         #Inicializado listas para el diccionario
@@ -162,6 +167,10 @@ class Respuestas:
             self.config_tareas.update(dicc_lista)
 
     def tupla_quehaceres(self, key: str):
+        """
+        Genera la tupla de quehaceres (con sus palabras claves, función a llamar, 
+        e información) formateada para ser agregada a config_tareas.
+        """
         upperkey = key.upper().strip()
         categoría_obj = getattr(self.editor.CategoríaQuehaceres, upperkey)
         return (self.lista_quehaceres[key][0], self.procesar_texto_quehacer,
@@ -169,6 +178,10 @@ class Respuestas:
                  "Ya figura como que alguien más " + self.lista_quehaceres[key][1] + "!")
 
     def tupla_compras(self, key: str):
+        """
+        Genera la tupla de listas de compras (con sus palabras claves, función a llamar, 
+        e información) formateada para ser agregada a config_tareas.
+        """
         upperkey = key.upper().strip()
         categoría_obj = getattr(self.editor.CategoríaCompras, upperkey)
         return (self.lista_compras[key], self.editor.get_lista_compras,
@@ -196,11 +209,6 @@ class Respuestas:
                 tupla_categoría = categoría[2]
             else:
                 tupla_categoría = (categoría[2], )
-                #try:
-                #    iter(categoría[2])
-                #    tupla_categoría = categoría[2]
-                #except TypeError:
-                #    tupla_categoría = (categoría[2], )
             respuesta = categoría[1](*tupla_categoría)
             if respuesta:
                 return respuesta
@@ -231,6 +239,8 @@ class Respuestas:
         """
         pronombres = ["el", "la", "los", "las"]
         texto_procesado_lista = self.texto_procesado.split()
+        # Elimina todas las palabras anteriores a las palabras clave presentes en el texto,
+        # para lidiar con mensajes del estilo 'el otro día se abrió x'
         for palabra in texto_procesado_lista.copy():
             if palabra in palabras_clave:
                 for x in range(texto_procesado_lista.index(palabra) + 1):
@@ -238,12 +248,18 @@ class Respuestas:
                 break
         if not texto_procesado_lista:
             return "Este comando necesita un parámetro, pero no recibió nada :("
+        # Elimina los posibles pronombres que queden sueltos para casos de la índole
+        # de 'Abrimos la yerba mate'
         if texto_procesado_lista[0] in pronombres:
             texto_procesado_lista.pop(0)
         print(f"texto_procesado_lista = {texto_procesado_lista}")
         return función(" ".join(texto_procesado_lista))
     
     def procesar_texto_quehacer(self, nombre_usuario, categoría, función):
+        """
+        Extrae las flags en los comandos que las usan y llama a la función  recibida
+        pasándoselas.
+        """
         try:
             _, flags = self.texto.split("-")
             flags = flags.strip()

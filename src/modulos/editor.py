@@ -9,14 +9,18 @@ import numpy as np
 class EditorSheet:
     """Objeto para editar el sheet"""
     def __init__(self) -> None:
+        # Identificándose como cuenta de servicio
         self.gc = gspread.service_account(filename="secretos/credentials.json")
+        # Abriendo el 'workbook'(colección de worksheets) con el que vamos a trabajar
         with open("secretos/wskey.txt", "r", encoding="ascii") as file:
             self.workbook = self.gc.open_by_key(file.read().strip())
+        # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
         self.registro_compras = self.workbook.worksheet("Registro de víveres")
         self.duración_víveres = self.workbook.worksheet("Duración de víveres")
+        # Lista de flags de ubicaciones para los parámetros que lo requieren
         self.lista_flags_ubicaciones = (
             ("h", "la habitación"),
             ("B", "el baño grande"),
@@ -34,6 +38,11 @@ class EditorSheet:
         )
 
     class CategoríaCompras(Enum):
+        """
+        Colección de las categorías de compras, cada una con su propia lista.
+        La primera int refiere a la posición del ítem en la lista. El string
+        refiere al verbo, y el string de letra a su columna en la sheet.
+        """
         SUPERMERCADO = (0, "del súper", "A")
         VERDULERIA = (1, "de la verdu", "B")
         MENSUALES = (2, "mensuales", "C")
@@ -45,7 +54,7 @@ class EditorSheet:
     class CategoríaQuehaceres(Enum):
         """
         La primera int refiere a la posición del ítem en la lista,
-        el string refiere al verbo, el string de letra a su posición en la sheet,
+        el string refiere al verbo, el string de letra a su columna en la sheet,
         y la última integer es:
         0 = incompatible con flags
         1 = compatible con flags de ubicación
@@ -67,8 +76,9 @@ class EditorSheet:
         REGAR = (14, "regar las plantas", "O", 0)
 
 
+    ##########################################################################
     #Métodos setter
-
+    ##########################################################################
     def agregar_ítems(self, productos: list[str], categoría: CategoríaCompras | int= 0):
         """
         Agrega ítems a una categoría de la lista de compras si recibe una categoría,
@@ -258,8 +268,9 @@ class EditorSheet:
             self.duración_víveres.update_cell(búsqueda.row, columna, duración)
             return mensaje_comienzo + mensaje_final
 
+    ##########################################################################
     #Métodos de despeje(también son setters)
-
+    ##########################################################################
     def despejar_compras(self, categoría: CategoríaCompras):
         self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
 
@@ -315,8 +326,9 @@ class EditorSheet:
             return (f"✅ Ya despejé las fechas de apertura y vencimiento "
                 f"del ítem {búsqueda.value} de la lista de ítems registrados")
 
+    ##########################################################################
     #Métodos getter
-
+    ##########################################################################
     def get_tareas_diarias(self, _):
         tareas = self.lista_tareas.col_values(1)
         tareas.pop(0)
@@ -430,8 +442,9 @@ class EditorSheet:
         return fecha
 
 
+    ##########################################################################
     # Métodos de procesamiento de texto
-
+    ##########################################################################
     def eliminar_emojis(self, texto):
         emoji_pattern = re.compile("["
                                        u"\U0001F600-\U0001F64F"  # emoticons
@@ -456,6 +469,9 @@ class EditorSheet:
         return emoji_pattern.sub(r'', texto)
 
     def procesar_texto(self, texto: str | list[str]):
+        """
+        Elimina emojis y capitaliza el string o los ítems en la lista de strings.
+        """
         if isinstance(texto, str):
             return self.eliminar_emojis(texto).capitalize().strip()
         else:
@@ -463,6 +479,10 @@ class EditorSheet:
 
 
     def procesar_registrados(self, registrados: list[str]):
+        """
+        Extrae los nombres de productos a registrar y sus cantidades
+        (indicadas entre paréntesis) y las devuelve por separado.
+        """
         productos = []
         cantidades = []
         for ítem in registrados:
@@ -479,6 +499,10 @@ class EditorSheet:
         return (productos, cantidades)
 
     def chequear_flags(self, lista_flags, flags=None):
+        """
+        Revisa que las flags incluídas en una tarea realizada estén dentro
+        de la lista de flags de ubicaciones.
+        """
         ch_flags = [x[0] for x in lista_flags]
         if not flags:
             return
@@ -489,8 +513,10 @@ class EditorSheet:
         print(f"Recibidos los siguientes flags: {flags}")
 
     def procesar_presentes(self, celda):
-        """Procesa el contenido de una celda y devuelve una lista de 'presentes',
-        con listas individuales consistentes en el nombre y los flags asociados"""
+        """
+        Procesa el contenido de una celda y devuelve una lista de 'presentes',
+        con listas individuales consistentes en el nombre y los flags asociados
+        """
         if isinstance(celda, str):
             print("Detectada celda como str")
             presentes = [x.strip() for x in celda.split(",")]
@@ -561,7 +587,6 @@ class EditorSheet:
         return flags_tuplas
 
     def construir_mensaje_flags(self, flags, flags_tuplas):
-
         mensaje = ""
         mensaje_agregado = ""
 
@@ -579,7 +604,9 @@ class EditorSheet:
             mensaje_agregado = ""
         return mensaje
 
+    ##########################################################################
     # Misceláneos
+    ##########################################################################
     def buscar_ítem(self, ítem: str, sheet: gspread.worksheet.Worksheet, columna=None):
         """
         Busca un ítem en un worksheet específico, y devuelve una string enlistando los ítems
