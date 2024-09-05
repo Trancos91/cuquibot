@@ -29,6 +29,9 @@ class Respuestas:
         with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
             self.BOT_USERNAME = str(file.read().strip())
 
+        # Lista que contiene las keys de las listas de compras que pertenecen a "diarias"
+        self.lista_diarias = ["supermercado", "verduleria", "potosi"]
+
         # Lista de palabras que procesaría el bot en un mensaje
         self.listas_palabras = {
             "tareas": ["tareas", "tarea", "pendientes", "pendiente"],
@@ -76,6 +79,7 @@ class Respuestas:
             "supermercado": ["super", "supermercado", "chino"],
             "verduleria": ["verdulería", "verdu", "verduras"],
             "farmacia": ["farmacia", "farmacity", "farma"],
+            "potosi": ["potosi", "medrano"]
         }
         # Mensaje de referencia de palabras:
         self.mensaje_refe = (
@@ -222,12 +226,12 @@ class Respuestas:
         """
         Función especial para el chequeo de compras diarias(combina dos listas)
         """
-        supermercado = self.config_tareas["supermercado"]
-        verduleria = self.config_tareas["verduleria"]
-        supermercado_respuesta = supermercado[1](supermercado[2])
-        verduleria_respuesta = verduleria[1](verduleria[2])
-        respuesta = (supermercado_respuesta + "\n" + verduleria_respuesta)
-        if supermercado_respuesta or verduleria_respuesta:
+        respuestas = []
+        for key in self.lista_diarias:
+            x = self.config_tareas[key]
+            respuestas.append(x[1](x[2]))
+        respuesta = "\n".join(respuestas)
+        if respuesta.strip():
             return respuesta
         else:
             return ""

@@ -48,6 +48,7 @@ class EditorSheet:
         MENSUALES = (2, "mensuales", "C")
         JUANITO = (3, "de juanito", "D")
         FARMACIA = (4, "de la farmacia", "E")
+        POTOSI = (5, "de potosí", "F")
         MODELO_JUANITO = (8, "modelo de compras de juanito", "I")
         MODELO_MENSUALES  = (9, "modelo de compras mensuales", "J")
 
