@@ -32,11 +32,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     'contener la cantidad de ese ítem que se registra <i>entre paréntesis</i>. Por ejemplo:\n'
     '<pre>/registrarviveres Arroz(1kg), Lentejas(2kg), Leche de coco, Shampoo(500ml)</pre>\n'
     '  • <b>/despejartareas:</b> Despeja por completo la lista de tareas.\n'
-    '  • <b>/despejarcompras:</b> Despeja por completo una lista de compras. Por ejemplo:\n'
-    '<pre>/despejarcompras juanito</pre>\n'
+    '  • <b>/despejarlistacompras:</b> Despeja por completo una lista de compras. Por ejemplo:\n'
+    '<pre>/despejarlistacompras juanito</pre>\n'
+    '  • <b>/despejarcompras:</b> Despeja compras de la lista de compras. Escribí la primera'
+    ' palabra refiriendo a la lista, y después ingresá las compras separadas por comas. Por ejemplo:\n'
+    '<pre>/despejarcompras super leche de coco, maní, chocolate</pre>\n'
     '  • <b>/despejarunatarea:</b> Despeja una tarea de la lista de tareas.\n'
-    '  • <b>/despejarunacompra:</b> Despeja una compra de la lista de compras. Por ejemplo:\n'
-    '<pre>/despejarunacompra super leche de coco</pre>\n'
     '  • <b>/despejarregistrado:</b> Despeja <i>las fechas de apertura y agotamiento</i> '
     'de un elemento del registro de víveres, dejándolo listo para volver a registrar. '
     '<b>No</b> despeja el elemento en sí de la lista.\n\n'
@@ -110,6 +111,53 @@ async def despejartareas_command(update: Update,
 
 async def despejarcompras_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
+    editor = EditorSheet()
+    args = context.args
+    procesados = procesar_parámetros(args, 2)
+    if error := chequear_contenido_parámetros(procesados, 2):
+        await update.message.reply_text(error)
+        return
+    else:
+        categoría, compras = procesados
+
+    if categoría_obj := chequear_categoría_compras(categoría):
+        categoría_compras = categoría_obj
+    else:
+        await update.message.reply_text("No encontré la lista :(")
+        return
+
+    mensaje = editor.despejar_compras(compras, categoría=categoría_compras)
+    if not mensaje:
+        mensaje = f"Disculpame, no encontré los ítems "
+        mensaje += ", ".join(compras)
+        mensaje += " en la lista seleccionada 🙁"
+
+    await update.message.reply_text(mensaje)
+
+    #compra = procesar_parámetros(args, 2)
+    #if error := chequear_contenido_parámetros(compra, 0):
+    #    await update.message.reply_text(error)
+    #    return
+    #lista_respuestas = Respuestas("nada", update).lista_compras
+    #lista_compuesta = [palabra for lista in lista_respuestas.values() for palabra in lista]
+    #lista_compuesta.append("diarias")
+    #if not any(compra == palabra for palabra in lista_compuesta):
+    #    await update.message.reply_text("Por favor aclará 'diarias', "
+    #                                    "'mensuales', 'super', 'juanito' o 'farmacia' "
+    #                                    "para definir la lista a despejar :)")
+    #    return
+
+    #"""Confirma si borrar asistentes de la hoja"""
+    #keyboard = [
+    #[InlineKeyboardButton("🚧 Despejar 🚧", callback_data=(f"{compra} 1"))],
+    #[InlineKeyboardButton("Cancelar", callback_data=(f"{compra} 0"))]
+    #]
+    #reply_markup = InlineKeyboardMarkup(keyboard)
+    #
+    #await update.message.reply_text(f"⚠️ Segurx querés despejar la lista de compras? ⚠️", 
+    #                                reply_markup=reply_markup)
+async def despejarlistacompras_command(update:Update,
+                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
     compra = procesar_parámetros(args, 0)
     if error := chequear_contenido_parámetros(compra, 0):
@@ -133,6 +181,7 @@ async def despejarcompras_command(update: Update,
     
     await update.message.reply_text(f"⚠️ Segurx querés despejar la lista de compras? ⚠️", 
                                     reply_markup=reply_markup)
+
 
 async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -292,13 +341,13 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
         # comunes:
         if "diarias" == categoría:
             editor = EditorSheet()
-            editor.despejar_compras(editor.CategoríaCompras.SUPERMERCADO)
-            editor.despejar_compras(editor.CategoríaCompras.VERDULERIA)
+            editor.despejar_lista_compras(editor.CategoríaCompras.SUPERMERCADO)
+            editor.despejar_lista_compras(editor.CategoríaCompras.VERDULERIA)
             mensaje = "Dale, ahí despejé las listas!"
         # Si es cualquier categoría de la lista de categorías, obtiene su objeto de categoría
         # de CategoríaCompras
         elif categoría_obj := chequear_categoría_compras(categoría):
-            EditorSheet().despejar_compras(categoría_obj)
+            EditorSheet().despejar_lista_compras(categoría_obj)
             mensaje = "Dale, ahí despejé la lista!"
         elif "tareas" == categoría:
             EditorSheet().despejar_tareas()
@@ -469,6 +518,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('despejartareas', despejartareas_command))
     app.add_handler(CommandHandler('despejarunatarea', despejarunatarea_command))
     app.add_handler(CommandHandler('despejarunacompra', despejarunacompra_command))
+    app.add_handler(CommandHandler('despejarlistacompras', despejarlistacompras_command))
     app.add_handler(CommandHandler('registrarviveres', registrarviveres_command))
     app.add_handler(CommandHandler('despejarregistrado', despejarregistrado_command))
 

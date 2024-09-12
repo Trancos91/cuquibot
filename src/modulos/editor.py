@@ -4,6 +4,7 @@ from enum import Enum
 import gspread
 import pandas as pd
 import numpy as np
+from unidecode import unidecode
 #from tabulate import tabulate
 
 class EditorSheet:
@@ -272,26 +273,64 @@ class EditorSheet:
     ##########################################################################
     #Métodos de despeje(también son setters)
     ##########################################################################
-    def despejar_compras(self, categoría: CategoríaCompras):
+    def despejar_lista_compras(self, categoría: CategoríaCompras):
         self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
 
-    def despejar_compra(self, compra, categoría: CategoríaCompras):
-        compras = [x for x in self.lista_compras.col_values(categoría.value[0] + 1)]
-        compra = self.buscar_ítem(compra, self.lista_compras, columna=categoría.value[0] + 1)
-        if isinstance(compra, str):
-            return compra
-        if not compra:
+    def despejar_compras(self, compras: list[str], categoría: CategoríaCompras = None):
+        #self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
+        compras_original = [str(x) for x in self.lista_compras.col_values(categoría.value[0] + 1)]
+        print(f"Compras original: {compras_original}")
+        compras_lower = [x.lower() for x in compras_original]
+        print(f"Compras lower: {compras_lower}")
+        compras = [compra[0].lower() + compra[1:] for compra in compras.copy()]
+        print(f"Compras: {compras}")
+        print(f"{"true" if "👮‍♂️" in "👮‍♂️" else "false"}")
+        índices_a_eliminar = []
+        compras_a_eliminar = []
+        compras_no_encontradas = []
+        for compra in compras.copy():
+            matches = []
+            matches_cantidad = 0
+            for compra_lower in compras_lower:
+                if compra in compra_lower:
+                    print(f"Encontrado {compra} in {compras_original[compras_lower.index(compra_lower)]}")
+                    matches.append(compras_lower.index(compra_lower))
+                    matches_cantidad += 1
+
+            if not matches:
+                for compra_lower in compras_lower:
+                    if unidecode(compra) in unidecode(compra_lower):
+                        print(f"Encontrado {compra} unidecodeada in {compras_original[compras_lower.index(compra_lower)]}")
+                        matches.append(compras_lower.index(compra_lower))
+                        matches_cantidad += 1
+                if not matches:
+                    compras_no_encontradas.append(compra)
+            elif matches_cantidad > 1:
+                mensaje = ("Parece que encontré varios ítems en la lista con"
+                    f" el parámetro {compra}:")
+                for match in matches:
+                    mensaje += f"\n  • {compras_original[match]}"
+                return mensaje
+            else:
+                índices_a_eliminar.append(matches[0])
+        if not índices_a_eliminar:
             return False
         else:
-            compra = compra.value
-            compras.pop(0)
-            compras.pop(compras.index(compra))
-            self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
-            for item in compras:
-                rows = self.lista_compras.col_values(categoría.value[0] + 1)
-                self.lista_compras.update_cell(len(rows) + 1, categoría.value[0] + 1 , item)
-            return (f"Eliminado el ítem '{compra}' de la "
-                f"lista de compras {categoría.value[1]}! 🎉")
+            índices_a_eliminar.sort(reverse=True)
+            for índice in índices_a_eliminar:
+                compras_a_eliminar.append(compras_original.pop(índice))
+            compras_original.pop(0)
+            compras_original_matrix = [[compra] for compra in compras_original]
+            self.lista_compras.batch_clear([f"{categoría.value[2]}2:{categoría.value[2]}"])
+            self.lista_compras.batch_update([{'range': f"{categoría.value[2]}2", 'values': compras_original_matrix}])
+            lista_ítems = ", ".join(list(reversed(compras_a_eliminar)))
+            mensaje = (f"Eliminados los ítems {lista_ítems} de la"
+                    f"lista de compras {categoría.value[1]}! 🎉")
+            if compras_no_encontradas:
+                mensaje += ("\nPor otro lado, los siguientes ítems no fueron encontrados:")
+                for compra in compras_no_encontradas:
+                    mensaje += f"\n  • {compra}"
+            return mensaje
     
     def despejar_tareas(self):
         self.workbook.values_clear("'Tareas de la casa'!A2:A")
