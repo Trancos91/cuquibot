@@ -332,7 +332,7 @@ class EditorSheet:
                     mensaje += f"\n  • {compra}"
             return mensaje
     
-    def despejar_tareas(self):
+    def despejar_lista_tareas(self):
         self.workbook.values_clear("'Tareas de la casa'!A2:A")
 
     def despejar_tarea(self, tarea):

@@ -31,7 +31,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ' las fechas de apertura y agotamiento de las cosas que compramos. Los ítems pueden '
     'contener la cantidad de ese ítem que se registra <i>entre paréntesis</i>. Por ejemplo:\n'
     '<pre>/registrarviveres Arroz(1kg), Lentejas(2kg), Leche de coco, Shampoo(500ml)</pre>\n'
-    '  • <b>/despejartareas:</b> Despeja por completo la lista de tareas.\n'
+    '  • <b>/despejarlistatareas:</b> Despeja por completo la lista de tareas.\n'
     '  • <b>/despejarlistacompras:</b> Despeja por completo una lista de compras. Por ejemplo:\n'
     '<pre>/despejarlistacompras juanito</pre>\n'
     '  • <b>/despejarcompras:</b> Despeja compras de la lista de compras. Escribí la primera'
@@ -97,7 +97,7 @@ async def registrarviveres_command(update: Update,
         await update.message.reply_text(editor.agregar_ítems(ítems, 1))
 
 
-async def despejartareas_command(update: Update, 
+async def despejarlistatareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     """Confirma si borrar asistentes de la hoja"""
     keyboard = [
@@ -350,7 +350,7 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
             EditorSheet().despejar_lista_compras(categoría_obj)
             mensaje = "Dale, ahí despejé la lista!"
         elif "tareas" == categoría:
-            EditorSheet().despejar_tareas()
+            EditorSheet().despejar_lista_tareas()
             mensaje = "Despejada la lista de tareas! 🙂"
         else:
             mensaje = "Algo falló, no recibí una categoría apropiada. Pedile a Juan que se fije"
@@ -515,7 +515,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('agregartareas', agregartareas_command))
     app.add_handler(CommandHandler('agregarcompras', agregarcompras_command))
     app.add_handler(CommandHandler('despejarcompras', despejarcompras_command))
-    app.add_handler(CommandHandler('despejartareas', despejartareas_command))
+    app.add_handler(CommandHandler('despejarlistatareas', despejarlistatareas_command))
     app.add_handler(CommandHandler('despejarunatarea', despejarunatarea_command))
     app.add_handler(CommandHandler('despejarunacompra', despejarunacompra_command))
     app.add_handler(CommandHandler('despejarlistacompras', despejarlistacompras_command))
