@@ -76,6 +76,8 @@ class EditorSheet:
         RECICLABLES = (12, "sacar la basura reciclable a la calle", "M", 0)
         PLATITO = (13, "lavarle el plato a asiri", "N", 0)
         REGAR = (14, "regar las plantas", "O", 0)
+        LAVARROPAS = (15, "limpiar el lavarropas", "P", 0)
+        HELADERA = (16, "limpiar la heladera", "Q", 0)
 
 
     ##########################################################################
