@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-import json
+import tomllib
 from enum import Enum
 from modulos.editor import EditorSheet
 from unidecode import unidecode
@@ -16,18 +16,17 @@ class Respuestas:
         self.editor = EditorSheet()
         if update: 
             self.first_name = update.message.from_user.first_name
-            with open("secretos/alias.json", "r", encoding="ascii") as file:
-                alias = json.load(file)
+            with open("secretos/config.toml", "rb") as file:
+                config = tomllib.load(file)
             try:
-                self.nombre_usuario = alias[self.first_name]
+                self.nombre_usuario = config["alias"][self.first_name]
+                self.BOT_USERNAME = config["telegram"]["bot_user"]
             except KeyError:
                 print("Alguien más está usando el bot! :O")
                 self.nombre_usuario = "Desconocidx o.o"
         else:
             self.nombre_usuario = "Nadie"
         self.lista_flags_ubicaciones = self.editor.lista_flags_ubicaciones
-        with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
-            self.BOT_USERNAME = str(file.read().strip())
 
         # Lista que contiene las keys de las listas de compras que pertenecen a "diarias"
         self.lista_diarias = ["supermercado", "verduleria", "potosi"]

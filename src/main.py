@@ -1,5 +1,6 @@
 import datetime
-import json
+import yaml
+import tomllib
 from pytz import timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CommandHandler, MessageHandler, 
@@ -305,10 +306,10 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
 
     def actualizar_último_aviso():
         recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
-        # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el json
+        # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el yaml
         RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
-        with open("secretos/recordatorios.json", "w") as file:
-            json.dump(RECORDATORIOS, file, indent=2, ensure_ascii=False)
+        with open("secretos/recordatorios.yaml", "w") as file:
+            yaml.safe_dump(RECORDATORIOS, file, indent=2, allow_unicode=True)
 
     if isinstance(último, str):
         if (not último_aviso or 
@@ -470,7 +471,7 @@ def inicializar_jobs_mensajes(app):
 
 def inicializar_jobs_recordatorios(app):
     """
-    Itera sobre los recordatorios registrados en el json recordatorios.json bajo
+    Itera sobre los recordatorios registrados en el yaml recordatorios.yaml bajo
     la categoría "recordatorios_quehaceres" y los registra en jobs con los parámetros
     apropiados.
     """
@@ -491,14 +492,13 @@ class Mensajes :
 if __name__ == '__main__':
 
     #Definiendo constantes
-    with open("secretos/tg_API.txt", "r", encoding="ascii") as file:
-        TOKEN = str(file.read().strip())
-    with open("secretos/bot_user.txt", "r", encoding="ascii") as file:
-        BOT_USERNAME = str(file.read().strip())
-    with open("secretos/group_id.txt", "r", encoding="ascii") as file:
-        GROUP_ID = int(file.read().strip())
-    with open("secretos/recordatorios.json", "r") as file:
-        RECORDATORIOS = json.load(file)
+    with open("secretos/config.toml", "rb") as file:
+        config = tomllib.load(file)
+        TOKEN = config["telegram"]["tg_api"]
+        BOT_USERNAME = config["telegram"]["bot_user"]
+        GROUP_ID = config["telegram"]["group_id"]
+    with open("secretos/recordatorios.yaml", "rb") as file:
+        RECORDATORIOS = yaml.safe_load(file)
 
     #Definiendo configuración por defecto del bot
     defaults = Defaults(parse_mode="HTML", tzinfo=timezone("America/Argentina/Buenos_Aires"))

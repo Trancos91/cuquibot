@@ -1,4 +1,5 @@
 import re
+import tomllib
 from datetime import date, datetime
 from enum import Enum
 import gspread
@@ -10,11 +11,12 @@ from unidecode import unidecode
 class EditorSheet:
     """Objeto para editar el sheet"""
     def __init__(self) -> None:
+        with open("secretos/config.toml", "rb") as file:
+            config = tomllib.load(file)
         # Identificándose como cuenta de servicio
-        self.gc = gspread.service_account(filename="secretos/credentials.json")
+        self.gc = gspread.service_account(filename=config["google"]["archivo_google_api"])
         # Abriendo el 'workbook'(colección de worksheets) con el que vamos a trabajar
-        with open("secretos/wskey.txt", "r", encoding="ascii") as file:
-            self.workbook = self.gc.open_by_key(file.read().strip())
+        self.workbook = self.gc.open_by_key(config["google"]["worksheet_key"].strip())
         # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
