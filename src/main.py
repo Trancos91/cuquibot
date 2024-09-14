@@ -1,4 +1,5 @@
 import datetime
+import json
 import yaml
 import tomllib
 from pytz import timezone
@@ -56,6 +57,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '(también sirve <i>palabras</i>).')
 
     await update.message.reply_text(mensaje)
+
+async def groupid_command(update: Update,
+                          context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando de configuración para obtener fácilmente el group ID"""
+    message_type: str = update.message.chat.type
+
+    if message_type == "group" or message_type == "supergroup":
+        await update.message.reply_text(f"El ID de tu grupo es:\n{update.message.chat_id}")
+    else:
+        await update.message.reply_text("Parece que este comando no lo escribiste en el grupo! 😿")
 
 async def agregartareas_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -512,6 +523,7 @@ if __name__ == '__main__':
     # Comandos
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(CommandHandler('groupid', groupid_command))
     app.add_handler(CommandHandler('agregartareas', agregartareas_command))
     app.add_handler(CommandHandler('agregarcompras', agregarcompras_command))
     app.add_handler(CommandHandler('despejarcompras', despejarcompras_command))

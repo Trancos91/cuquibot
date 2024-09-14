@@ -1,0 +1,10 @@
+start - inicializa el bot
+help - provee ayuda
+agregartareas - agregar tareas a la lista de tareas
+agregarcompras - agregar ítems a una lista de compras
+registrarviveres - agregar víveres al registro de ídem para ver cuánto nos duran
+despejarlistatareas - despejar la lista completa de tareas
+despejarlistacompras - despejar completa una lista de compras
+despejarunatarea - despejar una tarea específica de la lista
+despejarcompras - despejar varias compras específicas de una lista de compras
+despejarregistrado - despejar las fechas de apertura y agotamiento de algún ítem en el registro de víveres
