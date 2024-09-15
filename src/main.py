@@ -1,5 +1,4 @@
 import datetime
-import json
 import yaml
 import tomllib
 from pytz import timezone
@@ -50,7 +49,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     '  • Juanito\n'
     '  • Farmacia\n'
     '  • Diarias(<i>sólo se puede utilizar para acceder a la lista, no para agregar ítems. '
-    'Combina las listas de Supermercado y Verdulería</i>)\n\n'
+    'Combina las listas de Supermercado, Verdulería y Varias</i>)\n\n'
     '💡 Por último, para acceder a la lista de palabras clave a las que respondo, '
     'que por lo general apuntan a pedidos de información o a anotar cosas más cotidianas '
     'como los quehaceres, tageame y escribí <i>referencia</i> o <i>refe</i>'
@@ -180,7 +179,7 @@ async def despejarlistacompras_command(update:Update,
     lista_compuesta.append("diarias")
     if not any(compra == palabra for palabra in lista_compuesta):
         await update.message.reply_text("Por favor aclará 'diarias', "
-                                        "'mensuales', 'super', 'juanito' o 'farmacia' "
+                                        "'mensuales', 'super', 'juanito', 'varias', 'verdulería' o 'farmacia' "
                                         "para definir la lista a despejar :)")
         return
 
@@ -243,7 +242,7 @@ async def despejarunacompra_command(update: Update,
     else:
         categoría_compras = None
         await update.message.reply_text("Por favor aclará 'diarias', 'supermercado', "
-                                        "'verdulería', 'mensuales' o 'juanito para definir "
+                                        "'verdulería', 'mensuales', 'varias' o 'juanito para definir "
                                         "la lista a despejar :)")
         return
 
@@ -294,7 +293,8 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ##########################################################################
 # Métodos pasivos
 ##########################################################################
-async def enviar_mensaje(context: ContextTypes.DEFAULT_TYPE):
+async def enviar_mensaje_jobs(context: ContextTypes.DEFAULT_TYPE):
+    """Enviar un mensaje desde un Job"""
     await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
 
 async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
@@ -349,7 +349,7 @@ async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_
     if "0" == respuesta:
         mensaje = "Ok, dejo la lista como está :)"
     elif "1" == respuesta:
-        # Si es diarias, que combina dos categorías y por lo tanto no funciona con los algoritmos
+        # Si es diarias, que combina varias categorías y por lo tanto no funciona con los algoritmos
         # comunes:
         if "diarias" == categoría:
             editor = EditorSheet()
@@ -466,19 +466,24 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def inicializar_jobs(app):
     """Inicializa todos los Jobs"""
 
-    inicializar_jobs_mensajes(app)
+    inicializar_jobs_mensajes_diarios(app)
     inicializar_jobs_recordatorios(app)
 
     joblist = [x.name for x in app.job_queue.jobs()]
     print(f"Inicializado Jobqueues: {joblist}")
 
-def inicializar_jobs_mensajes(app):
-    if Mensajes.mensajes:
-        for key, value in Mensajes.mensajes.items():
-            name = key
-            time, day, msg = value
-            app.job_queue.run_daily(enviar_mensaje, time, day, name=name,
-                                    chat_id=GROUP_ID, data=msg)
+def inicializar_jobs_mensajes_diarios(app):
+    #if Mensajes.mensajes:
+    #    for key, value in Mensajes.mensajes.items():
+    #        name = key
+    #        time, day, msg = value
+    #        app.job_queue.run_daily(enviar_mensaje_jobs, time, day, name=name,
+    #                                chat_id=GROUP_ID, data=msg)
+
+    for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
+        app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(recordatorio[1]["horario"]),
+                                name=recordatorio[0], chat_id=GROUP_ID,
+                                data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
 
 def inicializar_jobs_recordatorios(app):
     """
@@ -491,14 +496,14 @@ def inicializar_jobs_recordatorios(app):
                                 name=recordatorio[0], chat_id=GROUP_ID,
                                 data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
-class Mensajes :
-    """Colección de mensajes a ser asignados a jobs al inicializar
-    el bot. Inicializados mediante 'inicializar_jobs_mensajes()'"""
-    editor = EditorSheet()
-    mensajes = {
-        #"nombre_referencia": (datetime.time(18, 0, 0), (4, ),
-        #    "Texto de referencia"),
-    }
+#class Mensajes :
+#    """Colección de mensajes a ser asignados a jobs al inicializar
+#    el bot. Inicializados mediante 'inicializar_jobs_mensajes_diarios()'"""
+#    editor = EditorSheet()
+#    mensajes = {
+#        #"nombre_referencia": (datetime.time(18, 0, 0), (4, ),
+#        #    "Texto de referencia"),
+#    }
 
 if __name__ == '__main__':
 

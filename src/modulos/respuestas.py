@@ -29,12 +29,12 @@ class Respuestas:
         self.lista_flags_ubicaciones = self.editor.lista_flags_ubicaciones
 
         # Lista que contiene las keys de las listas de compras que pertenecen a "diarias"
-        self.lista_diarias = ["supermercado", "verduleria", "potosi"]
+        self.lista_diarias = ["supermercado", "verduleria", "varias"]
 
         # Lista de palabras que procesaría el bot en un mensaje
         self.listas_palabras = {
             "tareas": ["tareas", "tarea", "pendientes", "pendiente"],
-            "diarias": ["diarias"],
+            "diarias": ["diarias", "del dia", "diaria"],
             "regcompras_apertura": ["abri", "abrio", "abrimos"],
             "regcompras_agotado": ["termine", "termino", "terminamos", "acabe", 
                                    "acabo", "acabamos", "agote", "agoto", "agotamos"],
@@ -73,12 +73,12 @@ class Respuestas:
                                  "modelo_mensuales", "modelo_mensual", "modelo_coto", "modelo_mes",
                                  "modelomensuales", "modelomensual", "modelocoto", "modelomes",
                                  "mmensuales", "mmensual", "mcoto", "mmes"],
-            "juanito": ["juanito"],
+            "juanito": ["juanito", "dietetica"],
             "mensuales": ["mensuales", "mensual", "coto", "mes"],
             "supermercado": ["super", "supermercado", "chino"],
             "verduleria": ["verdulería", "verdu", "verduras"],
             "farmacia": ["farmacia", "farmacity", "farma"],
-            "potosi": ["potosi", "medrano"]
+            "varias": ["varias", "varios"]
         }
         # Mensaje de referencia de palabras:
         self.mensaje_refe = (
@@ -86,6 +86,7 @@ class Respuestas:
             '<u>Contenido en listas:</u>\n'
             '  • <b><i>Supermercado</i></b>(<i>super, chino</i>)\n'
             '  • <b><i>Verdulería</i></b>(<i>verdu, verduras</i>)\n'
+            '  • <b><i>Varias</i></b>(<i>verdu, verduras</i>)\n'
             '  • <b><i>Diarias</i></b>\n'
             '  • <b><i>Mensuales</i></b>(<i>mensual, coto, mes</i>)\n'
             '  • <b><i>Juanito</i></b>\n'
