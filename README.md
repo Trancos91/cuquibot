@@ -5,9 +5,9 @@ Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos 
 > [!note]
 > Todo en este proyecto, incluyendo este README, está en proceso de construcción ^^'
 
-## Descripción
+# Descripción
 
-El cuquibot es un bot de organización pensado para ayudar a gente(particularmente gente que vive junta, pero se puede usar individualmente sin problemas) a, bueno, organizarse en las tareas del hogar. Tiene varias funciones, que describo a continuación, pero también se pueden ver utilizando el menú "/help" del bot mismo.
+El cuquibot es un bot de organización pensado para ayudar a gente(particularmente gente que vive junta, pero se puede usar individualmente sin problemas) a, bueno, organizarse en las tareas del hogar. Tiene varias funciones, que describo a continuación, pero también se pueden ver utilizando el menú "/help" del bot mismo. Si querés, podés pasar directo a la [instalación](#Instalación)
 
 Hay dos maneras principales de interactuar con el bot: Mediante comandos(instrucciones precedidas por "/" para las cuales no es necesario etiquetar al bot), y mediante mensajes donde se lo tagea (si le hablás por privado, no es necesario tagearlo).
 
@@ -33,7 +33,10 @@ Además de estos recordatorios "condicionales", el bot permite enviar mensajes e
 
 El bot cuenta con un registro de víveres en el cual se pueden anotar distintos elementos cuyo uso se quiera rastrear: Utilizando el comando `/registrarviveres` se pueden agregar a la lista, y luego mediante comandos como `@bot abrí el aciete` o `@bot se acabó el aceite` le indicamos cúando abrimos y cuando se acaba cada cosa, para poder tomar nota de cuánto nos duró. Cada vez que se agote un elemento, se agregará cuánto tiempo duró a la hoja de "Duración de víveres".
 
-# Instalación - **EN DESARROLLO**
+# Instalación
+
+> [!caution]
+> **EN DESARROLLO**
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
@@ -128,7 +131,7 @@ Abrí el archivo de [docker-compose](docker-compose-ejemplo.yaml) y modificá lo
 > [!caution]
 > Acordate de que, para este punto, deberías haber renombrado ese archivo de `docker-compose-ejemplo.yaml` a `docker-compose.yaml`!
 
-### Ejecución
+### Ejecución del contenedor
 
 Una vez modificado el archivo de docker-compose, navegá hacia la carpeta del proyecto nuevamente y escribí:
 `docker-compose up -d`.
