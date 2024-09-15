@@ -31,6 +31,11 @@ Para instalar el bot, vas a tener que:
   - Nombre de usuario del bot.
   - ID del grupo de telegram.
 
+> [!danger]
+> "Ejemplos"
+
+Los archivos que dicen "-ejemplo" al final son esencialmente templates de configuración que puse para facilitar la configuración del bot. Eliminá la parte de "-ejemplo" del nombre ("config-ejemplo.toml" -> "config.toml") y modificalos acorde a lo que te dice el resto del tutorial :)
+
 ## Configurar la cuenta de telegram del bot
 
 1. En Telegram, buscá el usuario(bot) BotFather.
