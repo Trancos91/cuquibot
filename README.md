@@ -17,7 +17,7 @@ El bot cuenta, en principio, con seis listas de compras y dos modelos: De superm
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
-> [!caution]
+> [!important]
 > Para poder utilizar la función de recordatorios, hay que obtener el group_id del chat. Esto está explicado en el tutorial de configuración, pero es importante hacerlo antes de seguir utilizando el bot.
 
 Para instalar el bot, vas a tener que:
@@ -31,10 +31,11 @@ Para instalar el bot, vas a tener que:
   - Nombre de usuario del bot.
   - ID del grupo de telegram.
 
-> [!danger]
-> "Ejemplos"
-
-Los archivos que dicen "-ejemplo" al final son esencialmente templates de configuración que puse para facilitar la configuración del bot. Eliminá la parte de "-ejemplo" del nombre ("config-ejemplo.toml" -> "config.toml") y modificalos acorde a lo que te dice el resto del tutorial :)
+> [!warning]
+>
+> ### "Ejemplos"
+>
+> Los archivos que dicen "-ejemplo" al final son esencialmente templates de configuración que puse para facilitar la configuración del bot. Eliminá la parte de "-ejemplo" del nombre ("config-ejemplo.toml" -> "config.toml") y modificalos acorde a lo que te dice el resto del tutorial :)
 
 ## Configurar la cuenta de telegram del bot
 
