@@ -2,7 +2,7 @@
 
 Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos en la casa. Este repositorio está armado para que otra gente pueda usar o probar el bot, por si les sirve o lo disfrutan :)
 
-> [!info]
+> [!note]
 > Todo en este proyecto, especialmente este README, está en proceso de construcción ^^'
 
 ## Descripción
@@ -17,7 +17,7 @@ El bot cuenta, en principio, con seis listas de compras y dos modelos: De superm
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
-> [!important]
+> [!caution]
 > Para poder utilizar la función de recordatorios, hay que obtener el group_id del chat. Esto está explicado en el tutorial de configuración, pero es importante hacerlo antes de seguir utilizando el bot.
 
 Para instalar el bot, vas a tener que:
