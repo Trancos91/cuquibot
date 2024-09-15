@@ -51,11 +51,12 @@ Para instalar el bot, vas a tener que:
   - Nombre de usuario del bot.
   - ID del grupo de telegram.
 
-> [!caution]
->
-> ### "Ejemplos"
->
-> Los archivos que dicen "-ejemplo" al final son esencialmente templates de configuración que puse para facilitar la configuración del bot. Eliminá la parte de "-ejemplo" del nombre ("config-ejemplo.toml" -> "config.toml") y modificalos acorde a lo que te dice el resto del tutorial :)
+## Cambiar de nombre los archivos de ejemplo
+
+El archivo del [docker-compose](docker-compose-ejemplo.yaml) y el archivo de [configuración](src/secretos/config-ejemplo.toml) tienen "-ejemplo" al final del nombre y antes de la extensión. Esto es para diferenciarlos de los archivos personalizados que se usan para configurar este bot. Procurá copiarlos y cambiarles el nombre sin el -ejemplo, o renombrarlos directamente. Te quedarían los siguientes archivos:
+
+- docker-compose.yaml
+- config.toml
 
 ## Configurar la cuenta de telegram del bot
 
@@ -92,7 +93,9 @@ Para instalar el bot, vas a tener que:
 
 ## Configuración del bot
 
-1. En la carpeta "secretos", vas a encontrar un [archivo de configuración](src/secretos/config.toml). Abrilo con tu editor de texto de preferencia.
+1. En la carpeta "secretos", vas a encontrar un [archivo de configuración](src/secretos/config-ejemplo.toml). Abrilo con tu editor de texto de preferencia.
+   > [!caution]
+   > Acordate de que, para este punto, deberías haber renombrado ese archivo de `config-ejemplo.toml` a `config.toml`!
 2. El archivo te va a pedir el API de telegram del bot(el que te dió el BotFather), el group_id(más sobre esto después, se puede dejar como está), el nombre de usuario del bot, el path hacia credenciales.json(si lo dejás en la carpeta secretos, es el que está escrito por defecto), y la key de la hoja de cálculos. Además, tiene una sección de aliases para que pongas el nombre de usuario de telegram de cada persona y cómo querés que lo llame (por ejemplo, que le diga a @comedorazuldepapasfritas "Pablo"). Leé los comentarios del config para ver más detalles.
 
 ### Obtener Key de la hoja de cálculos
@@ -120,17 +123,22 @@ Podés elegir otro tag, pero vas a tener que modificar el nombre el archivo dock
 
 ### Configuración del archivo docker-compose
 
-Abrí el archivo de [docker-compose](docker-compose.yaml) y modificá los campos comentados (el path hacia la carpeta de secretos, y, si es necesario, la imagen del bot-si cambiaste el tag cuando la construíste- y/o el DNS).
+Abrí el archivo de [docker-compose](docker-compose-ejemplo.yaml) y modificá los campos comentados (el path hacia la carpeta de secretos, y, si es necesario, la imagen del bot-si cambiaste el tag cuando la construíste- y/o el DNS).
+
+> [!caution]
+> Acordate de que, para este punto, deberías haber renombrado ese archivo de `docker-compose-ejemplo.yaml` a `docker-compose.yaml`!
 
 ### Ejecución
 
-Una vez modificado el archivo de docker-compose, navegá hacia la carpeta dedl proyecto nuevamente y escribí:
+Una vez modificado el archivo de docker-compose, navegá hacia la carpeta del proyecto nuevamente y escribí:
 `docker-compose up -d`.
 
 El bot debería quedar funcionando.
 
 > [!warning]
 > Acordate de que vas a necesitar poner el bot a andar, usar el comando `/groupid`, copiar la ID del grupo a la config y reiniciarlo.
+
+### Reiniciar el bot
 
 Para reiniciar el bot, podés navegar con tu terminal hacia la carpeta del proyecto, y escribir:
 `docker-compose down`
