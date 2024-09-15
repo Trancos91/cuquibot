@@ -9,9 +9,29 @@ Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos 
 
 El cuquibot es un bot de organización pensado para ayudar a gente(particularmente gente que vive junta, pero se puede usar individualmente sin problemas) a, bueno, organizarse en las tareas del hogar. Tiene varias funciones, que describo a continuación, pero también se pueden ver utilizando el menú "/help" del bot mismo.
 
+Hay dos maneras principales de interactuar con el bot: Mediante comandos(instrucciones precedidas por "/" para las cuales no es necesario etiquetar al bot), y mediante mensajes donde se lo tagea (si le hablás por privado, no es necesario tagearlo).
+
 ### Listas de compras
 
-El bot cuenta, en principio, con seis listas de compras y dos modelos: De supermercado, verdulería, farmacia, varias, mensual de supermercado y mensual de dietética. Además, cuenta con dos listas(iguales a las demás en todo funcionamiento) que contienen ítems de "modelo" para la dietética y la compra mensual de supermercado.
+El bot cuenta, en principio, con seis listas de compras y dos modelos: De supermercado, verdulería, farmacia, varias, mensual de supermercado y mensual de dietética(figura como 'Juanito', porque quienes lo usamos compramos en Juanito. Ya que estamos, recomiendo :P). Además, cuenta con dos listas(iguales a las demás en todo funcionamiento) que contienen ítems de "modelo" para la dietética y la compra mensual de supermercado.
+
+### Lista de tareas
+
+Además de las listas de compras, el bot cuenta con una lista de tareas para anotar cuestiones pendientes a resolver. Este aspecto es uno de los menos desarrollados del bot. ^^'
+
+### Registro de quehaceres
+
+El bot cuenta con una cantidad de verbos relacionados a los quehaceres de la casa. Enviándole mensajes como "@bot barrí", el bot anota en una planilla quién de la gente configurada para usarlo barrió. Además, algunas de estas acciones, como barrí, limpié, trapeé, y otras aceptan "flags" para indicar dónde se llevó a cabo la acción (por ejemplo, "@bot trapeé -aB"). Estas flags, por ahora, se adaptan a los ambientes de nuestro departamento, perdón.
+
+### Recordatorios
+
+Algunos de estos quehaceres son revisados por los recordatorios del bot, que nos da la opción de recordarnos si pasó demasiado tiempo sin hacer alguno de ellos. En el archivo 'recordatorios.yaml' se pueden configurar.
+
+Además de estos recordatorios "condicionales", el bot permite enviar mensajes en determinados días de la semana sin condiciones, también a modo de recordatorios.
+
+### Registro de víveres
+
+El bot cuenta con un registro de víveres en el cual se pueden anotar distintos elementos cuyo uso se quiera rastrear: Utilizando el comando `/registrarviveres` se pueden agregar a la lista, y luego mediante comandos como `@bot abrí el aciete` o `@bot se acabó el aceite` le indicamos cúando abrimos y cuando se acaba cada cosa, para poder tomar nota de cuánto nos duró. Cada vez que se agote un elemento, se agregará cuánto tiempo duró a la hoja de "Duración de víveres".
 
 # Instalación - **EN DESARROLLO**
 
