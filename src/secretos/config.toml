@@ -1,0 +1,15 @@
+# Configuración del bot
+# Información de telegram
+[telegram]
+tg_api = "API Token entre las comillas" # Token de API del bot, generado por el BotFather.
+group_id = -123 # El group_id que nos da el bot. INCLUÍR EL SIGNO NEGATIVO.
+bot_user = "@usuariotgdelbot" # Nombre de usuario de telgram del bot. Incluír arroba al comienzo.
+# Información de google
+[google]
+archivo_google_api = "secretos/credentials.json" # Archivo JSON con las credenciales para usar la cuenta de servicio. Si copiaste las credenciales en la misma carpeta de secretos, dejá esto así.
+worksheet_key = "key-del-sheet" # Key del sheet de google, encontrado en la URL del mismo.
+# Aliases de usuarixs
+[alias]
+# Podés agregar todos los alias que quieras.
+Usuario_TG = "Apodo"
+Usuario2_TG = "Apodo2"
