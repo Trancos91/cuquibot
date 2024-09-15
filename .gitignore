@@ -3,4 +3,5 @@ src/__pycache__/
 src/modulos/__pycache__/
 src/secretos/
 actualizar.sh
+actualizar-cuquibot.py
 src/botsoli_main.py
