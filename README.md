@@ -31,7 +31,7 @@ Para instalar el bot, vas a tener que:
   - Nombre de usuario del bot.
   - ID del grupo de telegram.
 
-> [!warning]
+> [!caution]
 >
 > ### "Ejemplos"
 >
