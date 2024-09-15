@@ -206,12 +206,13 @@ class EditorSheet:
         # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
         try:
             fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
-        except ValueError:
+        except ValueError: # En caso de que no haya ningún día ingresado previamente
             fecha_row = None
         # Agrega row del día de hoy si no existía
         if fecha_row != date.today():
             fecha_hoy = date.today().strftime("%Y/%m/%d")
             self.quehaceres.update_cell(num_ultima_row + 1, 1, fecha_hoy)
+            print(f"Creada nueva celda del día: {self.quehaceres.cell(num_ultima_row + 1, 1).value}")
         else:
             if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m/%d")
 
