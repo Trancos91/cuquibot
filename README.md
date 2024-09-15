@@ -1,10 +1,24 @@
 # Cuquibot
 
-Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos en la casa.
+Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos en la casa. Este repositorio está armado para que otra gente pueda usar o probar el bot, por si les sirve o lo disfrutan :)
+
+> [!info]
+> Todo en este proyecto, especialmente este README, está en proceso de construcción ^^'
+
+## Descripción
+
+El cuquibot es un bot de organización pensado para ayudar a gente(particularmente gente que vive junta, pero se puede usar individualmente sin problemas) a, bueno, organizarse en las tareas del hogar. Tiene varias funciones, que describo a continuación, pero también se pueden ver utilizando el menú "/help" del bot mismo.
+
+### Listas de compras
+
+El bot cuenta, en principio, con seis listas de compras y dos modelos: De supermercado, verdulería, farmacia, varias, mensual de supermercado y mensual de dietética. Además, cuenta con dos listas(iguales a las demás en todo funcionamiento) que contienen ítems de "modelo" para la dietética y la compra mensual de supermercado.
 
 # Instalación - **EN DESARROLLO**
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
+
+> [!important]
+> Para poder utilizar la función de recordatorios, hay que obtener el group_id del chat. Esto está explicado en el tutorial de configuración, pero es importante hacerlo antes de seguir utilizando el bot.
 
 Para instalar el bot, vas a tener que:
 
@@ -80,4 +94,20 @@ Podés elegir otro tag, pero vas a tener que modificar el nombre el archivo dock
 
 ### Configuración del archivo docker-compose
 
-Abrí el archivo de [docker-compose](docker-compose.yaml) y modificá
+Abrí el archivo de [docker-compose](docker-compose.yaml) y modificá los campos comentados (el path hacia la carpeta de secretos, y, si es necesario, la imagen del bot-si cambiaste el tag cuando la construíste- y/o el DNS).
+
+### Ejecución
+
+Una vez modificado el archivo de docker-compose, navegá hacia la carpeta dedl proyecto nuevamente y escribí:
+`docker-compose up -d`.
+
+El bot debería quedar funcionando.
+
+> [!warning]
+> Acordate de que vas a necesitar poner el bot a andar, usar el comando `/groupid`, copiar la ID del grupo a la config y reiniciarlo.
+
+Para reiniciar el bot, podés navegar con tu terminal hacia la carpeta del proyecto, y escribir:
+`docker-compose down`
+
+y luego nuevamente:
+`docker-compose up -d`

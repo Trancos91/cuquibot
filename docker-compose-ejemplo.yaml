@@ -1,0 +1,12 @@
+version: "3"
+services:
+  cuquibot:
+    container_name: "cuquibot"
+    image: cuquibot:latest # Si tageaste de otra forma la imagen de docker, tenés que cambiar esto.
+    volumes:
+      - ~/path/hacia/carpeta/secretos:/app/secretos # Ojo, modificá sólo la parte a la izquierda del ":"
+    dns: # Opcional, pero si tenés algo como un pihole o DNS propio puede traer problemas si no lo configurás a mano.
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
