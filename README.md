@@ -3,7 +3,7 @@
 Nombrado así por la cuqui, Asiri, es el bot que vamos a usar para organizarnos en la casa. Este repositorio está armado para que otra gente pueda usar o probar el bot, por si les sirve o lo disfrutan :)
 
 > [!note]
-> Todo en este proyecto, especialmente este README, está en proceso de construcción ^^'
+> Todo en este proyecto, incluyendo este README, está en proceso de construcción ^^'
 
 ## Descripción
 
