@@ -203,6 +203,18 @@ class EditorSheet:
         
         respuesta = ""
         
+        # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
+        try:
+            fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
+        except ValueError:
+            fecha_row = None
+        # Agrega row del día de hoy si no existía
+        if fecha_row != date.today():
+            fecha_hoy = date.today().strftime("%Y/%m/%d")
+            self.quehaceres.update_cell(num_ultima_row + 1, 1, fecha_hoy)
+        else:
+            if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m/%d")
+
         # Itera sobre las listas(nombre - flags) dentro de la lista de presentes
         # determina quién es usuarix y quién es otrx
         for presente in presentes:
@@ -219,17 +231,6 @@ class EditorSheet:
                 mensaje += ("\n\n💡 Acordate de que podés preguntarme por <i>flags</i> o <i>ubicaciones</i>"
                                 " para revisar qué flags de ubiaciones hay, si querés ser más específicx! ;)")
             return mensaje
-        # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
-        try:
-            fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
-        except ValueError:
-            fecha_row = None
-        # Agrega row del día de hoy si no existía
-        if fecha_row != date.today():
-            fecha_hoy = date.today().strftime("%Y/%m/%d")
-            self.quehaceres.update_cell(num_ultima_row + 1, 1, fecha_hoy)
-        else:
-            if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m/%d")
         # Chequea si hay flags, arma la string para el mensaje de respuesta 
         # y la secuencia de flags
         mensaje_flags, mensaje_preexistentes, string_celda = self.procesar_flags(flags, 
