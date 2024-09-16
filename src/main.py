@@ -1,5 +1,8 @@
 import datetime
 import yaml
+import tomlkit
+import pytomlpp
+import toml
 import tomllib
 from pytz import timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -16,10 +19,17 @@ from modulos.respuestas import Respuestas
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text('Holi, soy el Cuquibot, miau!'
-        ' Escribí "/help" para ver los comandos disponibles :3')
+        ' Escribí "/help" para ver los comandos disponibles :3'
+        'Si querés usarme, tenés que registrarte con el comando: \n'
+        '<pre>/registrarusuarix contraseña alias</pre>'
+        'Asegurate de que la primera "palabra" después del comando sea la contraseña, y el resto como querés que te diga!')
+
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mensaje = ('Hola, nya! Soy la cuquibot 😺\n'
+    'Si querés usarme, tenés que registrarte con el comando: \n'
+    '<pre>/registrarusuarix contraseña alias</pre>\n'
+    'Asegurate de que la primera "palabra" después del comando sea la contraseña, y el resto como querés que te diga!\n'
     'Te paso la lista de comandos(instrucciones que empiezan con "/") y '
     'de palabras clave :)\n\n'
     '📋 <b><u>Lista de comandos:</u></b>\n'
@@ -57,6 +67,40 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(mensaje)
 
+async def registrarusuarix_command(update: Update,
+                                   context: ContextTypes.DEFAULT_TYPE) -> None:
+    args = context.args
+    if len(args) < 2:
+        await update.message.reply_text("Necesito que me des como primera palabra la contraseña,"
+                                    " y después cómo querés que te diga, en ese orden!\n"
+                                "Por ejemplo: /registrarusuarix contraseña apodo de varias palabras")
+        return
+    contraseña = args.pop(0)
+    alias = " ".join(args)
+    first_name = str(update.message.from_user.first_name)
+    id = str(update.message.from_user.id)
+    print(f"Nombre: {first_name}")
+
+    if contraseña == PASSWD:
+        with open("secretos/config.toml", "r") as file:
+            config = tomlkit.load(file)
+        config["users"][id] = {}
+        config["users"][id]["first_name"] = first_name
+        config["users"][id]["alias"] = alias
+        with open("secretos/config.toml", "w") as file:
+            tomlkit.dump(config, file)
+        await update.message.reply_text(f"Registradx lx usuarix {update.message.from_user.first_name}"
+                    f" de id {update.message.from_user.id} bajo el alias {alias}! 😺")
+    else:
+        print(f"Alguien escribió la contraseña equivocada.")
+        print(f"ID: {update.message.from_user.id}")
+        print(f"Nick: {update.message.from_user.first_name}")
+        print(f"Usuario: {update.message.from_user.username}")
+        print(f"Es bot: {update.message.from_user.is_bot}")
+        print(f"Código de lenguaje: {update.message.from_user.language_code}")
+        await update.message.reply_text("La contraseña que escribiste es incorrecta!")
+
+
 async def groupid_command(update: Update,
                           context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando de configuración para obtener fácilmente el group ID"""
@@ -69,6 +113,11 @@ async def groupid_command(update: Update,
 
 async def agregartareas_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     editor = EditorSheet()
     args = context.args
     tareas = procesar_parámetros(args, 1)
@@ -79,6 +128,11 @@ async def agregartareas_command(update: Update,
 
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     editor = EditorSheet()
     args = context.args
     procesados = procesar_parámetros(args, 2)
@@ -98,6 +152,11 @@ async def agregarcompras_command(update: Update,
 
 async def registrarviveres_command(update: Update,
                                    context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     editor = EditorSheet()
     args = context.args
     ítems = procesar_parámetros(args, 1)
@@ -110,6 +169,11 @@ async def registrarviveres_command(update: Update,
 
 async def despejarlistatareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     """Confirma si borrar asistentes de la hoja"""
     keyboard = [
     [InlineKeyboardButton("🚧 Despejar 🚧", callback_data=("tareas 1"))],
@@ -122,6 +186,11 @@ async def despejarlistatareas_command(update: Update,
 
 async def despejarcompras_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     editor = EditorSheet()
     args = context.args
     procesados = procesar_parámetros(args, 2)
@@ -169,6 +238,11 @@ async def despejarcompras_command(update: Update,
     #                                reply_markup=reply_markup)
 async def despejarlistacompras_command(update:Update,
                                        context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     args = context.args
     compra = procesar_parámetros(args, 0)
     if error := chequear_contenido_parámetros(compra, 0):
@@ -196,6 +270,11 @@ async def despejarlistacompras_command(update:Update,
 
 async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     args = context.args
     tarea = procesar_parámetros(args, 4)
     if error := chequear_contenido_parámetros(tarea, 1):
@@ -209,6 +288,11 @@ async def despejarunatarea_command(update:Update,
 
 async def despejarunacompra_command(update: Update,
                                     context: ContextTypes.DEFAULT_TYPE):
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     editor = EditorSheet()
     args = context.args
     procesado = procesar_parámetros(args, 3)
@@ -254,6 +338,11 @@ async def despejarunacompra_command(update: Update,
                                         "en la lista seleccionada 🙁")
         
 async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        await update.message.reply_text(error)
+        return
+
     args = context.args
     procesado = procesar_parámetros(args, 4)
     mensaje = EditorSheet().despejar_registrado(procesado)
@@ -263,6 +352,10 @@ async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAU
 # Respuestas
 ##########################################################################
 def handle_message(texto: str, update: Update):
+    #Chequea si usó el comando un usuarix registradx
+    if error := chequear_usuarix(update):
+        return error
+
     respuesta = Respuestas(texto, update).respuestas()
     return respuesta
 
@@ -296,6 +389,19 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def enviar_mensaje_jobs(context: ContextTypes.DEFAULT_TYPE):
     """Enviar un mensaje desde un Job"""
     await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
+
+def chequear_usuarix(update: Update):
+    id = str(update.message.from_user.id)
+    with open("secretos/config.toml", "rb") as file:
+        config = tomllib.load(file)
+    try:
+        config["users"][id]["alias"]
+    except KeyError:
+        print("Alguien más está usando el bot! :O")
+        print(f"Usuarix: {update.message.from_user.first_name}")
+        print(f"ID: {update.message.from_user.id}")
+        return "No tenés permitido usar este bot, perdón!"
+    return None
 
 async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     """
@@ -481,7 +587,7 @@ def inicializar_jobs_mensajes_diarios(app):
     #                                chat_id=GROUP_ID, data=msg)
 
     for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
-        app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(recordatorio[1]["horario"]),
+        app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
                                 name=recordatorio[0], chat_id=GROUP_ID,
                                 data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
 
@@ -513,6 +619,7 @@ if __name__ == '__main__':
         TOKEN = config["telegram"]["tg_api"]
         BOT_USERNAME = config["telegram"]["bot_user"]
         GROUP_ID = config["telegram"]["group_id"]
+        PASSWD = config["telegram"]["passwd"]
     with open("secretos/recordatorios.yaml", "rb") as file:
         RECORDATORIOS = yaml.safe_load(file)
 
@@ -528,6 +635,7 @@ if __name__ == '__main__':
     # Comandos
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(CommandHandler('registrarusuarix', registrarusuarix_command))
     app.add_handler(CommandHandler('groupid', groupid_command))
     app.add_handler(CommandHandler('agregartareas', agregartareas_command))
     app.add_handler(CommandHandler('agregarcompras', agregarcompras_command))

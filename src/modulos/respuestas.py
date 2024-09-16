@@ -15,15 +15,17 @@ class Respuestas:
         self.update = update
         self.editor = EditorSheet()
         if update: 
-            self.first_name = update.message.from_user.first_name
+            self.id = str(update.message.from_user.id)
             with open("secretos/config.toml", "rb") as file:
                 config = tomllib.load(file)
             try:
-                self.nombre_usuario = config["alias"][self.first_name]
+                self.nombre_usuario = config["users"][self.id]["alias"]
                 self.BOT_USERNAME = config["telegram"]["bot_user"]
             except KeyError:
                 print("Alguien más está usando el bot! :O")
-                self.nombre_usuario = "Desconocidx o.o"
+                print(f"Usuarix: {update.message.from_user.first_name}")
+                print(f"ID: {update.message.from_user.id}")
+                self.usuarix_desconocidx()
         else:
             self.nombre_usuario = "Nadie"
         self.lista_flags_ubicaciones = self.editor.lista_flags_ubicaciones
@@ -169,6 +171,9 @@ class Respuestas:
         for tupla in lista_inicialización:
             dicc_lista = {k: tupla[0](k) for k in tupla[1]}
             self.config_tareas.update(dicc_lista)
+
+    def usuarix_desconocidx(self):
+        return "Alguien no autorizadx está usando el bot!"
 
     def tupla_quehaceres(self, key: str):
         """
