@@ -1,7 +1,7 @@
 # CONFIGURACIÓN DE LOS RECORDATORIOS
 #
 # Archivo que contiene todos los recordatorios del bot. Por ahora, son recordatorios de dos tipos:
-# Los condicionales, que se envían si cierto quehacer no se realizó después de x tiempo(y, hasta que se haga, 
+# Los condicionales, que se envían si cierto quehacer no se realizó después de x tiempo(y, hasta que se haga,
 # mediante intervales de z tiempo), y los recordatorios diarios, que se envían en determinados días de la semana
 # a una determinada hora, sin importar qué.
 #
@@ -13,7 +13,7 @@
 # Formato:
 # nombre_recordatorio:
 #   días_espera: n (número de días de espera antes de recordar)
-#   mensaje: acción del recordatorio, va a llenar el vacío del mensaje: 
+#   mensaje: acción del recordatorio, va a llenar el vacío del mensaje:
 #   "Parece que pasaron más de n días desde que _____. Quizás podrían hacerlo hoy?"
 #   quehacer: nombre del quehacer como aparece en su columna del google sheets.
 #   snooze: n (número de días a esperar antes de insistir con el recodatorio, si es que no se hizo)
@@ -71,5 +71,9 @@ recordatorios_quehaceres:
 recordatorios_diarios:
   verdulería_sábados:
     días_semana: [6]
-    horario: [11, 0 , 0]
+    horario: [11, 0, 0]
     mensaje: "Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una lista de verduras que nos sirvan para la semana e ir viendo quién podría ir? :)"
+  aire_acondicionado:
+    días_semana: [0, 1, 2, 3, 4, 5, 6]
+    horario: [23, 50, 0]
+    mensaje: "Wenas noches! Está el aire prendido? Si es así, no se olviden de apagarlo!"
