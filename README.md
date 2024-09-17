@@ -68,7 +68,7 @@ El bot está pensado para ser usado dentro de grupos. Si querés usarlo en un gr
 1. Agregar el bot a un grupo y darle privilegios de administrador.
 2. Entrar al chat con el BotFather, escribir el comando `/mybots`, seleccionar el bot, e ir a Bot Settings -> Group Privacy y desactivarlo.
 
-> [!info]
+> [!note]
 > Nada impide que lo uses exclusivamente por privado. Para esto, tendrías que seguir los mismos pasos que antes, sólo que usando el comando `chatid` en una conversación privada con el bot.(Si alguien más le escribe por privado y se registra, lo podría usar, pero no recibiría los mensajes de recordatorios)
 
 ## Configurar la hoja de cálculos de google
