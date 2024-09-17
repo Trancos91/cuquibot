@@ -17,7 +17,7 @@ class Respuestas:
         print("Inicializando editor")
         self.editor = EditorSheet()
         print("Editor:")
-        print(editor)
+        print(self.editor)
         if update: 
             self.id = str(update.message.from_user.id)
             with open("secretos/config.toml", "rb") as file:
