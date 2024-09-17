@@ -3,10 +3,9 @@ from enum import Enum
 class Mensajes(Enum):
     START = (
         'Holi, soy el Cuquibot, miau!'
-        ' Escribí "/help" para ver los comandos disponibles :3'
-        'Si querés usarme, tenés que registrarte con el comando: \n'
-        '<pre>/registrarusuarix contraseña alias</pre>'
-        'Asegurate de que la primera "palabra" después del comando sea la contraseña, y el resto como querés que te diga!'
+        ' Escribí "/help" para ver los comandos disponibles :3\n'
+        'Si querés usarme, tenés que registrarte! Procurá hablar con mi humano'
+        '(la persona que me administre)!'
     )
     HELP = (
         'Hola, nya! Soy la cuquibot 😺\n'
