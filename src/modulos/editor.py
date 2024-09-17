@@ -13,16 +13,13 @@ class EditorSheet:
         with open("secretos/config.toml", "rb") as file:
             config = tomllib.load(file)
         # Identificándose como cuenta de servicio
-        print("Identificando cuenta de servicio...")
         self.gc = gspread.service_account(filename=config["google"]["archivo_google_api"])
-        print("Cuenta identificada! Abriendo el workbook...")
         # Abriendo el 'workbook'(colección de worksheets) con el que vamos a trabajar
         #self.workbook = self.gc.open_by_key(config["google"]["worksheet_key"])
         try:
             self.workbook = self.gc.open_by_url(config["google"]["worksheet_url"])
         except gspread.exceptions.SpreadsheetNotFound as e:
             print(e)
-        print("Workbook abierto! Cargando las varias worksheets a variables")
         # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
@@ -106,7 +103,6 @@ class EditorSheet:
             sheet = self.lista_tareas
             final_respuesta = "a la lista de tareas"
         elif categoría == 1:
-            print("Categoría 1 seleccionada")
             columna = 1
             sheet = self.registro_compras
             final_respuesta = "al registro de víveres"
@@ -123,7 +119,6 @@ class EditorSheet:
         productos_proc = [x.capitalize() for x in productos]
         fecha_hoy = date.today().strftime("%Y/%m/%d")
         for producto in productos_proc:
-            print(producto)
             if producto in rows:
                 continue
             elif producto == productos_proc[-1]:
@@ -231,7 +226,6 @@ class EditorSheet:
         for presente in presentes:
             if nombre in presente[0]:
                 usuarix = presente
-                print("El usuario estaba en [presentes]")
             else:
                 otrx = presente
         # Si el usuarix está entre lxs presentes(ya está anotadx) y no hay flags,
@@ -295,12 +289,8 @@ class EditorSheet:
     def despejar_compras(self, compras: list[str], categoría: CategoríaCompras = None):
         #self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
         compras_original = [str(x) for x in self.lista_compras.col_values(categoría.value[0] + 1)]
-        print(f"Compras original: {compras_original}")
         compras_lower = [x.lower() for x in compras_original]
-        print(f"Compras lower: {compras_lower}")
         compras = [compra[0].lower() + compra[1:] for compra in compras.copy()]
-        print(f"Compras: {compras}")
-        print(f"{"true" if "👮‍♂️" in "👮‍♂️" else "false"}")
         índices_a_eliminar = []
         compras_a_eliminar = []
         compras_no_encontradas = []
@@ -463,7 +453,6 @@ class EditorSheet:
         abiertos = self.registro_compras.range(f"C2:C{len(productos)}")
         agotados = self.registro_compras.range(f"D2:D{len(productos)}")
         productos.pop(0)
-        print(productos)
         if not productos:
             return "Al parecer, no hay productos registrados!"
         mensaje = ("<b><u>Lista de ítems registrados y el estado en el que se "
@@ -566,7 +555,6 @@ class EditorSheet:
             if ch not in ch_flags:
                 return ("Ingresaste un flag inválido. Preguntame sobre <i>flags</i> o <i> ubicaciones</i> "
                     "para ver la lista de ubicaciones y sus respectivos flags ;)")
-        print(f"Recibidos los siguientes flags: {flags}")
 
     def procesar_presentes(self, celda):
         """
@@ -574,13 +562,11 @@ class EditorSheet:
         con listas individuales consistentes en el nombre y los flags asociados
         """
         if isinstance(celda, str):
-            print("Detectada celda como str")
             presentes = [x.strip() for x in celda.split(",")]
             presentes = [x.split("(") for x in presentes.copy()]
             for presente in presentes:
                 if len(presente) > 1:
                     presente[1] = presente.copy()[1][:-1]
-            print(presentes)
             return presentes
         else:
             return []
@@ -593,12 +579,10 @@ class EditorSheet:
         # Extrae tuplas de lista_flags que corresponden a los flags pasados.
         flags_tuplas = [flag for flag in lista_flags if flags and flag[0] in flags]
         for flag in flags_tuplas:
-            print(flag)
             if len(flag) > 2:
                 flags_tuplas.pop(flags_tuplas.index(flag))
                 for subflag in flag[2]:
                     if lista_flags[subflag] not in flags_tuplas: flags_tuplas.append(lista_flags[subflag])
-                print(flags_tuplas)
         flags_nuevas = flags_tuplas.copy()
         mensaje_flags = "" 
         mensaje_preexistentes = ""

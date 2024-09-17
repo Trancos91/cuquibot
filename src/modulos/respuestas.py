@@ -13,20 +13,14 @@ class Respuestas:
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
-        print(update)
-        print("Inicializando editor")
         self.editor = EditorSheet()
-        print("Editor:")
-        print(self.editor)
         if update: 
             self.id = str(update.message.from_user.id)
             with open("secretos/config.toml", "rb") as file:
                 config = tomllib.load(file)
             try:
                 self.nombre_usuario = config["users"][self.id]["alias"]
-                print(f"Alias: {self.nombre_usuario}")
                 self.BOT_USERNAME = config["telegram"]["bot_user"]
-                print(f"BOT_USERNAME: {self.BOT_USERNAME}")
             except KeyError:
                 print("Alguien más está usando el bot! :O")
                 print(f"Usuarix: {update.message.from_user.first_name}")
@@ -219,7 +213,6 @@ class Respuestas:
         # de 'Abrimos la yerba mate'
         if texto_procesado_lista[0] in pronombres:
             texto_procesado_lista.pop(0)
-        print(f"texto_procesado_lista = {texto_procesado_lista}")
         return función(" ".join(texto_procesado_lista))
     
     def procesar_texto_quehacer(self, nombre_usuario, categoría, función):
