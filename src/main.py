@@ -114,6 +114,8 @@ def inicializar_jobs_mensajes_diarios(app):
     la categoría "recordatorios_diarios" y los registra en jobs con los parámetros
     apropiados.
     """
+    if not RECORDATORIOS["recordatorios_diarios"]: return
+
     for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
         app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
                                 name=recordatorio[0], chat_id=CHAT_ID, days=[*recordatorio[1]["días_semana"]],
@@ -125,6 +127,8 @@ def inicializar_jobs_recordatorios(app):
     la categoría "recordatorios_quehaceres" y los registra en jobs con los parámetros
     apropiados.
     """
+    if not RECORDATORIOS["recordatorios_quehaceres"]: return
+
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
         app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
                                 name=recordatorio[0], chat_id=CHAT_ID,
