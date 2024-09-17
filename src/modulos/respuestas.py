@@ -20,7 +20,9 @@ class Respuestas:
                 config = tomllib.load(file)
             try:
                 self.nombre_usuario = config["users"][self.id]["alias"]
+                print(f"Alias: {self.nombre_usuario}")
                 self.BOT_USERNAME = config["telegram"]["bot_user"]
+                print(f"BOT_USERNAME: {self.BOT_USERNAME}")
             except KeyError:
                 print("Alguien más está usando el bot! :O")
                 print(f"Usuarix: {update.message.from_user.first_name}")
@@ -155,6 +157,7 @@ class Respuestas:
             respuesta = self.chequear_presencia(self.config_tareas[key])
             if respuesta:
                 break
+        print(respuesta)
         return respuesta if respuesta else "No entendí"
 
     def chequear_presencia(self, categoría):
