@@ -95,6 +95,7 @@ El bot está pensado para ser usado dentro de grupos. Si querés usarlo en un gr
 11. Volviendo a la consola de la cuenta de servicio donde estábamos, tocá la pestaña "Keys" o "Llaves".
 12. Tocá "Add key" o "Agregar llave", y seleccioná crear una nueva. Te va a ofrecer crearla en JSON o P12. Seleccioná JSON. Esto va a bajar un archivo JSON a tu computadora.
 13. Mové el archivo JSON a la carpeta de "secretos" del bot, la que contiene config.toml y recordatorios.yaml.
+14. Renombrá el archivo a "credentials.json"
 
 ## Configuración del bot
 
