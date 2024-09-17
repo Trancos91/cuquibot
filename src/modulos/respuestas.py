@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 import tomllib
-from enum import Enum
 from modulos.editor import EditorSheet
 from unidecode import unidecode
 from telegram import Update
