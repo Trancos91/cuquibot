@@ -197,18 +197,10 @@ class EditorSheet:
         if error := self.chequear_flags(self.lista_flags_ubicaciones, flags):
             return error
 
-        # Definiendo variables
+        # Define variables necesarias para chequear el día
         ultima_row = self.quehaceres.row_values(len(self.quehaceres.col_values(1)))
         num_ultima_row = len(self.quehaceres.col_values(1))
-        col_categoría = categoría.value[0] + 1
-        celda = self.quehaceres.cell(num_ultima_row, col_categoría).value
-        
-        presentes = self.procesar_presentes(celda)
-        usuarix = [nombre]
-        otrx = []
-        
-        respuesta = ""
-        
+
         # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
         try:
             fecha_row = datetime.strptime(ultima_row[0], "%Y/%m/%d").date()
@@ -221,6 +213,18 @@ class EditorSheet:
             print(f"Creada nueva celda del día: {self.quehaceres.cell(num_ultima_row + 1, 1).value}")
         else:
             if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m/%d")
+
+        # Definiendo variables y actualizando la última row
+        num_ultima_row = len(self.quehaceres.col_values(1))
+        col_categoría = categoría.value[0] + 1
+        celda = self.quehaceres.cell(num_ultima_row, col_categoría).value
+        
+        presentes = self.procesar_presentes(celda)
+        usuarix = [nombre]
+        otrx = []
+        
+        respuesta = ""
+        
 
         # Itera sobre las listas(nombre - flags) dentro de la lista de presentes
         # determina quién es usuarix y quién es otrx

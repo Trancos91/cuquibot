@@ -35,8 +35,7 @@ El bot cuenta con un registro de víveres en el cual se pueden anotar distintos 
 
 # Instalación
 
-> [!caution]
-> **EN DESARROLLO**
+> [!caution] > **EN DESARROLLO**
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
@@ -85,18 +84,20 @@ El bot está pensado para ser usado dentro de grupos. Si querés usarlo en un gr
    - Seleccioná "New project" o "Nuevo proyecto", arriba a la derecha de la ventana que apareció.
    - Nombrá el proyecto como prefieras(por ejemplo, el nombre del bot).
    - En organización, podés dejarlo sin organización. Tocá crear.
-3. En el menú de navegación (o de "hamburguesa", o de tres barras horizontales a la izquierda del logo de Google cloud), seleccioná "APIs & Services"(o APIs y Servicios). Luego, Credentials. Si no elegiste el proyecto que creaste, te va a pedir que lo hagas ahora.
-4. Tocá el botón "+ Create credentials" o "+ Crear credenciales" y seleccioná "Service account" o "Cuenta de servicio".
-5. Elegí un nombre para la cuenta, y un ID(podés dejar que rellene automáticamente lo mismo que el nombre).
-6. La descripción es opcional. Tocá "Create and continue" o "Crear y continuar".
-7. En la lista de roles, buscá `Editor` con el filtro y seleccionalo. Tocá continue(o continuar, se entiende).
-8. Tocá Done. No es necesario dar acceso a otrxs usuarixs a la cuenta.
-9. Una vez creado el bot, nos llevará al menú de credenciales. Seleccioná el mail del bot que ahora aparece bajo la lista de Service Accounts(o cuentas de servicio).
-10. Copiá el mail que aparece en la sección Email, y dale permisos de Editor a dicho mail en la hoja de cálculos del bot. Hacelo en otra pestaña, vamos a tener que volver acá después del paso.
-11. Volviendo a la consola de la cuenta de servicio donde estábamos, tocá la pestaña "Keys" o "Llaves".
-12. Tocá "Add key" o "Agregar llave", y seleccioná crear una nueva. Te va a ofrecer crearla en JSON o P12. Seleccioná JSON. Esto va a bajar un archivo JSON a tu computadora.
-13. Mové el archivo JSON a la carpeta de "secretos" del bot, la que contiene config.toml y recordatorios.yaml.
-14. Renombrá el archivo a "credentials.json"
+3. Con el buscador, buscá "Google Drive API" y activalo.
+4. Buscá con el mismo buscador "Google Sheets API" y activalo.
+5. En el menú de navegación (o de "hamburguesa", o de tres barras horizontales a la izquierda del logo de Google cloud), seleccioná "APIs & Services"(o APIs y Servicios). Luego, Credentials. Si no elegiste el proyecto que creaste, te va a pedir que lo hagas ahora.
+6. Tocá el botón "+ Create credentials" o "+ Crear credenciales" y seleccioná "Service account" o "Cuenta de servicio".
+7. Elegí un nombre para la cuenta, y un ID(podés dejar que rellene automáticamente lo mismo que el nombre).
+8. La descripción es opcional. Tocá "Create and continue" o "Crear y continuar".
+9. En la lista de roles, buscá `Editor` con el filtro y seleccionalo. Tocá continue(o continuar, se entiende).
+10. Tocá Done. No es necesario dar acceso a otrxs usuarixs a la cuenta.
+11. Una vez creado el bot, nos llevará al menú de credenciales. Seleccioná el mail del bot que ahora aparece bajo la lista de Service Accounts(o cuentas de servicio).
+12. Copiá el mail que aparece en la sección Email, y dale permisos de Editor a dicho mail en la hoja de cálculos del bot. Hacelo en otra pestaña, vamos a tener que volver acá después del paso.
+13. Volviendo a la consola de la cuenta de servicio donde estábamos, tocá la pestaña "Keys" o "Llaves".
+14. Tocá "Add key" o "Agregar llave", y seleccioná crear una nueva. Te va a ofrecer crearla en JSON o P12. Seleccioná JSON. Esto va a bajar un archivo JSON a tu computadora.
+15. Mové el archivo JSON a la carpeta de "secretos" del bot, la que contiene config.toml y recordatorios.yaml.
+16. Renombrá el archivo a "credentials.json"
 
 ## Configuración del bot
 
