@@ -18,7 +18,10 @@ class EditorSheet:
         print("Cuenta identificada! Abriendo el workbook...")
         # Abriendo el 'workbook'(colección de worksheets) con el que vamos a trabajar
         #self.workbook = self.gc.open_by_key(config["google"]["worksheet_key"])
-        self.workbook = self.gc.open_by_url(config["google"]["worksheet_url"])
+        try:
+            self.workbook = self.gc.open_by_url(config["google"]["worksheet_url"])
+        except gspread.exceptions.SpreadsheetNotFound as e:
+            print(e)
         print("Workbook abierto! Cargando las varias worksheets a variables")
         # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
