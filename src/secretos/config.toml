@@ -2,7 +2,7 @@
 # Información de telegram
 [telegram]
 tg_api = "API Token entre las comillas" # Token de API del bot, generado por el BotFather.
-chat_id = -123 # El group_id que nos da el bot. INCLUÍR EL SIGNO NEGATIVO.
+chat_id = -123 # El group_id que nos da el bot. INCLUÍR EL SIGNO NEGATIVO SI ES UN GRUPO.
 bot_user = "@usuariotgdelbot" # Nombre de usuario de telgram del bot. Incluír arroba al comienzo.
 passwd = "contraseñaderegistro" # Contraseña para registrar usuarixs con el bot
 # Información de google
