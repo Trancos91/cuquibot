@@ -10,4 +10,5 @@ passwd = "contraseñaderegistro" # Contraseña para registrar usuarixs con el bo
 archivo_google_api = "secretos/credentials.json" # Archivo JSON con las credenciales para usar la cuenta de servicio. Si copiaste las credenciales en la misma carpeta de secretos, dejá esto así.
 worksheet_key = "key-del-sheet" # Key del sheet de google, encontrado en la URL del mismo.
 # Aliases de usuarixs
-[alias] # Agregá aliases con el comando /registrarusuarix
+# Agregá aliases con el comando /registrarusuarix
+[alias]
