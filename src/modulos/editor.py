@@ -17,7 +17,8 @@ class EditorSheet:
         self.gc = gspread.service_account(filename=config["google"]["archivo_google_api"])
         print("Cuenta identificada! Abriendo el workbook...")
         # Abriendo el 'workbook'(colección de worksheets) con el que vamos a trabajar
-        self.workbook = self.gc.open_by_key(config["google"]["worksheet_key"])
+        #self.workbook = self.gc.open_by_key(config["google"]["worksheet_key"])
+        self.workbook = self.gc.open_by_url(config["google"]["worksheet_url"])
         print("Workbook abierto! Cargando las varias worksheets a variables")
         # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
