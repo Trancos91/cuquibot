@@ -1,8 +1,6 @@
 venv/
 src/__pycache__/
 src/modulos/__pycache__/
-src/secretos/config.toml
 src/secretos/credentials.json
 actualizar.sh
 actualizar-cuquibot.py
-docker-compose.yaml
