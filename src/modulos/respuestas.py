@@ -10,11 +10,9 @@ class Respuestas:
     y de llamar los métodos apropiados. Utiliza diccionarios para almacenar
     las palabras claves y los métodos asociados."""
     def __init__(self, texto: str, update: Update | None = None):
-        print("Inicializando respuestas...")
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
-        print(f"Update:")
         print(update)
         print("Inicializando editor")
         self.editor = EditorSheet()

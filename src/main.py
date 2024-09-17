@@ -18,10 +18,7 @@ def handle_message(texto: str, update: Update):
     #if error := chequear_usuarix(update):
     #    return error
 
-    print(f"Corriendo handle_message con texto {texto}")
-    print(f"Update: {update}")
     respuesta = Respuestas(texto, update).respuestas()
-    print("Corrido 'Respuestas.respuestas(), devolviendo respuesta...")
     return respuesta
 
 @requiere_usuarix
