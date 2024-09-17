@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 
 
 def requiere_usuarix(func):
+    print("Corriento decorador")
     def chequear_usuarix(update: Update):
         id = str(update.message.from_user.id)
         with open("secretos/config.toml", "rb") as file:
@@ -22,6 +23,7 @@ def requiere_usuarix(func):
             await update.message.reply_text(error)
             return
         else:
+            print("No hubo error, corriendo función")
             await func(update, context)
     return wrapper
 
