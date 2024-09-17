@@ -9,6 +9,8 @@ from telegram.ext import (Application, CommandHandler, MessageHandler,
 from unidecode import unidecode
 from modulos.editor import EditorSheet
 from modulos.respuestas import Respuestas
+from modulos.decoradores import requiere_usuarix
+from modulos.mensajes import Mensajes
 
 
 ##########################################################################
@@ -16,52 +18,11 @@ from modulos.respuestas import Respuestas
 ##########################################################################
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    await update.message.reply_text('Holi, soy el Cuquibot, miau!'
-        ' Escribí "/help" para ver los comandos disponibles :3'
-        'Si querés usarme, tenés que registrarte con el comando: \n'
-        '<pre>/registrarusuarix contraseña alias</pre>'
-        'Asegurate de que la primera "palabra" después del comando sea la contraseña, y el resto como querés que te diga!')
+    await update.message.reply_text(Mensajes.START.value)
 
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    mensaje = ('Hola, nya! Soy la cuquibot 😺\n'
-    'Si querés usarme, tenés que registrarte con el comando: \n'
-    '<pre>/registrarusuarix contraseña alias</pre>\n'
-    'Asegurate de que la primera "palabra" después del comando sea la contraseña, y el resto como querés que te diga!\n'
-    'Te paso la lista de comandos(instrucciones que empiezan con "/") y '
-    'de palabras clave :)\n\n'
-    '📋 <b><u>Lista de comandos:</u></b>\n'
-    '  • <b>/agregartareas:</b> Agregar tareas a la lista de tareas. Separalas con comas!\n'
-    '  • <b>/agregarcompras:</b> Agregar ítems a una lista de compras específica. Escribí'
-    ' la primera palabra refiriendo a la lista, y después ingresá las compras separadas por comas.'
-    ' Por ejemplo: \n'
-    '<pre>/agregarcompras super arroz, bicarbonato de sodio, azúcar morena</pre>\n'
-    '  • <b>/registrarviveres:</b> Agregar un ítem al registro de víveres, a donde anotamos'
-    ' las fechas de apertura y agotamiento de las cosas que compramos. Los ítems pueden '
-    'contener la cantidad de ese ítem que se registra <i>entre paréntesis</i>. Por ejemplo:\n'
-    '<pre>/registrarviveres Arroz(1kg), Lentejas(2kg), Leche de coco, Shampoo(500ml)</pre>\n'
-    '  • <b>/despejarlistatareas:</b> Despeja por completo la lista de tareas.\n'
-    '  • <b>/despejarlistacompras:</b> Despeja por completo una lista de compras. Por ejemplo:\n'
-    '<pre>/despejarlistacompras juanito</pre>\n'
-    '  • <b>/despejarcompras:</b> Despeja compras de la lista de compras. Escribí la primera'
-    ' palabra refiriendo a la lista, y después ingresá las compras separadas por comas. Por ejemplo:\n'
-    '<pre>/despejarcompras super leche de coco, maní, chocolate</pre>\n'
-    '  • <b>/despejarunatarea:</b> Despeja una tarea de la lista de tareas.\n'
-    '  • <b>/despejarregistrado:</b> Despeja <i>las fechas de apertura y agotamiento</i> '
-    'de un elemento del registro de víveres, dejándolo listo para volver a registrar. '
-    '<b>No</b> despeja el elemento en sí de la lista.\n\n'
-    '📋 <b><u>Listas de compras:</u></b>\n'
-    '  • Supermercado(o "super", o "chino")\n'
-    '  • Verdulería(o "verdu")\n'
-    '  • Mensuales(compras del coto mensuales)\n'
-    '  • Juanito\n'
-    '  • Farmacia\n'
-    '  • Diarias(<i>sólo se puede utilizar para acceder a la lista, no para agregar ítems. '
-    'Combina las listas de Supermercado, Verdulería y Varias</i>)\n\n'
-    '💡 Por último, para acceder a la lista de palabras clave a las que respondo, '
-    'que por lo general apuntan a pedidos de información o a anotar cosas más cotidianas '
-    'como los quehaceres, tageame y escribí <i>referencia</i> o <i>refe</i>'
-        '(también sirve <i>palabras</i>).')
+    mensaje = (Mensajes.HELP.value)
 
     await update.message.reply_text(mensaje)
 
@@ -77,11 +38,18 @@ async def registrarusuarix_command(update: Update,
     alias = " ".join(args)
     first_name = str(update.message.from_user.first_name)
     id = str(update.message.from_user.id)
-    print(f"Nombre: {first_name}")
+
+    async def chequear_duplicado(dicc_users, nick):
+        for id in dicc_users:
+            if nick == dicc_users[id]["alias"]:
+                await update.message.reply_text("Disculpá, ese alias ya lo tiene otra persona!")
+                return True
 
     if contraseña == PASSWD:
         with open("secretos/config.toml", "r") as file:
             config = tomlkit.load(file)
+        if await chequear_duplicado(config["users"], alias):
+            return
         config["users"][id] = {}
         config["users"][id]["first_name"] = first_name
         config["users"][id]["alias"] = alias
@@ -90,12 +58,15 @@ async def registrarusuarix_command(update: Update,
         await update.message.reply_text(f"Registradx lx usuarix {update.message.from_user.first_name}"
                     f" de id {update.message.from_user.id} bajo el alias {alias}! 😺")
     else:
-        print(f"Alguien escribió la contraseña equivocada.")
-        print(f"ID: {update.message.from_user.id}")
-        print(f"Nick: {update.message.from_user.first_name}")
-        print(f"Usuario: {update.message.from_user.username}")
-        print(f"Es bot: {update.message.from_user.is_bot}")
-        print(f"Código de lenguaje: {update.message.from_user.language_code}")
+        mensaje = (
+            "Alguien escribió la contraseña equivocada.\n"
+            f"ID: {update.message.from_user.id}\n"
+            f"Nick: {update.message.from_user.first_name}\n"
+            f"Usuario: {update.message.from_user.username}\n"
+            f"Es bot: {update.message.from_user.is_bot}\n"
+            f"Código de lenguaje: {update.message.from_user.language_code}"
+        )
+        print(mensaje)
         await update.message.reply_text("La contraseña que escribiste es incorrecta!")
 
 
@@ -109,12 +80,13 @@ async def groupid_command(update: Update,
     else:
         await update.message.reply_text("Parece que este comando no lo escribiste en el grupo! 😿")
 
+@requiere_usuarix
 async def agregartareas_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     editor = EditorSheet()
     args = context.args
@@ -124,12 +96,13 @@ async def agregartareas_command(update: Update,
     else:
         await update.message.reply_text(editor.agregar_ítems(tareas))
 
+@requiere_usuarix
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     editor = EditorSheet()
     args = context.args
@@ -148,12 +121,13 @@ async def agregarcompras_command(update: Update,
 
     await update.message.reply_text(editor.agregar_ítems(compras, categoría=categoría_compras))
 
+@requiere_usuarix
 async def registrarviveres_command(update: Update,
                                    context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     editor = EditorSheet()
     args = context.args
@@ -165,12 +139,13 @@ async def registrarviveres_command(update: Update,
         await update.message.reply_text(editor.agregar_ítems(ítems, 1))
 
 
+@requiere_usuarix
 async def despejarlistatareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     """Confirma si borrar asistentes de la hoja"""
     keyboard = [
@@ -182,12 +157,13 @@ async def despejarlistatareas_command(update: Update,
     await update.message.reply_text("⚠️ Segurx querés despejar la lista de tareas? ⚠️", 
                                     reply_markup=reply_markup)
 
+@requiere_usuarix
 async def despejarcompras_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     editor = EditorSheet()
     args = context.args
@@ -212,34 +188,13 @@ async def despejarcompras_command(update: Update,
 
     await update.message.reply_text(mensaje)
 
-    #compra = procesar_parámetros(args, 2)
-    #if error := chequear_contenido_parámetros(compra, 0):
-    #    await update.message.reply_text(error)
-    #    return
-    #lista_respuestas = Respuestas("nada", update).lista_compras
-    #lista_compuesta = [palabra for lista in lista_respuestas.values() for palabra in lista]
-    #lista_compuesta.append("diarias")
-    #if not any(compra == palabra for palabra in lista_compuesta):
-    #    await update.message.reply_text("Por favor aclará 'diarias', "
-    #                                    "'mensuales', 'super', 'juanito' o 'farmacia' "
-    #                                    "para definir la lista a despejar :)")
-    #    return
-
-    #"""Confirma si borrar asistentes de la hoja"""
-    #keyboard = [
-    #[InlineKeyboardButton("🚧 Despejar 🚧", callback_data=(f"{compra} 1"))],
-    #[InlineKeyboardButton("Cancelar", callback_data=(f"{compra} 0"))]
-    #]
-    #reply_markup = InlineKeyboardMarkup(keyboard)
-    #
-    #await update.message.reply_text(f"⚠️ Segurx querés despejar la lista de compras? ⚠️", 
-    #                                reply_markup=reply_markup)
+@requiere_usuarix
 async def despejarlistacompras_command(update:Update,
                                        context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     args = context.args
     compra = procesar_parámetros(args, 0)
@@ -265,13 +220,13 @@ async def despejarlistacompras_command(update:Update,
     await update.message.reply_text(f"⚠️ Segurx querés despejar la lista de compras? ⚠️", 
                                     reply_markup=reply_markup)
 
-
+@requiere_usuarix
 async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     args = context.args
     tarea = procesar_parámetros(args, 4)
@@ -284,12 +239,13 @@ async def despejarunatarea_command(update:Update,
         await update.message.reply_text(f"Disculpame, no encontré la tarea '{tarea}' "
                                         "en la lista de tareas 🙁")
 
+@requiere_usuarix
 async def despejarunacompra_command(update: Update,
                                     context: ContextTypes.DEFAULT_TYPE):
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     editor = EditorSheet()
     args = context.args
@@ -335,11 +291,12 @@ async def despejarunacompra_command(update: Update,
         await update.message.reply_text(f"Disculpame, no encontré el ítem '{ítem}"
                                         "en la lista seleccionada 🙁")
         
+@requiere_usuarix
 async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        await update.message.reply_text(error)
-        return
+    #if error := chequear_usuarix(update):
+    #    await update.message.reply_text(error)
+    #    return
 
     args = context.args
     procesado = procesar_parámetros(args, 4)
@@ -351,12 +308,13 @@ async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAU
 ##########################################################################
 def handle_message(texto: str, update: Update):
     #Chequea si usó el comando un usuarix registradx
-    if error := chequear_usuarix(update):
-        return error
+    #if error := chequear_usuarix(update):
+    #    return error
 
     respuesta = Respuestas(texto, update).respuestas()
     return respuesta
 
+@requiere_usuarix
 async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Procesa los mensajes que no atraparon las funciones de comandos. En caso
@@ -388,18 +346,6 @@ async def enviar_mensaje_jobs(context: ContextTypes.DEFAULT_TYPE):
     """Enviar un mensaje desde un Job"""
     await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
 
-def chequear_usuarix(update: Update):
-    id = str(update.message.from_user.id)
-    with open("secretos/config.toml", "rb") as file:
-        config = tomllib.load(file)
-    try:
-        config["users"][id]["alias"]
-    except KeyError:
-        print("Alguien más está usando el bot! :O")
-        print(f"Usuarix: {update.message.from_user.first_name}")
-        print(f"ID: {update.message.from_user.id}")
-        return "No tenés permitido usar este bot, perdón!"
-    return None
 
 async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     """

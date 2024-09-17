@@ -4,6 +4,7 @@ from enum import Enum
 from modulos.editor import EditorSheet
 from unidecode import unidecode
 from telegram import Update
+from modulos.mensajes import Mensajes
 
 class Respuestas:
     """Objeto que se encarga de procesar todo el texto que no es un comando
@@ -82,55 +83,6 @@ class Respuestas:
             "farmacia": ["farmacia", "farmacity", "farma"],
             "varias": ["varias", "varios"]
         }
-        # Mensaje de referencia de palabras:
-        self.mensaje_refe = (
-            '📕 <b><u>Lista de palabras clave a las que respondo (con sus alternativas entre paréntesis):</u></b>\n'
-            '<u>Contenido en listas:</u>\n'
-            '  • <b><i>Supermercado</i></b>(<i>super, chino</i>)\n'
-            '  • <b><i>Verdulería</i></b>(<i>verdu, verduras</i>)\n'
-            '  • <b><i>Varias</i></b>(<i>verdu, verduras</i>)\n'
-            '  • <b><i>Diarias</i></b>\n'
-            '  • <b><i>Mensuales</i></b>(<i>mensual, coto, mes</i>)\n'
-            '  • <b><i>Juanito</i></b>\n'
-            '  • <b><i>Modelo Juanito</i></b>(puede ir sin separación o con guión o guión bajo, o si no <i>mjuanito</i>)\n'
-            '  • <b><i>Modelo Mensuales</i></b>(<i>modelo mensual, modelo coto, modelo mes</i>. Puede ir sin separación o con guión o guión bajo, o si no <i>mmensuales</i>, <i>mcoto</i>, etc.)\n'
-            '  • <b><i>Farmacia</i></b>(<i>farmacity, farma</i>)\n'
-            '  • <b><i>Tareas</i></b>(<i>tarea, pendientes, pendiente</i>)\n'
-            '  • <b><i>Registradas</i></b>(<i>registrados, registro</i>)\n'
-            '  • <b><i>Estado</i></b>(<i>estados, estatus, status</i>): Muestra en qué estado'
-            ' se encuentran los ítems registrados(abierto, agotado, sin abrir)\n'
-            '  • <b><i>Flags</i></b>(<i>ubicaciones, lugares, flag, ubicación, lugar</i>)\n'
-            '<u>Acciones sobre el registro de víveres:</u>\n'
-            '  • <b><i>Abrí</i></b>(<i>abrió, abrimos</i>): Marca la fecha de apertura de <b>un</b> elemento\n'
-            '  • <b><i>Terminé</i></b>(<i>terminó, terminamos, agoté, agotó, agotamos, acabé, acabó, acabamos</i>): '
-            'Marca la fecha de agotamiento de <b>un</b> elemento\n'
-            '  • <b><i>Duración</i></b>(<i>dura, duró, duraron, agotarse, acabarse</i>): Responde cuánto tiempo '
-            'tardó en agotarse(en días) <b>un</b> elemento\n'
-            '  • <b><i>Duraciones</i></b>: Muestra las últimas duraciones de todos'
-            'los ítems registrados.\n'
-            '<u>Quehaceres para indicar su cumplimiento:</u>\n'
-            '  • <b><i>Barrer</i></b>(<i>barrí, escoba, escobillón</i>)\n'
-            '  • <b><i>Trapear</i></b>(<i>trapeé, trapé, trapié, trapo</i>)\n'
-            '  • <b><i>Limpiar</i></b>(<i>limpié, limpió</i>)\n'
-            '  • <b><i>Tacho</i></b>(<i>tachos, tachito, tachitos</i>: Indica que limpiaste '
-            'un tacho, no que sacaste la basura)\n'
-            '  • <b><i>Basura</i></b>: Indica que sacaste la basura común al pasillo\n'
-            '  • <b><i>Reciclables</i></b>(<i>reciclable</i>): Indica que sacaste la basura reciclable '
-            'al container en la calle\n'
-            '  • <b><i>Lavar</i></b>(<i>lavé, ropa</i>): Indica que lavaste la ropa\n'
-            '  • <b><i>Colgar</i></b>(<i>colgué, sequé, secar, tender</i>): Indica que colgaste la ropa '
-            'a secar en el tender\n'
-            '  • <b><i>Doblar</i></b>(<i>doblé, guardé, guardar</i>): Indica que doblaste la ropa y'
-            '(opcionalmente) la guardaste en el armario\n'
-            '  • <b><i>Compras</i></b>(<i>compré, comprar</i>): Indica que saliste a hacer las compras\n'
-            '  • <b><i>Bebedero</i></b>(<i>fuente, agua</i>): Indica que <i>limpiaste</i> el bebedero de asiri\n'
-            '  • <b><i>Caja</i></b>(<i>piedras</i>): Indica que limpiaste la caja de asiri(hayas sacado la'
-            ' caca y el aserrín o le hayas cambiado las piedras, directamente)\n'
-            '  • <b><i>Plato</i></b>:(<i>platito</i>): Indica que limpiaste el plato de comida de asiri\n\n'
-            '⚠️ <b>Nota importante</b>: Aunque algunas de las palabras usen conjugaciones en segunda o tercera persona, '
-            'el bot da por sentado que fue quien mandó el mensaje quien hizo las cosas en donde es relevante'
-            '(por ejemplo, cuando se trata de cumplir quehaceres)'
-        )
         # Diccionario que asocia funciones, argumentos, y las listas de palabras que
         # llamarían a dichas funciones
         # FORMATO: (lista de palabras clave, función a llamar, argumento a pasar,
@@ -162,7 +114,7 @@ class Respuestas:
                                     self.editor.get_flags_ubicaciones, None,
                                     "Algo anda mal, no conseguí la lista de ubicaciones! 🙁"),
         "referencia": (self.listas_palabras["referencia"], self.mensaje_simple,
-                       (self.mensaje_refe, ), "El mensaje de referencia no debería dar error")
+                       (Mensajes.REFE.value, ), "El mensaje de referencia no debería dar error")
         }
         # Lista de inicialización con función de parseo y lista de palabras para parsear
         lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
