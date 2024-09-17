@@ -6,7 +6,6 @@ import gspread
 import pandas as pd
 import numpy as np
 from unidecode import unidecode
-#from tabulate import tabulate
 
 class EditorSheet:
     """Objeto para editar el sheet"""

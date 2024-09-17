@@ -66,15 +66,15 @@ async def registrarusuarix_command(update: Update,
         await update.message.reply_text("La contraseña que escribiste es incorrecta!")
 
 
-async def groupid_command(update: Update,
+async def chatid_command(update: Update,
                           context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando de configuración para obtener fácilmente el group ID"""
+    """Comando de configuración para obtener fácilmente el ID del chat"""
     message_type: str = update.message.chat.type
 
     if message_type == "group" or message_type == "supergroup":
         await update.message.reply_text(f"El ID de tu grupo es:\n{update.message.chat_id}")
     else:
-        await update.message.reply_text("Parece que este comando no lo escribiste en el grupo! 😿")
+        await update.message.reply_text(f"El ID del chat es:\n{update.message.chat_id}")
 
 @requiere_usuarix
 async def agregartareas_command(update: Update,

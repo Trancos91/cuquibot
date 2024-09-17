@@ -35,13 +35,12 @@ El bot cuenta con un registro de víveres en el cual se pueden anotar distintos 
 
 # Instalación
 
-> [!caution]
-> **EN DESARROLLO**
+> [!caution] > **EN DESARROLLO**
 
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
 > [!important]
-> Para poder utilizar la función de recordatorios, hay que obtener el group_id del chat. Esto está explicado en el tutorial de configuración, pero es importante hacerlo antes de seguir utilizando el bot.
+> Para poder utilizar la función de recordatorios, hay que obtener el chat_id del chat. Esto está explicado en el tutorial de configuración, pero es importante hacerlo antes de seguir utilizando el bot.
 
 Para instalar el bot, vas a tener que:
 
@@ -54,13 +53,6 @@ Para instalar el bot, vas a tener que:
   - Nombre de usuario del bot.
   - ID del grupo de telegram.
 
-## Cambiar de nombre los archivos de ejemplo
-
-El archivo del [docker-compose](docker-compose-ejemplo.yaml) y el archivo de [configuración](src/secretos/config-ejemplo.toml) tienen "-ejemplo" al final del nombre y antes de la extensión. Esto es para diferenciarlos de los archivos personalizados que se usan para configurar este bot. Procurá copiarlos y cambiarles el nombre sin el -ejemplo, o renombrarlos directamente. Te quedarían los siguientes archivos:
-
-- docker-compose.yaml
-- config.toml
-
 ## Configurar la cuenta de telegram del bot
 
 1. En Telegram, buscá el usuario(bot) BotFather.
@@ -68,6 +60,16 @@ El archivo del [docker-compose](docker-compose-ejemplo.yaml) y el archivo de [co
 3. Cuando lo hagas, te va a dar un API Token. Ingresalo en el campo correspondiente de la config del bot.
 4. Usando el comando `/setcommands`, copiá el texto econtrado en [el archivo de comandos](comandos_botfather.txt).
 5. Opcionalmente, podés usar el menú del botfather mediante el comando `/mybots` para editar la descripción, foto de perfil y demás información del bot.
+
+## Agregar al bot al grupo donde se lo use
+
+El bot está pensado para ser usado dentro de grupos. Si querés usarlo en un grupo, vas a tener que:
+
+1. Agregar el bot a un grupo y darle privilegios de administrador.
+2. Entrar al chat con el BotFather, escribir el comando `/mybots`, seleccionar el bot, e ir a Bot Settings -> Group Privacy y desactivarlo.
+
+> [!info]
+> Nada impide que lo uses exclusivamente por privado. Para esto, tendrías que seguir los mismos pasos que antes, sólo que usando el comando `chatid` en una conversación privada con el bot.(Si alguien más le escribe por privado y se registra, lo podría usar, pero no recibiría los mensajes de recordatorios)
 
 ## Configurar la hoja de cálculos de google
 
@@ -96,10 +98,8 @@ El archivo del [docker-compose](docker-compose-ejemplo.yaml) y el archivo de [co
 
 ## Configuración del bot
 
-1. En la carpeta "secretos", vas a encontrar un [archivo de configuración](src/secretos/config-ejemplo.toml). Abrilo con tu editor de texto de preferencia.
-   > [!caution]
-   > Acordate de que, para este punto, deberías haber renombrado ese archivo de `config-ejemplo.toml` a `config.toml`!
-2. El archivo te va a pedir el API de telegram del bot(el que te dió el BotFather), el group_id(más sobre esto después, se puede dejar como está), el nombre de usuario del bot, el path hacia credenciales.json(si lo dejás en la carpeta secretos, es el que está escrito por defecto), y la key de la hoja de cálculos. Además, tiene una sección de aliases para que pongas el nombre de usuario de telegram de cada persona y cómo querés que lo llame (por ejemplo, que le diga a @comedorazuldepapasfritas "Pablo"). Leé los comentarios del config para ver más detalles.
+1. En la carpeta "secretos", vas a encontrar un [archivo de configuración](src/secretos/config.toml). Abrilo con tu editor de texto de preferencia.
+2. El archivo te va a pedir el API de telegram del bot(el que te dió el BotFather), el chat_id(más sobre esto después, se puede dejar como está), el nombre de usuario del bot, la contraseña para registrar un usuarix, el path hacia credenciales.json, el archivo de identificación para la cuenta de servicio de Google(si lo dejás en la carpeta secretos, es el que está escrito por defecto), y la key de la hoja de cálculos. Además, tiene una sección de aliases para que pongas el nombre de usuario de telegram de cada persona y cómo querés que lo llame (por ejemplo, que le diga a @comedorazuldepapasfritas "Pablo"). **Esta sección existe sólo para almacenar los aliases que registra cada usuarix mediante el comando `/registrarusuarix`**
 
 ### Obtener Key de la hoja de cálculos
 
@@ -111,9 +111,9 @@ La key sería:
 
 `1IAP4HOacD4Az6q_PFfZgIX7lZVoHrRKM9KBX-IMO25s`
 
-### Obtener el group_id
+### Obtener el chat_id
 
-Para obtener el group_id, lo ideal es poner a andar el bot sin ingresar otro grupo en la config, entrar al grupo donde lo quieras usar, y escribir el comando `/groupid`. El bot te va a responder con el número de grupo del chat, y podés copiarlo, pegarlo en la config, y volver a armar el bot. También se puede conseguir usando el telegram con un navegador de internet, pero lo dejo en tus manos.
+Para obtener el chat_id, lo ideal es poner a andar el bot sin ingresar otro grupo en la config, entrar al grupo donde lo quieras usar, y escribir el comando `/chatid`(Si querés usarlo vos solx, podés hacer esto hablando en privado con el bot, aunque recomiendo usar un grupo para no tener que reconfigurar si querés incluír a más gente). El bot te va a responder con el número de ID del chat, y podés copiarlo, pegarlo en la config, y volver a armar el bot. También se puede conseguir usando el telegram con un navegador de internet, pero lo dejo en tus manos.
 
 ## Armado del bot dentro de un contenedor docker
 
@@ -126,10 +126,7 @@ Podés elegir otro tag, pero vas a tener que modificar el nombre el archivo dock
 
 ### Configuración del archivo docker-compose
 
-Abrí el archivo de [docker-compose](docker-compose-ejemplo.yaml) y modificá los campos comentados (el path hacia la carpeta de secretos, y, si es necesario, la imagen del bot-si cambiaste el tag cuando la construíste- y/o el DNS).
-
-> [!caution]
-> Acordate de que, para este punto, deberías haber renombrado ese archivo de `docker-compose-ejemplo.yaml` a `docker-compose.yaml`!
+Abrí el archivo de [docker-compose](docker-compose.yaml) y modificá los campos comentados (el path hacia la carpeta de secretos, y, si es necesario, la imagen del bot-si cambiaste el tag cuando la construíste- y/o el DNS).
 
 ### Ejecución del contenedor
 
@@ -139,7 +136,7 @@ Una vez modificado el archivo de docker-compose, navegá hacia la carpeta del pr
 El bot debería quedar funcionando.
 
 > [!warning]
-> Acordate de que vas a necesitar poner el bot a andar, usar el comando `/groupid`, copiar la ID del grupo a la config y reiniciarlo.
+> Acordate de que vas a necesitar poner el bot a andar, usar el comando `/chatid`, copiar la ID del chat a la config y reiniciarlo.
 
 ### Reiniciar el bot
 
@@ -148,3 +145,7 @@ Para reiniciar el bot, podés navegar con tu terminal hacia la carpeta del proye
 
 y luego nuevamente:
 `docker-compose up -d`
+
+## Registro de usuarix
+
+Antes de poder interactuar con el bot, más allá de los comandos básicos de `/start`, `/help`, y `/chatid`, cada persona que piense usar el bot va a tener que escribirle(en el grupo al que se lo haya agregado o por privado) con el comando `/registrarusuarix <contraseña> <apodo>`. La contraseña va a consistir en una serie de caracteres(**_no puede contener espacios_**), seguido por un apodo (este sí, puede contener cualquier caracter). La contraseña va a haber sido definida en el [archivo de configuración](src/secretos/config.toml) al configurar al bot.

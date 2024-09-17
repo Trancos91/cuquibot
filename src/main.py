@@ -116,7 +116,7 @@ def inicializar_jobs_mensajes_diarios(app):
     """
     for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
         app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
-                                name=recordatorio[0], chat_id=GROUP_ID, days=[*recordatorio[1]["días_semana"]],
+                                name=recordatorio[0], chat_id=CHAT_ID, days=[*recordatorio[1]["días_semana"]],
                                 data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
 
 def inicializar_jobs_recordatorios(app):
@@ -127,7 +127,7 @@ def inicializar_jobs_recordatorios(app):
     """
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
         app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
-                                name=recordatorio[0], chat_id=GROUP_ID,
+                                name=recordatorio[0], chat_id=CHAT_ID,
                                 data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
         config = tomllib.load(file)
         TOKEN = config["telegram"]["tg_api"]
         BOT_USERNAME = config["telegram"]["bot_user"]
-        GROUP_ID = config["telegram"]["group_id"]
+        CHAT_ID = config["telegram"]["chat_id"]
     with open("secretos/recordatorios.yaml", "rb") as file:
         RECORDATORIOS = yaml.safe_load(file)
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 
     # Comandos "secretos"(no figuran en la lista de comandos del bot)
     app.add_handler(CommandHandler('registrarusuarix', comandos.registrarusuarix_command))
-    app.add_handler(CommandHandler('groupid', comandos.groupid_command))
+    app.add_handler(CommandHandler('chatid', comandos.chatid_command))
 
 
     #Callbacks(botones apretados y demás)
