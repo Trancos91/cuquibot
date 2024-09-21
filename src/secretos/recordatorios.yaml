@@ -1,23 +1,17 @@
-# CONFIGURACIÓN DE LOS RECORDATORIOS
-#
-# Archivo que contiene todos los recordatorios del bot. Por ahora, son recordatorios de dos tipos:
-# Los condicionales, que se envían si cierto quehacer no se realizó después de x tiempo(y, hasta que se haga,
-# mediante intervales de z tiempo), y los recordatorios diarios, que se envían en determinados días de la semana
-# a una determinada hora, sin importar qué.
-#
-#######################################################################################################################
-# ATENCIÓN: SI VAS A MODIFICAR ESTE ARCHIVO, PRESTÁ MUCHA ATENCIÓN A CUÁNTOS ESPACIOS DE INDENTACIÓN HAY EN CADA NIVEL
-#######################################################################################################################
-#
-# Mensajes a enviar si pasó cierto tiempo sin realizar el quehacer.
-# Formato:
-# nombre_recordatorio:
-#   días_espera: n (número de días de espera antes de recordar)
-#   mensaje: acción del recordatorio, va a llenar el vacío del mensaje:
-#   "Parece que pasaron más de n días desde que _____. Quizás podrían hacerlo hoy?"
-#   quehacer: nombre del quehacer como aparece en su columna del google sheets.
-#   snooze: n (número de días a esperar antes de insistir con el recodatorio, si es que no se hizo)
-#   último_aviso: null (Siempre escribir null cuando lo estamos escribiendo por primera vez. Si venimos a modificar, dejar esto como está.)
+recordatorios_diarios:
+  aire_acondicionado:
+    días_semana: [0, 1, 2, 3, 4, 5, 6]
+    horario: [23, 50, 0]
+    mensaje: Wenas noches! Está el aire prendido? Si es así, no se olviden de apagarlo!
+    activo: true
+  verdulería_sábados:
+    días_semana: [6]
+    horario: [11, 0, 0]
+    mensaje:
+      Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una
+      lista de verduras que nos sirvan para la semana e ir viendo quién podría ir?
+      :)
+    activo: true
 recordatorios_quehaceres:
   bebedero_asiri:
     días_espera: 29
@@ -25,55 +19,46 @@ recordatorios_quehaceres:
     quehacer: Bebedero asiri
     snooze: 5
     último_aviso: 2024/08/19
+    activo: true
   caja_asiri:
     días_espera: 5
     mensaje: le limpiaron la caja a asiri
     quehacer: Caja asiri
     snooze: 2
-    último_aviso: 2024/09/13
+    último_aviso: 2024/09/17
+    activo: true
   limpiar_heladera:
     días_espera: 190
     mensaje: limpiaron la heladera
     quehacer: Limpiar heladera
     snooze: 20
     último_aviso: 2024/09/14
+    activo: true
   limpiar_lavarropas:
     días_espera: 190
     mensaje: limpiaron el lavarropas
     quehacer: Limpiar lavarropas
     snooze: 20
     último_aviso: 2024/09/13
+    activo: true
   plato_asiri:
     días_espera: 15
     mensaje: le limpiaron el plato de comida a asiri
     quehacer: Plato asiri
     snooze: 5
     último_aviso: 2024/09/11
+    activo: true
   regar:
     días_espera: 5
     mensaje: regaron las plantas
     quehacer: Regar plantas
     snooze: 2
-    último_aviso: 2024/09/12
+    último_aviso: 2024/09/18
+    activo: true
   trapear:
     días_espera: 29
     mensaje: pasaron el trapo
     quehacer: Trapear
     snooze: 7
-    último_aviso: 2024/09/08
-
-# Mensajes a recibir en cierto/s día/s específicos de la semana.
-# Formato:
-# nombre_recordatorio:
-#   días_semana: [0, 3, 5] --> Días del 0(domingo) al 6(sábado) separados por comas.
-#   horario: [12, 30, 0] --> Horario del recordatorio en horas, minutos, segundos.
-#   mensaje: "Mensaje a enviar"
-recordatorios_diarios:
-  verdulería_sábados:
-    días_semana: [6]
-    horario: [11, 0, 0]
-    mensaje: "Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una lista de verduras que nos sirvan para la semana e ir viendo quién podría ir? :)"
-  aire_acondicionado:
-    días_semana: [0, 1, 2, 3, 4, 5, 6]
-    horario: [23, 50, 0]
-    mensaje: "Wenas noches! Está el aire prendido? Si es así, no se olviden de apagarlo!"
+    último_aviso: 2024/09/17
+    activo: true

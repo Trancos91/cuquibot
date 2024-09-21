@@ -117,9 +117,10 @@ def inicializar_jobs_mensajes_diarios(app):
     if not RECORDATORIOS["recordatorios_diarios"]: return
 
     for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
-        app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
-                                name=recordatorio[0], chat_id=CHAT_ID, days=[*recordatorio[1]["días_semana"]],
-                                data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
+        if recordatorio[1]["activo"]:
+            app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
+                                    name=recordatorio[0], chat_id=CHAT_ID, days=[*recordatorio[1]["días_semana"]],
+                                    data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
 
 def inicializar_jobs_recordatorios(app):
     """
@@ -130,9 +131,10 @@ def inicializar_jobs_recordatorios(app):
     if not RECORDATORIOS["recordatorios_quehaceres"]: return
 
     for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
-        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
-                                name=recordatorio[0], chat_id=CHAT_ID,
-                                data=recordatorio, job_kwargs={"misfire_grace_time": None})
+        if recordatorio[1]["activo"]:
+            app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
+                                    name=recordatorio[0], chat_id=CHAT_ID,
+                                    data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 
 if __name__ == '__main__':

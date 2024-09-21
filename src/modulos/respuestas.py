@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 import tomllib
+import yaml
 from modulos.editor import EditorSheet
 from unidecode import unidecode
 from telegram import Update
@@ -33,6 +34,11 @@ class Respuestas:
         # Lista que contiene las keys de las listas de compras que pertenecen a "diarias"
         self.lista_diarias = ["supermercado", "verduleria", "varias"]
 
+        self.recordatorios = {
+            "recordatorios_quehaceres": ["quehaceres", "quehacer"],
+            "recordatorios_diarios": ["recurrentes", "diarios", "recurrente", "diario"]
+        }
+
         # Lista de palabras que procesaría el bot en un mensaje
         self.listas_palabras = {
             "tareas": ["tareas", "tarea", "pendientes", "pendiente"],
@@ -46,7 +52,8 @@ class Respuestas:
             "regcompras_duración": ["duracion", "dura", "duro", "duraron", "agotarse", "acabarse"],
             "regcompras_duraciones": ["duraciones"],
             "regcompras_estados": ["estado", "estatus", "status", "estados"],
-            "referencia": ["referencia", "refe", "palabras"]
+            "referencia": ["referencia", "refe", "palabras"],
+            "recordatorios_estado": ["recordatorio", "recordatorios"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de la tarea realizada
         self.lista_quehaceres = {
@@ -113,7 +120,9 @@ class Respuestas:
                                     self.editor.get_flags_ubicaciones, None,
                                     "Algo anda mal, no conseguí la lista de ubicaciones! 🙁"),
         "referencia": (self.listas_palabras["referencia"], self.mensaje_simple,
-                       (Mensajes.REFE.value, ), "El mensaje de referencia no debería dar error")
+                       (Mensajes.REFE.value, ), "El mensaje de referencia no debería dar error"),
+        "recordatorios_estado": (self.listas_palabras["recordatorios_estado"], self.definir_categoría_recordatorios,
+                                 None, "Parece que no hay ningún recordatorio configurado!")
         }
         # Lista de inicialización con función de parseo y lista de palabras para parsear
         lista_inicialización = ((self.tupla_quehaceres, self.lista_quehaceres),
@@ -192,6 +201,28 @@ class Respuestas:
             return respuesta
         else:
             return ""
+
+    def definir_categoría_recordatorios(self, _):
+        for recordatorio in self.recordatorios.items():
+            if any(word in self.texto_procesado for word in recordatorio[1]):
+                mensaje = self.listar_recordatorios(recordatorio[0])
+        if mensaje:
+            return mensaje
+        else:
+            return ""
+
+    def listar_recordatorios(self, categoría):
+        """Envía mensaje con los recordatorios y su estado actual"""
+        with open("secretos/recordatorios.yaml", "rb") as file:
+            RECORDATORIOS = yaml.safe_load(file)
+        mensaje = f"<b><u>Lista de recordatorios de la categoría {categoría}:</u></b>"
+        for recordatorio in RECORDATORIOS[categoría].items():
+            mensaje += f"\n  •{recordatorio[0]}: "
+            if recordatorio[1]["activo"]:
+                mensaje += "🟢"
+            else:
+                mensaje += "🔴"
+        return mensaje
 
     def procesar_texto_registrada(self, palabras_clave, función):
         """
