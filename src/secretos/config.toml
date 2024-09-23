@@ -5,6 +5,8 @@ tg_api = "API Token entre las comillas" # Token de API del bot, generado por el 
 chat_id = -123 # El group_id que nos da el bot. INCLUÍR EL SIGNO NEGATIVO SI ES UN GRUPO.
 bot_user = "@usuariotgdelbot" # Nombre de usuario de telgram del bot. Incluír arroba al comienzo.
 passwd = "contraseñaderegistro" # Contraseña para registrar usuarixs con el bot
+log = true # Valor opcional de logeo de mensajes(si no existe, defaultea a false)
+
 # Información de google
 [google]
 archivo_google_api = "secretos/credentials.json" # Archivo JSON con las credenciales para usar la cuenta de servicio. Si copiaste las credenciales en la misma carpeta de secretos, dejá esto así.
