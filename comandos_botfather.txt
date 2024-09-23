@@ -8,3 +8,5 @@ despejarlistacompras - despejar completa una lista de compras
 despejarunatarea - despejar una tarea específica de la lista
 despejarcompras - despejar varias compras específicas de una lista de compras
 despejarregistrado - despejar las fechas de apertura y agotamiento de algún ítem en el registro de víveres
+activarrecordatorio - activar un recordatorio de la lista
+desactivarrecordatorio - desactivar un recordatorio de la lista
