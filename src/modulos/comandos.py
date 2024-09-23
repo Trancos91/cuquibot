@@ -2,25 +2,29 @@ import tomlkit
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from unidecode import unidecode
+import modulos.config as config
 from modulos.editor import EditorSheet
 from modulos.respuestas import Respuestas
-from modulos.decoradores import requiere_usuarix
+from modulos.decoradores import requiere_usuarix, logea
 from modulos.mensajes import Mensajes
 
 
 ##########################################################################
 # Comandos
 ##########################################################################
+@logea
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(Mensajes.START.value)
 
     
+@logea
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mensaje = (Mensajes.HELP.value)
 
     await update.message.reply_text(mensaje)
 
+@logea
 async def registrarusuarix_command(update: Update,
                                    context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
@@ -66,6 +70,7 @@ async def registrarusuarix_command(update: Update,
         await update.message.reply_text("La contraseña que escribiste es incorrecta!")
 
 
+@logea
 async def chatid_command(update: Update,
                           context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando de configuración para obtener fácilmente el ID del chat"""
@@ -77,6 +82,7 @@ async def chatid_command(update: Update,
         await update.message.reply_text(f"El ID del chat es:\n{update.message.chat_id}")
 
 @requiere_usuarix
+@logea
 async def agregartareas_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
@@ -88,6 +94,7 @@ async def agregartareas_command(update: Update,
         await update.message.reply_text(editor.agregar_ítems(tareas))
 
 @requiere_usuarix
+@logea
 async def agregarcompras_command(update: Update,
                               context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
@@ -108,6 +115,7 @@ async def agregarcompras_command(update: Update,
     await update.message.reply_text(editor.agregar_ítems(compras, categoría=categoría_compras))
 
 @requiere_usuarix
+@logea
 async def registrarviveres_command(update: Update,
                                    context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
@@ -121,6 +129,7 @@ async def registrarviveres_command(update: Update,
 
 
 @requiere_usuarix
+@logea
 async def despejarlistatareas_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     """Confirma si borrar asistentes de la hoja"""
@@ -134,6 +143,7 @@ async def despejarlistatareas_command(update: Update,
                                     reply_markup=reply_markup)
 
 @requiere_usuarix
+@logea
 async def despejarcompras_command(update: Update, 
                                       context: ContextTypes.DEFAULT_TYPE) -> None:
     editor = EditorSheet()
@@ -160,6 +170,7 @@ async def despejarcompras_command(update: Update,
     await update.message.reply_text(mensaje)
 
 @requiere_usuarix
+@logea
 async def despejarlistacompras_command(update:Update,
                                        context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
@@ -187,6 +198,7 @@ async def despejarlistacompras_command(update:Update,
                                     reply_markup=reply_markup)
 
 @requiere_usuarix
+@logea
 async def despejarunatarea_command(update:Update,
                                     context: ContextTypes.DEFAULT_TYPE) -> None:
     args = context.args
@@ -201,11 +213,46 @@ async def despejarunatarea_command(update:Update,
                                         "en la lista de tareas 🙁")
         
 @requiere_usuarix
+@logea
 async def despejarregistrado_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     procesado = procesar_parámetros(args, 4)
     mensaje = EditorSheet().despejar_registrado(procesado)
     await update.message.reply_text(mensaje)
+
+@requiere_usuarix
+@logea
+async def desactivarrecordatorio_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lista_recordatorios = Respuestas("", None).lista_recordatorios
+    categoría_recordatorio = ""
+    if context.args:
+        args = " ".join(context.args)
+    else:
+        await update.message.reply_text("Por favor indicá a qué categoría"
+            " de recordatorios pertenece el que querés desactivar!")
+        return
+    
+    print(f"args: {args}")
+
+    for categoría in lista_recordatorios.items():
+        if any(palabra in args for palabra in categoría[1]):
+            for palabra in categoría[1]:
+                args_split = args.split(palabra)
+                args = args_split[-1]
+            args = args.strip()
+            categoría_recordatorio = categoría[0]
+    if categoría_recordatorio:
+        for recordatorio in config.RECORDATORIOS[categoría_recordatorio]:
+            if args in recordatorio:
+                config.RECORDATORIOS[categoría_recordatorio][recordatorio]["activo"] = False
+                config.actualizar_recordatorios()
+                await update.message.reply_text(f"Desactivado el recordatorio {recordatorio}!")
+                break
+        else:
+            await update.message.reply_text("No encontré elrecordatorio que buscaste!")
+    else:
+        await update.message.reply_text("No encontré la categoría que indicaste de recordatorio!"
+            " En la refe podés encontrar las categorías :)")
 
 ##########################################################################
 # Métodos auxiliares

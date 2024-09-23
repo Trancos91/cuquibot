@@ -1,64 +1,78 @@
-recordatorios_diarios:
-  aire_acondicionado:
-    días_semana: [0, 1, 2, 3, 4, 5, 6]
-    horario: [23, 50, 0]
+recordatorios diarios:
+  apagar aire acondicionado:
+    activo: false
+    días_semana:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+    horario:
+      - 23
+      - 50
+      - 0
     mensaje: Wenas noches! Está el aire prendido? Si es así, no se olviden de apagarlo!
+  verdulería sábados:
     activo: true
-  verdulería_sábados:
-    días_semana: [6]
-    horario: [11, 0, 0]
+    días_semana:
+      - 6
+    horario:
+      - 11
+      - 0
+      - 0
     mensaje:
       Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una
       lista de verduras que nos sirvan para la semana e ir viendo quién podría ir?
       :)
+recordatorios quehaceres:
+  bebedero asiri:
     activo: true
-recordatorios_quehaceres:
-  bebedero_asiri:
     días_espera: 29
     mensaje: le limpiaron el bebedero a asiri
     quehacer: Bebedero asiri
     snooze: 5
     último_aviso: 2024/08/19
+  caja asiri:
     activo: true
-  caja_asiri:
     días_espera: 5
     mensaje: le limpiaron la caja a asiri
     quehacer: Caja asiri
     snooze: 2
     último_aviso: 2024/09/17
+  limpiar heladera:
     activo: true
-  limpiar_heladera:
     días_espera: 190
     mensaje: limpiaron la heladera
     quehacer: Limpiar heladera
     snooze: 20
     último_aviso: 2024/09/14
+  limpiar lavarropas:
     activo: true
-  limpiar_lavarropas:
     días_espera: 190
     mensaje: limpiaron el lavarropas
     quehacer: Limpiar lavarropas
     snooze: 20
     último_aviso: 2024/09/13
+  plato asiri:
     activo: true
-  plato_asiri:
     días_espera: 15
     mensaje: le limpiaron el plato de comida a asiri
     quehacer: Plato asiri
     snooze: 5
     último_aviso: 2024/09/11
-    activo: true
   regar:
+    activo: true
     días_espera: 5
     mensaje: regaron las plantas
     quehacer: Regar plantas
     snooze: 2
     último_aviso: 2024/09/18
-    activo: true
   trapear:
+    activo: true
     días_espera: 29
     mensaje: pasaron el trapo
     quehacer: Trapear
     snooze: 7
     último_aviso: 2024/09/17
-    activo: true

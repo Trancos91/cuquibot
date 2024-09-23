@@ -34,9 +34,10 @@ class Respuestas:
         # Lista que contiene las keys de las listas de compras que pertenecen a "diarias"
         self.lista_diarias = ["supermercado", "verduleria", "varias"]
 
-        self.recordatorios = {
+        self.lista_recordatorios = {
             "recordatorios_quehaceres": ["quehaceres", "quehacer"],
-            "recordatorios_diarios": ["recurrentes", "diarios", "recurrente", "diario"]
+            "recordatorios_diarios": ["recurrentes", "diarios", "recurrente", 
+                                      "diario", "frecuente", "frecuentes"]
         }
 
         # Lista de palabras que procesaría el bot en un mensaje
@@ -52,7 +53,9 @@ class Respuestas:
             "regcompras_duración": ["duracion", "dura", "duro", "duraron", "agotarse", "acabarse"],
             "regcompras_duraciones": ["duraciones"],
             "regcompras_estados": ["estado", "estatus", "status", "estados"],
+            #Lista las palabras a las que responde
             "referencia": ["referencia", "refe", "palabras"],
+            # Lista los recordatorios y su estado(activo o inactivo)
             "recordatorios_estado": ["recordatorio", "recordatorios"]
         }
         # Lista_palabras de quehaceres, pero contiene también mensajes de la tarea realizada
@@ -164,7 +167,6 @@ class Respuestas:
             respuesta = self.chequear_presencia(self.config_tareas[key])
             if respuesta:
                 break
-        print(respuesta)
         return respuesta if respuesta else "No entendí"
 
     def chequear_presencia(self, categoría):
@@ -203,25 +205,43 @@ class Respuestas:
             return ""
 
     def definir_categoría_recordatorios(self, _):
-        for recordatorio in self.recordatorios.items():
+        """Revisa la categoría de los mensajes programados a devolver,
+        construye el mensaje y lo devuelve"""
+        mensaje = ""
+        for recordatorio in self.lista_recordatorios.items():
             if any(word in self.texto_procesado for word in recordatorio[1]):
-                mensaje = self.listar_recordatorios(recordatorio[0])
+                mensaje += self.listar_recordatorios(recordatorio[0])
+                break
+        if not mensaje: mensaje = self.listar_recordatorios("")
         if mensaje:
             return mensaje
         else:
             return ""
 
     def listar_recordatorios(self, categoría):
-        """Envía mensaje con los recordatorios y su estado actual"""
+        """Devuelve mensaje con los recordatorios y su estado actual"""
+        mensaje = ""
+
+        def construir_mensaje(categoría_específica):
+            mensaje = f"<b><u>Recordatorios de la categoría {categoría_específica}:</u></b>"
+            for recordatorio in RECORDATORIOS[categoría_específica].items():
+                mensaje += f"\n  •{recordatorio[0]}: "
+                if recordatorio[1]["activo"]:
+                    mensaje += "🟢"
+                else:
+                    mensaje += "🔴"
+            return mensaje
+
         with open("secretos/recordatorios.yaml", "rb") as file:
             RECORDATORIOS = yaml.safe_load(file)
-        mensaje = f"<b><u>Lista de recordatorios de la categoría {categoría}:</u></b>"
-        for recordatorio in RECORDATORIOS[categoría].items():
-            mensaje += f"\n  •{recordatorio[0]}: "
-            if recordatorio[1]["activo"]:
-                mensaje += "🟢"
-            else:
-                mensaje += "🔴"
+        if not categoría:
+            for categoría_específica in RECORDATORIOS:
+                if RECORDATORIOS[categoría_específica]:
+                    mensaje += construir_mensaje(categoría_específica)
+                    mensaje += "\n"
+        else:
+            mensaje += construir_mensaje(categoría)
+
         return mensaje
 
     def procesar_texto_registrada(self, palabras_clave, función):

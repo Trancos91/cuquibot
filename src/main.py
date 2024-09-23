@@ -6,17 +6,15 @@ from telegram import Update
 from telegram.ext import (Application, CommandHandler, MessageHandler, 
     filters, ContextTypes, Defaults, CallbackQueryHandler)
 import modulos.comandos as comandos
+import modulos.config as config
 from modulos.editor import EditorSheet
 from modulos.respuestas import Respuestas
-from modulos.decoradores import requiere_usuarix
+from modulos.decoradores import requiere_usuarix, logea
 
 ##########################################################################
 # Respuestas a mensajes
 ##########################################################################
 def handle_message(texto: str, update: Update):
-    #Chequea si usó el comando un usuarix registradx
-    #if error := chequear_usuarix(update):
-    #    return error
 
     respuesta = Respuestas(texto, update).respuestas()
     return respuesta
@@ -33,14 +31,16 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     texto: str = update.message.text
 
     if message_type == "group" or message_type == "supergroup":
-        if BOT_USERNAME in texto:
-            print(f'Usuario {update.effective_user.id} en {update.message.chat_id}: {texto}')
-            texto:str = texto.replace(BOT_USERNAME, "").strip()
+        if config.BOT_USERNAME in texto:
+            if config.LOG:
+                print(f'Usuario {update.effective_user.id}(@{update.effective_user.username}) en {update.message.chat_id}: {texto}')
+            texto:str = texto.replace(config.BOT_USERNAME, "").strip()
             respuesta: str = handle_message(texto, update)
         else:
             return
     else:
-        print(f'Usuario {update.effective_user.id} en {update.message.chat_id}: {texto}')
+        if config.LOG:
+            print(f'Usuario {update.effective_user.id}(@{update.effective_user.username}) en {update.message.chat_id}: {texto}')
         respuesta: str = handle_message(texto, update)
     
     print(f'Bot: {respuesta}')
@@ -75,9 +75,8 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     def actualizar_último_aviso():
         recordatorio_value["último_aviso"] = hoy.strftime("%Y/%m/%d")
         # Actualiza el el campo de "último_aviso" al día de hoy, y lo escribe en el yaml
-        RECORDATORIOS["recordatorios_quehaceres"][recordatorio_key] = recordatorio_value
-        with open("secretos/recordatorios.yaml", "w") as file:
-            yaml.safe_dump(RECORDATORIOS, file, indent=2, allow_unicode=True)
+        config.RECORDATORIOS["recordatorios quehaceres"][recordatorio_key] = recordatorio_value
+        config.actualizar_recordatorios()
 
     if isinstance(último, str):
         if (not último_aviso or 
@@ -114,12 +113,12 @@ def inicializar_jobs_mensajes_diarios(app):
     la categoría "recordatorios_diarios" y los registra en jobs con los parámetros
     apropiados.
     """
-    if not RECORDATORIOS["recordatorios_diarios"]: return
+    if not config.RECORDATORIOS["recordatorios diarios"]: return
 
-    for recordatorio in RECORDATORIOS["recordatorios_diarios"].items():
+    for recordatorio in config.RECORDATORIOS["recordatorios diarios"].items():
         if recordatorio[1]["activo"]:
             app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
-                                    name=recordatorio[0], chat_id=CHAT_ID, days=[*recordatorio[1]["días_semana"]],
+                                    name=recordatorio[0], chat_id=config.CHAT_ID, days=[*recordatorio[1]["días_semana"]],
                                     data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
 
 def inicializar_jobs_recordatorios(app):
@@ -128,31 +127,26 @@ def inicializar_jobs_recordatorios(app):
     la categoría "recordatorios_quehaceres" y los registra en jobs con los parámetros
     apropiados.
     """
-    if not RECORDATORIOS["recordatorios_quehaceres"]: return
+    if not config.RECORDATORIOS["recordatorios quehaceres"]: return
 
-    for recordatorio in RECORDATORIOS["recordatorios_quehaceres"].items():
+    for recordatorio in config.RECORDATORIOS["recordatorios quehaceres"].items():
         if recordatorio[1]["activo"]:
             app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
-                                    name=recordatorio[0], chat_id=CHAT_ID,
+                                    name=recordatorio[0], chat_id=config.CHAT_ID,
                                     data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 
 if __name__ == '__main__':
 
-    #Definiendo constantes
-    with open("secretos/config.toml", "rb") as file:
-        config = tomllib.load(file)
-        TOKEN = config["telegram"]["tg_api"]
-        BOT_USERNAME = config["telegram"]["bot_user"]
-        CHAT_ID = config["telegram"]["chat_id"]
-    with open("secretos/recordatorios.yaml", "rb") as file:
-        RECORDATORIOS = yaml.safe_load(file)
+    # Cargando valores a config
+    config.cargar_config()
+    config.cargar_recordatorios()
 
     #Definiendo configuración por defecto del bot
     defaults = Defaults(parse_mode="HTML", tzinfo=timezone("America/Argentina/Buenos_Aires"))
     print("Inicializando bot")
     print(f"Hora actual: {datetime.datetime.now(timezone("America/Argentina/Buenos_Aires"))}")
-    app = Application.builder().token(TOKEN).defaults(defaults).build()
+    app = Application.builder().token(config.TOKEN).defaults(defaults).build()
 
     #Inicializando Jobs
     inicializar_jobs(app)
@@ -168,6 +162,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('despejarlistacompras', comandos.despejarlistacompras_command))
     app.add_handler(CommandHandler('registrarviveres', comandos.registrarviveres_command))
     app.add_handler(CommandHandler('despejarregistrado', comandos.despejarregistrado_command))
+    app.add_handler(CommandHandler('desactivarrecordatorio', comandos.desactivarrecordatorio_command))
 
     # Comandos "secretos"(no figuran en la lista de comandos del bot)
     app.add_handler(CommandHandler('registrarusuarix', comandos.registrarusuarix_command))

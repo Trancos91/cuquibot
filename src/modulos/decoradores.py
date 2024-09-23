@@ -1,6 +1,8 @@
 import tomllib
+from datetime import datetime
 from telegram import Update
 from telegram.ext import ContextTypes
+import modulos.config as config
 
 
 def requiere_usuarix(func):
@@ -25,3 +27,11 @@ def requiere_usuarix(func):
             await func(update, context)
     return wrapper
 
+def logea(func):
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        print(f"Log es: {config.LOG}")
+        if config.LOG:
+            ahora = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            print(f"[{ahora}] {func.__name__} ejecutado por {update.effective_sender.first_name}, ID: {update.effective_sender.id}")
+        await func(update, context)
+    return wrapper
