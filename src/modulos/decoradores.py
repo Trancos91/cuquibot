@@ -29,7 +29,6 @@ def requiere_usuarix(func):
 
 def logea(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        print(f"Log es: {config.LOG}")
         if config.LOG:
             ahora = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             print(f"[{ahora}] {func.__name__} ejecutado por {update.effective_sender.first_name}, ID: {update.effective_sender.id}")

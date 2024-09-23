@@ -231,8 +231,6 @@ async def desactivarrecordatorio_command(update: Update, context: ContextTypes.D
         await update.message.reply_text("Por favor indicá a qué categoría"
             " de recordatorios pertenece el que querés desactivar!")
         return
-    
-    print(f"args: {args}")
 
     for categoría in lista_recordatorios.items():
         if any(palabra in args for palabra in categoría[1]):
@@ -247,6 +245,38 @@ async def desactivarrecordatorio_command(update: Update, context: ContextTypes.D
                 config.RECORDATORIOS[categoría_recordatorio][recordatorio]["activo"] = False
                 config.actualizar_recordatorios()
                 await update.message.reply_text(f"Desactivado el recordatorio {recordatorio}!")
+                break
+        else:
+            await update.message.reply_text("No encontré elrecordatorio que buscaste!")
+    else:
+        await update.message.reply_text("No encontré la categoría que indicaste de recordatorio!"
+            " En la refe podés encontrar las categorías :)")
+
+@requiere_usuarix
+@logea
+async def activarrecordatorio_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lista_recordatorios = Respuestas("", None).lista_recordatorios
+    categoría_recordatorio = ""
+    if context.args:
+        args = " ".join(context.args)
+    else:
+        await update.message.reply_text("Por favor indicá a qué categoría"
+            " de recordatorios pertenece el que querés desactivar!")
+        return
+
+    for categoría in lista_recordatorios.items():
+        if any(palabra in args for palabra in categoría[1]):
+            for palabra in categoría[1]:
+                args_split = args.split(palabra)
+                args = args_split[-1]
+            args = args.strip()
+            categoría_recordatorio = categoría[0]
+    if categoría_recordatorio:
+        for recordatorio in config.RECORDATORIOS[categoría_recordatorio]:
+            if args in recordatorio:
+                config.RECORDATORIOS[categoría_recordatorio][recordatorio]["activo"] = True
+                config.actualizar_recordatorios()
+                await update.message.reply_text(f"Activado el recordatorio {recordatorio}!")
                 break
         else:
             await update.message.reply_text("No encontré elrecordatorio que buscaste!")

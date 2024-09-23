@@ -51,7 +51,8 @@ async def check_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ##########################################################################
 async def enviar_mensaje_jobs(context: ContextTypes.DEFAULT_TYPE):
     """Enviar un mensaje desde un Job"""
-    await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data).strip())
+    if context.job.data[1]["activo"]:
+        await context.bot.send_message(chat_id=context.job.chat_id, text=str(context.job.data[1]["mensaje"]).strip())
 
 
 async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
@@ -62,6 +63,9 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
     """
     recordatorio_key = context.job.data[0]
     recordatorio_value = context.job.data[1]
+
+    if not recordatorio_value["activo"]: return
+
     editor = EditorSheet()
     hoy = datetime.datetime.today().date()
     último = editor.get_último_quehacer(recordatorio_value["quehacer"])
@@ -116,10 +120,9 @@ def inicializar_jobs_mensajes_diarios(app):
     if not config.RECORDATORIOS["recordatorios diarios"]: return
 
     for recordatorio in config.RECORDATORIOS["recordatorios diarios"].items():
-        if recordatorio[1]["activo"]:
-            app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
-                                    name=recordatorio[0], chat_id=config.CHAT_ID, days=[*recordatorio[1]["días_semana"]],
-                                    data=recordatorio[1]["mensaje"], job_kwargs={"misfire_grace_time": None})
+        app.job_queue.run_daily(enviar_mensaje_jobs, datetime.time(*recordatorio[1]["horario"]),
+                                name=recordatorio[0], chat_id=config.CHAT_ID, days=[*recordatorio[1]["días_semana"]],
+                                data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 def inicializar_jobs_recordatorios(app):
     """
@@ -163,6 +166,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('registrarviveres', comandos.registrarviveres_command))
     app.add_handler(CommandHandler('despejarregistrado', comandos.despejarregistrado_command))
     app.add_handler(CommandHandler('desactivarrecordatorio', comandos.desactivarrecordatorio_command))
+    app.add_handler(CommandHandler('activarrecordatorio', comandos.activarrecordatorio_command))
 
     # Comandos "secretos"(no figuran en la lista de comandos del bot)
     app.add_handler(CommandHandler('registrarusuarix', comandos.registrarusuarix_command))

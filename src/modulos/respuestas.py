@@ -35,8 +35,8 @@ class Respuestas:
         self.lista_diarias = ["supermercado", "verduleria", "varias"]
 
         self.lista_recordatorios = {
-            "recordatorios_quehaceres": ["quehaceres", "quehacer"],
-            "recordatorios_diarios": ["recurrentes", "diarios", "recurrente", 
+            "recordatorios quehaceres": ["quehaceres", "quehacer"],
+            "recordatorios diarios": ["recurrentes", "diarios", "recurrente", 
                                       "diario", "frecuente", "frecuentes"]
         }
 

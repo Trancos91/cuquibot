@@ -1,29 +1,28 @@
 recordatorios diarios:
   apagar aire acondicionado:
-    activo: false
+    activo: true
     días_semana:
-      - 0
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
     horario:
-      - 23
-      - 50
-      - 0
+    - 23
+    - 50
+    - 0
     mensaje: Wenas noches! Está el aire prendido? Si es así, no se olviden de apagarlo!
   verdulería sábados:
     activo: true
     días_semana:
-      - 6
+    - 6
     horario:
-      - 11
-      - 0
-      - 0
-    mensaje:
-      Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una
+    - 11
+    - 0
+    - 0
+    mensaje: Holi! Hoy es sábado, hay 35% en la verdulería! Qué les parece armar una
       lista de verduras que nos sirvan para la semana e ir viendo quién podría ir?
       :)
 recordatorios quehaceres:
