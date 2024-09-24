@@ -35,9 +35,6 @@ El bot cuenta con un registro de víveres en el cual se pueden anotar distintos 
 
 # Instalación
 
-> [!caution]
-> **EN DESARROLLO**
-
 El bot utiliza una hoja de cálculo de Google Sheets para almacenar sus listas de forma fácilmente accesible(y modificable) para cualquier persona por fuera de la interfaz de Telegram. Podés acceder a un template de la hoja de cálculos [acá](https://docs.google.com/spreadsheets/d/1LflMQbzMTXCNgplX8LKul4460ROzK-eQ7sx4xeHUU-E/edit?usp=sharing).
 
 > [!important]
