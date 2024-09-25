@@ -133,10 +133,9 @@ def inicializar_jobs_recordatorios(app):
     if not config.RECORDATORIOS["recordatorios quehaceres"]: return
 
     for recordatorio in config.RECORDATORIOS["recordatorios quehaceres"].items():
-        if recordatorio[1]["activo"]:
-            app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
-                                    name=recordatorio[0], chat_id=config.CHAT_ID,
-                                    data=recordatorio, job_kwargs={"misfire_grace_time": None})
+        app.job_queue.run_daily(recordatorios_quehaceres, datetime.time(12, 0, 0),
+                                name=recordatorio[0], chat_id=config.CHAT_ID,
+                                data=recordatorio, job_kwargs={"misfire_grace_time": None})
 
 
 if __name__ == '__main__':
