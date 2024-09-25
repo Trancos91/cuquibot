@@ -12,7 +12,7 @@ El cuquibot es un bot de organización pensado para ayudar a gente(particularmen
 Hay dos maneras principales de interactuar con el bot: Mediante comandos(instrucciones precedidas por "/" para las cuales no es necesario etiquetar al bot), y mediante mensajes donde se lo tagea (si le hablás por privado, no es necesario tagearlo).
 
 > [!note]
-> Podés probar un demo del bot y sus funcionalidades agregando a @cuquibot*demo_bot en telegram! Utiliza [esta hoja de cálculos de google sheets](https://docs.google.com/spreadsheets/d/1A2sPpyUuPB*-yK3kQkyejUOYnDqDAwStX5ue8EyDDiI/edit?gid=0#gid=0), si querés ver cómo se ve en uso también. Esta hoja de cálculos se reinicia de a ratos, pero puede servir para ver al bot en uso :)
+> Podés probar un demo del bot y sus funcionalidades agregando a @cuquibot_demo_bot en telegram! Utiliza [esta hoja de cálculos de google sheets](https://docs.google.com/spreadsheets/d/1A2sPpyUuPB*-yK3kQkyejUOYnDqDAwStX5ue8EyDDiI/edit?gid=0#gid=0), si querés ver cómo se ve en uso también. Esta hoja de cálculos se reinicia de a ratos, pero puede servir para ver al bot en uso :)
 
 ### Listas de compras
 
