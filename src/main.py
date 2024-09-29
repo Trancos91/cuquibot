@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     #Definiendo configuración por defecto del bot
     defaults = Defaults(parse_mode="HTML", tzinfo=timezone("America/Argentina/Buenos_Aires"))
-    print("Inicializando bot")
+    print("Inicializando bot...")
     print(f"Hora actual: {datetime.datetime.now(timezone("America/Argentina/Buenos_Aires"))}")
     app = Application.builder().token(config.TOKEN).defaults(defaults).build()
 
