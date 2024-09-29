@@ -284,9 +284,17 @@ class EditorSheet:
     #Métodos de despeje(también son setters)
     ##########################################################################
     def despejar_lista_compras(self, categoría: CategoríaCompras):
+        """
+        Despeja por completo una lista de compras.
+        """
         self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
 
     def despejar_compras(self, compras: list[str], categoría: CategoríaCompras = None):
+        """
+        Recibe una lista de strings; las compara con la lista de compras de la categoría indicada y
+        elimina cada ítem que coincidió de la lista de compras, a la vez que avisa al usuarix
+        qué ítems no encontró.
+        """
         #self.workbook.values_clear(f"'Listas de compras'!{categoría.value[2]}2:{categoría.value[2]}")
         compras_original = [str(x) for x in self.lista_compras.col_values(categoría.value[0] + 1)]
         compras_lower = [x.lower() for x in compras_original]
@@ -299,18 +307,18 @@ class EditorSheet:
             matches_cantidad = 0
             for compra_lower in compras_lower:
                 if compra in compra_lower:
-                    print(f"Encontrado {compra} in {compras_original[compras_lower.index(compra_lower)]}")
+                    #print(f"Encontrado {compra} in {compras_original[compras_lower.index(compra_lower)]}")
                     matches.append(compras_lower.index(compra_lower))
                     matches_cantidad += 1
 
             if not matches:
                 for compra_lower in compras_lower:
                     if unidecode(compra) in unidecode(compra_lower):
-                        print(f"Encontrado {compra} unidecodeada in {compras_original[compras_lower.index(compra_lower)]}")
+                        #print(f"Encontrado {compra} unidecodeada in {compras_original[compras_lower.index(compra_lower)]}")
                         matches.append(compras_lower.index(compra_lower))
                         matches_cantidad += 1
-                if not matches:
-                    compras_no_encontradas.append(compra)
+            if not matches:
+                compras_no_encontradas.append(compra)
             elif matches_cantidad > 1:
                 mensaje = ("Parece que encontré varios ítems en la lista con"
                     f" el parámetro {compra}:")
@@ -318,7 +326,9 @@ class EditorSheet:
                     mensaje += f"\n  • {compras_original[match]}"
                 return mensaje
             else:
+                #print("Un sólo match, appendeando el match a la lista índices a eliminar")
                 índices_a_eliminar.append(matches[0])
+                #print(f"Índices a eliminar: {índices_a_eliminar}")
         if not índices_a_eliminar:
             return False
         else:
@@ -339,9 +349,17 @@ class EditorSheet:
             return mensaje
     
     def despejar_lista_tareas(self):
+        """
+        Despeja por completo la lista de tareas.
+        #### ESTE MÉTODO DEBE SER REEMPLAZADO POR EL NUEVO DE LA LISTA DE COMPRAS ####
+        """
         self.workbook.values_clear("'Tareas de la casa'!A2:A")
 
     def despejar_tarea(self, tarea):
+        """
+        Despeja una tarea de la lista de tarea.
+        #### ESTE MÉTODO DEBE SER REEMPLAZADO POR EL NUEVO DE LA LISTA DE COMPRAS ####
+        """
         tareas = [x for x in self.lista_tareas.col_values(1)]
         tarea = self.buscar_ítem(tarea, self.lista_tareas)
         if isinstance(tarea, str):
