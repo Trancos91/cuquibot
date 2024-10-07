@@ -12,9 +12,7 @@ class Respuestas:
     las palabras claves y los métodos asociados."""
     def __init__(self, texto: str, update: Update | None = None):
         self.lista_texto = [x.strip() for x in texto.split(",")]
-        print(f"lista_texto: {self.lista_texto}")
         self.lista_texto_procesado = [unidecode(x.lower()) for x in self.lista_texto]
-        print(f"lista_texto_procesado: {self.lista_texto_procesado}")
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
@@ -167,17 +165,22 @@ class Respuestas:
         """
         Itera sobre cada tarea y chequea si llamó alguna función.
         """
-        respuesta = ""
+        respuestas = []
         for índice, texto_item in enumerate(self.lista_texto_procesado):
             print(f"Corriendo respuestas() para '{texto_item}'")
             for key in self.config_tareas:
                 self.texto = self.lista_texto[índice]
-                respuesta_local = self.chequear_presencia(texto_item, self.config_tareas[key])
-                if respuesta_local:
-                    respuesta += respuesta_local
-                    respuesta += "\n----------\n"
+                try: 
+                    respuesta_local = self.chequear_presencia(texto_item, self.config_tareas[key])
+                except Exception as e:
+                    respuestas.append(f"Hubo un error al intentar realizar la acción "
+                        f"asociada a la palabra clave '{self.texto}'")
+                    print(f"Error al intentar ejecutar palabra clave '{self.texto}': {e}")
                     break
-        return respuesta if respuesta else "No entendí"
+                if respuesta_local:
+                    respuestas.append(respuesta_local)
+                    break
+        return  "\n------------------------------\n".join(respuestas) if respuestas else "No entendí"
 
     def chequear_presencia(self, texto_item, categoría):
         """
