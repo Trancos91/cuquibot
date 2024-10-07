@@ -11,6 +11,10 @@ class Respuestas:
     y de llamar los métodos apropiados. Utiliza diccionarios para almacenar
     las palabras claves y los métodos asociados."""
     def __init__(self, texto: str, update: Update | None = None):
+        self.lista_texto = [x.strip() for x in texto.split(",")]
+        print(f"lista_texto: {self.lista_texto}")
+        self.lista_texto_procesado = [unidecode(x.lower()) for x in self.lista_texto]
+        print(f"lista_texto_procesado: {self.lista_texto_procesado}")
         self.texto = texto
         self.texto_procesado = unidecode(texto.lower())
         self.update = update
@@ -163,20 +167,26 @@ class Respuestas:
         """
         Itera sobre cada tarea y chequea si llamó alguna función.
         """
-        for key in self.config_tareas:
-            respuesta = self.chequear_presencia(self.config_tareas[key])
-            if respuesta:
-                break
+        respuesta = ""
+        for índice, texto_item in enumerate(self.lista_texto_procesado):
+            print(f"Corriendo respuestas() para '{texto_item}'")
+            for key in self.config_tareas:
+                self.texto = self.lista_texto[índice]
+                respuesta_local = self.chequear_presencia(texto_item, self.config_tareas[key])
+                if respuesta_local:
+                    respuesta += respuesta_local
+                    respuesta += "\n----------\n"
+                    break
         return respuesta if respuesta else "No entendí"
 
-    def chequear_presencia(self, categoría):
+    def chequear_presencia(self, texto_item, categoría):
         """
         Chequea la presencia de las palabras clave en las palabras del mensaje.
         Si están, agrupa los argumentos en una tupla(en caso de que no estuviesen
         agrupados ya) y llama la función indicada pasándole los argumentos. Si
         la función devuelve algo, lo devuelve, y si no, devuelve el mensaje de error.
         """
-        if any(word in self.texto_procesado for word in categoría[0]):
+        if any(word in texto_item for word in categoría[0]):
             if isinstance(categoría[2], Sequence):
                 tupla_categoría = categoría[2]
             else:
