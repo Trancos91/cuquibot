@@ -98,6 +98,14 @@ async def recordatorios_quehaceres(context: ContextTypes.DEFAULT_TYPE):
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"Update {update} causó el siguiente error: \n{context.error}")
+    if "Timed out" in str(context.error):
+        await update.message.reply_text("⚠️ Uy! Recibí un error de 'Timed out'. "
+            "Esto normalmente pasa cuando no pude conectar con el servidor de Telegram, "
+            "pero después de haber realizado las operaciones que me solicitaste.\n"
+            "ℹ️ Las acciones que pediste que haga probablemente se hicieron, pero si querés asegurarte, "
+            "podés enviarme el mismo mensaje de nuevo!")
+    if update is not None:
+        await update.message.reply_text("Uy! Tuve un error corriendo este código.")
 
 ##########################################################################
 #Métodos de inicialización
