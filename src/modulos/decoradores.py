@@ -6,6 +6,10 @@ import modulos.config as config
 
 
 def requiere_usuarix(func):
+    """
+    Decorador para comandos que requieran un usuarix reconocidx por el bot para
+    ser ejecutados.
+    """
     def chequear_usuarix(update: Update):
         id = str(update.message.from_user.id)
         with open("secretos/config.toml", "rb") as file:
@@ -28,6 +32,9 @@ def requiere_usuarix(func):
     return wrapper
 
 def logea(func):
+    """
+    Comandos que se registran en el log.
+    """
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if config.LOG:
             ahora = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
