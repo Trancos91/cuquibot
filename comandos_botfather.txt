@@ -2,6 +2,7 @@ start - inicializa el bot
 help - provee ayuda
 agregartareas - agregar tareas a la lista de tareas
 agregarcompras - agregar ítems a una lista de compras
+agregarfactura - agregar una factura al registro de facturas
 registrarviveres - agregar víveres al registro de ídem para ver cuánto nos duran
 despejarlistatareas - despejar la lista completa de tareas
 despejarlistacompras - despejar completa una lista de compras

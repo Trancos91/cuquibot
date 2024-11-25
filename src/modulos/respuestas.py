@@ -94,6 +94,13 @@ class Respuestas:
             "farmacia": ["farmacia", "farmacity", "farma"],
             "varias": ["varias", "varios"]
         }
+
+        self.lista_facturas = {
+            "luz": ["luz", "electricidad", "electrico", "electrica", "energia"],
+            "abl": ["abl", "alumbrado", "barrido"],
+            "expensas": ["expensas", "exp"],
+            "internet": ["internet", "fibertel", "telecentro", "inter"]
+        }
         # Diccionario que asocia funciones, argumentos, y las listas de palabras que
         # llamarían a dichas funciones
         # FORMATO: (lista de palabras clave, función a llamar, argumento a pasar,

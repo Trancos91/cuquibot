@@ -174,6 +174,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('despejarregistrado', comandos.despejarregistrado_command))
     app.add_handler(CommandHandler('desactivarrecordatorio', comandos.desactivarrecordatorio_command))
     app.add_handler(CommandHandler('activarrecordatorio', comandos.activarrecordatorio_command))
+    app.add_handler(CommandHandler('agregarfactura', comandos.agregarfactura_command))
 
     # Comandos "secretos"(no figuran en la lista de comandos del bot)
     app.add_handler(CommandHandler('registrarusuarix', comandos.registrarusuarix_command))

@@ -284,6 +284,26 @@ async def activarrecordatorio_command(update: Update, context: ContextTypes.DEFA
         await update.message.reply_text("No encontré la categoría que indicaste de recordatorio!"
             " En la refe podés encontrar las categorías :)")
 
+@requiere_usuarix
+@logea
+async def agregarfactura_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    editor = EditorSheet()
+    args = context.args
+    procesados = procesar_parámetros(args, 3)
+    if error := chequear_contenido_parámetros(procesados, 2):
+        await update.message.reply_text(error)
+        return
+    else:
+        categoría, valor = procesados
+
+    if categoría_obj := chequear_categoría_facturas(categoría):
+        categoría_facturas = categoría_obj
+    else:
+        await update.message.reply_text("No encontré la lista :(")
+        return
+
+    await update.message.reply_text(editor.agregar_factura(valor, categoría=categoría_facturas))
+
 ##########################################################################
 # Métodos auxiliares
 ##########################################################################
@@ -367,6 +387,18 @@ def chequear_categoría_compras(categoría: str):
         if categoría in lista_palabras[key]:
             categoría = key.upper()
             categoría_obj = getattr(EditorSheet.CategoríaCompras, categoría)
+            return categoría_obj
+
+
+def chequear_categoría_facturas(categoría: str):
+    """Itera sobre  las listas de palabras de cada categoría clave(presentes en listas_compras
+    del módulo de Respuestas) y extrae la CategoríaCompras correspondiente"""
+    lista_palabras = Respuestas("", None).lista_facturas
+    categoría = categoría.strip()
+    for key in lista_palabras:
+        if categoría in lista_palabras[key]:
+            categoría = key.upper()
+            categoría_obj = getattr(EditorSheet.CategoríaFacturas, categoría)
             return categoría_obj
 
 async def procesar_boton_despejar(update: Update, context: ContextTypes.DEFAULT_TYPE):

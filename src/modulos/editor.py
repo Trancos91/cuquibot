@@ -1,5 +1,6 @@
 import re
 import tomllib
+import json
 from datetime import date, datetime
 from enum import Enum
 import gspread
@@ -20,12 +21,14 @@ class EditorSheet:
             self.workbook = self.gc.open_by_url(config["google"]["worksheet_url"])
         except gspread.exceptions.SpreadsheetNotFound as e:
             print(e)
+        # Definiendo usuarix que está usando
         # Cargando las varias worksheets a variables
         self.lista_compras = self.workbook.worksheet("Listas de compras")
         self.lista_tareas = self.workbook.worksheet("Tareas de la casa")
         self.quehaceres = self.workbook.worksheet("Registro de quehaceres")
         self.registro_compras = self.workbook.worksheet("Registro de víveres")
         self.duración_víveres = self.workbook.worksheet("Duración de víveres")
+        self.facturas = self.workbook.worksheet("Registro de facturas")
         # Lista de flags de ubicaciones para los parámetros que lo requieren
         self.lista_flags_ubicaciones = (
             ("h", "la habitación"),
@@ -84,6 +87,17 @@ class EditorSheet:
         LAVARROPAS = (15, "limpiar el lavarropas", "P", 0)
         HELADERA = (16, "limpiar la heladera", "Q", 0)
 
+    class CategoríaFacturas(Enum):
+        """
+        La primera int se refiere a la posición del ítem en la lista,
+        el string se refiere al verbo, y el string de la letra a su columna en la sheet.
+        """
+        MES = (0, "el mes", "A")
+        LUZ = (1, "la luz", "B")
+        ABL = (2, "el ABL", "C")
+        EXPENSAS = (3, "las expensas", "D")
+        INTERNET = (4, "el internet", "E")
+        ESTADO = (5, "el estado de pagos", "F")
 
     ##########################################################################
     #Métodos setter
@@ -280,6 +294,52 @@ class EditorSheet:
             self.duración_víveres.update_cell(búsqueda.row, columna, duración)
             return mensaje_comienzo + mensaje_final
 
+    def agregar_factura(self, valor, categoría: CategoríaFacturas):
+        # Convierte valor de str a int
+        valor = self.formatear_string_plata(valor)
+        try:
+            valor = float(valor)
+        except ValueError:
+            return ("El valor que ingresaste no parece ser válido! Procurá usar "
+            "el formato '5.000,49', con puntos para separar miles y comas para "
+            "separar fracciones")
+
+        # Define variables necesarias para chequear el día
+        ultima_row = self.facturas.row_values(len(self.facturas.col_values(1)))
+        num_ultima_row = len(self.facturas.col_values(1))
+
+        # Intenta obtener la fecha de la columna, y si no lo consigue la deja vacía
+        try:
+            fecha_row = datetime.strptime(ultima_row[0], "%Y/%m").date()
+        except ValueError: # En caso de que no haya ningún día ingresado previamente
+            fecha_row = None
+        # Agrega row del día de hoy si no existía
+        fecha_hoy = date.today().strftime("%Y/%m")
+        if self.facturas.cell(num_ultima_row, 1).value != fecha_hoy:
+            num_ultima_row += 1
+            self.facturas.update_cell(num_ultima_row, 1, fecha_hoy)
+            print(f"Creada nueva celda del día: {self.facturas.cell(num_ultima_row + 1, 1).value}")
+        else:
+            if fecha_row: fecha_hoy = fecha_row.strftime("%Y/%m")
+        
+        ### ESTE CÓDIGO DEBERÍA SER PARA CUANDO SE ACCEDE A LA INFO Y NO PARA CUANDO SE CREA ###
+        # Revisa si hay un registro de quiénes pagaron su parte de la factura
+            #if registro := self.facturas.cell(num_ultima_row + 1, self.CategoríaFacturas.ESTADO.value[0]):
+            #    estado_pagos = json.loads(registro.value)
+            #else:
+            #    estado_pagos = {}
+        ########################################################################################
+
+        if celda := self.facturas.cell(num_ultima_row, categoría.value[0] + 1).value:
+            celda = float(self.formatear_string_plata(celda))
+            return ("⚠️ Parece que ya anotaron esta factura! Indica que el valor de "
+            f"{categoría.value[1]} de este mes es de ${self.formatear_valor_plata(celda)}")
+        else:
+            self.facturas.update_cell(num_ultima_row, categoría.value[0] + 1, valor)
+
+        return (f"✅ Ahí ingresé la factura de {categoría.value[1]} de "
+                f"${self.formatear_valor_plata(valor)}")
+
     ##########################################################################
     #Métodos de despeje(también son setters)
     ##########################################################################
@@ -313,7 +373,7 @@ class EditorSheet:
 
             if not matches:
                 for compra_lower in compras_lower:
-                    if unidecode(compra) in unidecode(compra_lower):
+                    if unidecode(compra) in unidecode(compra_lower.strip()):
                         #print(f"Encontrado {compra} unidecodeada in {compras_original[compras_lower.index(compra_lower)]}")
                         matches.append(compras_lower.index(compra_lower))
                         matches_cantidad += 1
@@ -661,6 +721,27 @@ class EditorSheet:
             mensaje += mensaje_agregado
             mensaje_agregado = ""
         return mensaje
+
+    def formatear_valor_plata(self, valor):
+        """
+        Formatea una int o float a un valor legible de dinero, como "$10.123,54"
+        """
+        texto = f"{valor:_}"
+        texto = texto[::-1]
+        if texto.startswith("0."): texto = texto.replace("0.", "", 1)
+        texto = texto[::-1]
+        texto = texto.replace(".", ",")
+        texto = texto.replace("_", ".")
+        return texto
+
+    def formatear_string_plata(self, valor):
+        """
+        Formatea un string de formato "12.345,67" a float
+        """
+        valor = valor.replace("$", "")
+        valor = valor.replace(".", "")
+        valor = valor.replace(",", ".")
+        return valor
 
     ##########################################################################
     # Misceláneos
