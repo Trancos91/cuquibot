@@ -5,3 +5,5 @@ src/secretos/credentials.json
 src/secretos/configreal.toml
 actualizar.sh
 actualizar-cuquibot.py
+comenzar.sh
+terminar.sh
